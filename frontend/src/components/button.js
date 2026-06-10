@@ -1,15 +1,15 @@
 import { Icon } from "./icon.js";
 
 const SOCIAL = {
-  google: "./assets/icons/social/google.svg",
-  github: "./assets/icons/social/github.svg",
-  facebook: "./assets/icons/social/facebook.svg",
+  google : "./assets/icons/social/google.svg",
+  github : "./assets/icons/social/github.svg",
+  facebook : "./assets/icons/social/facebook.svg",
 }
 
 const TEMPLATES = {
-  default: `<button data-button><span data-label></span></button>`,
-  wicon: `<button data-button><div data-icon></div><span data-label></span></button>`,
-  auth: `<button data-button><img data-auth></button>`,
+  default : `<button data-button><span data-label></span></button>`,
+  wicon : `<button data-button><div data-icon></div><span data-label></span></button>`,
+  auth : `<button data-button><img data-auth></button>`,
 }
 
 /**
@@ -37,7 +37,7 @@ export function Button(label, variant = "default", icon = null, social = null) {
     labelSlot.textContent = label;
   }
 
-  if (variant === "wicon") {
+  if (variant === "wicon") { 
     const iconSlot = element.querySelector("[data-icon]");
     iconSlot.appendChild(Icon(icon));
   }
