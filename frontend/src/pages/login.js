@@ -8,9 +8,9 @@ export function loginApp() {
 
     const html = `
         <h1>Login</h1>
-        <div >
-            <div ></div>
-            <div ></div>
+        <div>
+            <div></div>
+            <div></div>
         </div>
     `
 }
