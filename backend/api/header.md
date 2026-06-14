@@ -27,7 +27,23 @@ Entity      →  representação das tabelas do PostgreSQL
 ## Tabelas — PostgreSQL
 
 ```
-[ ADICIONAR REPRESENTAÇÃO DAS TABELAS AQUI ]
+USUARIOS
+│
+├── 1:N ── PRODUTOS
+│             ├── 1:N ── FOTOS
+│             ├── N:N ── CATEGORIAS
+│             ├── 1:N ── PAGAMENTO
+│             ├── N:N ── BIBLIOTECA_USUARIOS
+│             ├── 1:N ── AVALIACOES
+│             └── 0:N ── BUSCAS
+│
+├── 1:1 ── CARRINHO
+│             └── 1:N ── CARRINHO_ITENS ── N:1 ── PRODUTOS
+│
+├── 1:N ── PAGAMENTO
+├── 1:N ── AVALIACOES
+├── N:N ── BIBLIOTECA_USUARIOS
+└── 1:N ── BUSCAS
 ```
 
 ---
