@@ -1,7 +1,8 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase.js";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase.js";
 
-async function login(email, senha) {
+export async function login(email, senha) {
   try {
     const userCredential =
       await signInWithEmailAndPassword(
@@ -13,5 +14,17 @@ async function login(email, senha) {
     console.log("Logado:", userCredential.user);
   } catch (error) {
     console.error(error.message);
+    throw error;
+  }
+}
+
+export async function loginWithGoogle() {
+  try {
+    const userCredential = await signInWithPopup(auth, googleProvider);
+
+    console.log("Logado com Google:", userCredential.user);
+  } catch (error) {
+    console.error(error.message);
+    throw error;
   }
 }

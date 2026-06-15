@@ -1,0 +1,884 @@
+
+```markdown
+# Blueprint de Implementação: Marketplace de Jogos (Estilo PSN/GOG)
+
+## 📌 Contexto e Diretrizes Gerais para a IA Executora
+[cite_start]Este é um projeto de Marketplace de Jogos Digitais construído exclusivamente com **JavaScript Vanilla**, **Vite** e **Tailwind CSS**[cite: 1341, 1343, 1344]. [cite_start]A implementação deve focar estritamente na pasta `/src/`[cite: 1341]. [cite_start]O backend real será desenvolvido futuramente em Spring Boot com PostgreSQL, portanto toda a camada de dados inicial deve ser alimentada por **Mocks reativos baseados em Promises**[cite: 1346, 1381, 1436].
+
+### 🛠 Regras de Ouro de Desenvolvimento:
+1. [cite_start]**Manipulação de Imagens:** Exceto logotipos e ícones óbvios, **todas** as imagens de jogos (capas, banners, screenshots) devem ser renderizadas utilizando propriedades CSS de `background-image` (com `bg-cover bg-center`) em tags `<div>`, pois facilita a manipulação de layout responsivo flexível[cite: 1350, 1390].
+2. **Layout Responsivo:** Foque na estruturação usando Flexbox e CSS Grid responsivos do Tailwind (usando prefixos `md:`, `lg:`). [cite_start]A estilização estética fina não é prioridade, mas a estrutura e usabilidade de layouts flexíveis sim[cite: 1345].
+3. **Navegação SPA:** Não use links tradicionais que recarregam a página ou rotas com hash (`#/`). [cite_start]Use a History API (`pushState`) interceptando cliques em elementos com o atributo `data-link`[cite: 1395, 1396, 1427, 1434].
+4. [cite_start]**Reatividade:** Toda alteração de estado (login, carrinho, wishlist) deve atualizar os componentes de forma reativa através de um padrão centralizado de Store (sem espalhar `localStorage` diretamente pelas páginas)[cite: 1436, 1437].
+
+---
+
+## 📂 Mapa Arquitetural da `/src`
+A estrutura física final de arquivos que deve ser criada ao longo das sprints é a seguinte:
+```text
+src/
+├── app/
+│   ├── router/          # Roteador customizado SPA
+│   └── layouts/         # Templates de layout (Público/Privado)
+├── core/
+│   ├── firebase/        # Configuração do Firebase Auth
+│   └── storage/         # Persistência local do estado
+├── store/               # Gerenciador de Estado Global (Redux-like)
+├── services/            # Camada de comunicação com APIs/Mocks
+├── components/          # Componentes visuais reaproveitáveis
+│   ├── layout/          # Navbar, Footer, Sidebar
+│   └── ui/              # Botões, Inputs, Cards genéricos
+├── pages/               # Páginas/Telas do sistema
+├── mocks/               # Dados fictícios para simulação de banco
+├── assets/              # Elementos estáticos locais
+└── main.js              # Ponto de entrada da aplicação
+
+```
+
+---
+
+## 🚀 SPRINT 1: Infraestrutura de Roteamento SPA Vanilla
+
+**Objetivo:** Configurar o ciclo de vida da aplicação e o roteador Single Page Application usando a History API nativa.
+
+### Instruções de Implementação:
+
+1. Crie o arquivo `src/app/router/navigate.js` para disparar eventos de navegação global.
+
+
+2. Crie o arquivo `src/app/router/matchRoute.js` para processar parâmetros dinâmicos de URL (ex: extrair o valor de `:slug` em `/game/:slug`).
+
+
+3. Crie o arquivo `src/app/router/guards.js` para gerenciar a proteção de rotas privadas.
+
+
+4. Crie o arquivo `src/app/router/routes.js` contendo o mapa de rotas e o carregamento sob demanda (*Lazy Loading*) usando imports dinâmicos.
+
+
+5. Crie o mecanismo central em `src/app/router/router.js` que intercepta cliques com `data-link` e renderiza as páginas no elemento `#app` do `index.html`.
+
+
+
+### Códigos de Referência Técnicos:
+
+```javascript
+// src/app/router/navigate.js
+export function navigate(path) {
+    history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+```
+
+```javascript
+// src/app/router/matchRoute.js
+export function matchRoute(pathname, routePath) {
+    const routeParts = routePath.split("/");
+    const currentParts = pathname.split("/");
+    if (routeParts.length !== currentParts.length) return null;
+    const params = {};
+    for (let i = 0; i < routeParts.length; i++) {
+        if (routeParts[i].startsWith(":")) {
+            params[routeParts[i].slice(1)] = currentParts[i];
+            continue;
+        }
+        if (routeParts[i] !== currentParts[i]) return null;
+    }
+    return params;
+}
+
+```
+
+```javascript
+// src/app/router/router.js
+import { routes } from "./routes";
+import { matchRoute } from "./matchRoute";
+import { navigate } from "./navigate";
+
+class RouterClass {
+    async render() {
+        const pathname = location.pathname;
+        const app = document.getElementById("app");
+        
+        for (const route of routes) {
+            if (route.redirect && pathname === route.path) {
+                navigate(route.redirect);
+                return;
+            }
+            const params = matchRoute(pathname, route.path);
+            if (!params) continue;
+
+            // Placeholder para o Guard (implementado na Sprint 2)
+            const token = localStorage.getItem("access_token");
+            if (route.private && !token) {
+                navigate("/login");
+                return;
+            }
+
+            const module = await route.page();
+            const html = await module.default(params);
+            app.innerHTML = html;
+            if (module.afterRender) module.afterRender(params);
+            return;
+        }
+        // 404 fallback
+        app.innerHTML = `<div class="p-8 text-center"><h1>404 - Página Não Encontrada</h1><a href="/hub" data-link>Voltar ao Hub</a></div>`;
+    }
+
+    init() {
+        window.addEventListener("popstate", () => this.render());
+        window.addEventListener("rerender", () => this.render());
+        document.addEventListener("click", e => {
+            const link = e.target.closest("[data-link]");
+            if (!link) return;
+            e.preventDefault();
+            navigate(link.getAttribute("href"));
+        });
+        this.render();
+    }
+}
+export const Router = new RouterClass();
+
+```
+
+```javascript
+// src/app/router/routes.js
+export const routes = [
+    { path: "/", redirect: "/hub" },
+    { path: "/login", page: () => import("../../pages/auth/LoginPage") },
+    { path: "/hub", page: () => import("../../pages/hub/HubPage") },
+    { path: "/game/:slug", page: () => import("../../pages/game/GamePage") },
+    { path: "/profile", private: true, page: () => import("../../pages/profile/ProfilePage") },
+    { path: "/wishlist", private: true, page: () => import("../../pages/wishlist/WishlistPage") },
+    { path: "/cart", private: true, page: () => import("../../pages/cart/CartPage") },
+    { path: "/library", private: true, page: () => import("../../pages/library/LibraryPage") }
+];
+
+```
+
+---
+
+## 🚀 SPRINT 2: Gerenciamento de Estado Global Reativo (Store)
+
+**Objetivo:** Criar um fluxo previsível de estado único (estilo Redux/Zustand) que gerencie Usuário logado, Carrinho, Wishlist e Biblioteca, propagando atualizações visuais automaticamente.
+
+### Instruções de Implementação:
+
+1. Crie o arquivo `src/store/createStore.js` implementando o padrão de subscrição e listeners.
+
+
+2. Crie o gerenciador local de persistência em `src/core/storage/storage.js` para evitar a perda do estado global em atualizações de página (F5).
+
+
+3. Instancie o estado em `src/store/store.js` acoplado ao `Storage` de salvamento automático.
+
+
+4. Centralize modificações de dados em `src/store/actions.js` disparando um evento global de `rerender` para o roteador.
+
+
+5. Crie seletores limpos em `src/store/selectors.js` para leitura do estado.
+
+
+
+### Códigos de Referência Técnicos:
+
+```javascript
+// src/store/createStore.js
+export function createStore(initialState) {
+    let state = initialState;
+    const listeners = [];
+    const getState = () => state;
+    const setState = (updater) => {
+        state = typeof updater === "function" ? updater(state) : updater;
+        listeners.forEach(listener => listener(state));
+    };
+    const subscribe = (listener) => {
+        listeners.push(listener);
+        return () => {
+            const index = listeners.indexOf(listener);
+            if (index >= 0) listeners.splice(index, 1);
+        };
+    };
+    return { getState, setState, subscribe };
+}
+
+```
+
+```javascript
+// src/store/store.js
+import { createStore } from "./createStore";
+const loadPersisted = () => JSON.parse(localStorage.getItem("app_store")) || null;
+
+export const Store = createStore(loadPersisted() || {
+    user: null,
+    cart: [],
+    wishlist: [],
+    library: [],
+    loading: false
+});
+
+Store.subscribe(state => {
+    localStorage.setItem("app_store", JSON.stringify(state));
+});
+
+```
+
+```javascript
+// src/store/actions.js
+import { Store } from "./store";
+
+export const Actions = {
+    setUser(user) {
+        Store.setState(state => ({ ...state, user }));
+        window.dispatchEvent(new CustomEvent("rerender"));
+    },
+    logout() {
+        localStorage.removeItem("access_token");
+        Store.setState(state => ({ ...state, user: null, cart: [], wishlist: [], library: [] }));
+        window.dispatchEvent(new CustomEvent("rerender"));
+    },
+    addToCart(game) {
+        Store.setState(state => {
+            if (state.cart.some(item => item.id === game.id)) return state;
+            return { ...state, cart: [...state.cart, game] };
+        });
+        window.dispatchEvent(new CustomEvent("rerender"));
+    },
+    removeFromCart(gameId) {
+        Store.setState(state => ({ ...state, cart: state.cart.filter(item => item.id !== gameId) }));
+        window.dispatchEvent(new CustomEvent("rerender"));
+    },
+    toggleWishlist(game) {
+        Store.setState(state => {
+            const exists = state.wishlist.some(item => item.id === game.id);
+            const wishlist = exists ? state.wishlist.filter(item => item.id !== game.id) : [...state.wishlist, game];
+            return { ...state, wishlist };
+        });
+        window.dispatchEvent(new CustomEvent("rerender"));
+    },
+    purchaseCart() {
+        Store.setState(state => ({
+            ...state,
+            library: [...state.library, ...state.cart],
+            cart: []
+        }));
+        window.dispatchEvent(new CustomEvent("rerender"));
+    }
+};
+
+```
+
+---
+
+## 🚀 SPRINT 3: Camada de Serviços & Mocks de Dados
+
+**Objetivo:** Isolar as chamadas de interface usando Mocks estruturados sob contratos idênticos aos da futura API Spring Boot, retornando Promises assíncronas para que a substituição futura não afete a camada visual.
+
+### Instruções de Implementação:
+
+1. Crie o arquivo `src/mocks/games.mock.js` mapeando registros complexos que respeitem a arquitetura relacional do banco de dados (título, preço, descrição, screenshots baseadas no picsum, requisitos de sistema e idiomas suportados).
+
+
+2. Crie `src/services/games/games.service.js` expondo os métodos assíncronos simulados (`list()`, `getBySlug(slug)`).
+
+
+
+### Código de Referência Técnico:
+
+```javascript
+// src/mocks/games.mock.js
+export const mockGames = [
+    {
+        id: "d3b07384-d113-4e4e-a57e-7977b3b3a60a",
+        title: "Cyberpunk 2077",
+        slug: "cyberpunk-2077",
+        short_description: "Uma história de aventura de ação de mundo aberto na megalópole de Night City.",
+        long_description: "Cyberpunk 2077 é um RPG de ação e aventura em mundo aberto ambientado na megalópole de Night City, onde você joga como um mercenário cyberpunk envolvido em uma luta de vida ou morte pela sobrevivência. Com melhorias visuais e de jogabilidade avançadas.",
+        price: 199.90,
+        release_date: "2020-12-10",
+        publisher: "CD PROJEKT RED",
+        cover_url: "[https://picsum.photos/id/1067/400/600](https://picsum.photos/id/1067/400/600)",
+        banner_url: "[https://picsum.photos/id/1067/1920/1080](https://picsum.photos/id/1067/1920/1080)",
+        screenshots: [
+            "[https://picsum.photos/id/1003/800/450](https://picsum.photos/id/1003/800/450)",
+            "[https://picsum.photos/id/1015/800/450](https://picsum.photos/id/1015/800/450)",
+            "[https://picsum.photos/id/1018/800/450](https://picsum.photos/id/1018/800/450)"
+        ],
+        requirements: {
+            minimum: { os: "Windows 10 64-bit", cpu: "Intel Core i5-3570K", ram: "12 GB", gpu: "GTX 780", storage: "70 GB SSD" },
+            recommended: { os: "Windows 10 64-bit", cpu: "Intel Core i7-4790", ram: "16 GB", gpu: "GTX 1060 6GB", storage: "70 GB SSD" }
+        },
+        languages: ["Português (BR)", "Inglês", "Espanhol", "Francês"]
+    },
+    {
+        id: "a4f18923-b224-4f5f-b67f-8988c4c4b71b",
+        title: "The Witcher 3: Wild Hunt",
+        slug: "the-witcher-3",
+        short_description: "Torne-se um caçador de monstros profissional e embarque em uma aventura de proporções épicas!",
+        long_description: "O RPG de mundo aberto mais premiado de uma geração está refinado e aprimorado. Você é Geralt de Rívia, um caçador de monstros mercenário, em um continente devastado pela guerra e infestado de monstros que você pode explorar à vontade.",
+        price: 129.90,
+        release_date: "2015-05-19",
+        publisher: "CD PROJEKT RED",
+        cover_url: "[https://picsum.photos/id/1025/400/600](https://picsum.photos/id/1025/400/600)",
+        banner_url: "[https://picsum.photos/id/1025/1920/1080](https://picsum.photos/id/1025/1920/1080)",
+        screenshots: [
+            "[https://picsum.photos/id/1022/800/450](https://picsum.photos/id/1022/800/450)",
+            "[https://picsum.photos/id/1024/800/450](https://picsum.photos/id/1024/800/450)"
+        ],
+        requirements: {
+            minimum: { os: "Windows 7/8 64-bit", cpu: "Intel i5-2500K", ram: "6 GB", gpu: "GTX 660", storage: "40 GB" },
+            recommended: { os: "Windows 10 64-bit", cpu: "Intel i7-3770", ram: "8 GB", gpu: "GTX 770", storage: "40 GB" }
+        },
+        languages: ["Português (BR)", "Inglês", "Polonês"]
+    }
+];
+
+```
+
+```javascript
+// src/services/games/games.service.js
+import { mockGames } from "../../mocks/games.mock";
+
+export const GamesService = {
+    async list() {
+        return new Promise(resolve => setTimeout(() => resolve(mockGames), 200));
+    },
+    async getBySlug(slug) {
+        return new Promise(resolve => {
+            const game = mockGames.find(g => g.slug === slug);
+            setTimeout(() => resolve(game || null), 150);
+        });
+    }
+};
+
+```
+
+---
+
+## 🚀 SPRINT 4: Estrutura do Firebase Auth & Sessão
+
+**Objetivo:** Preparar a infraestrutura de autenticação do Firebase no front-end habilitando o fluxo do Google Login e alimentando o estado do usuário logado localmente.
+
+### Instruções de Implementação:
+
+1. Crie o arquivo inicial de inicialização `src/core/firebase/firebase.js`. Deixe mapeado o arquivo estrutural básico consumindo variáveis de ambiente padrão do Vite (`import.meta.env`).
+
+
+2. Crie `src/services/auth/auth.service.js` contendo funções mockadas funcionais que simulam a emissão de tokens JWT aceitos futuramente pelo Spring Security, sincronizados diretamente com as `Actions` da Store.
+
+
+
+### Código de Referência Técnico:
+
+```javascript
+// src/services/auth/auth.service.js
+import { Actions } from "../../store/actions";
+
+export const AuthService = {
+    async loginGoogleSimulado() {
+        return new Promise(resolve => {
+            const fakeUser = {
+                uid: "usr_google_12345",
+                email: "jogador@email.com",
+                name: "Jogador de Testes",
+                avatar: "[https://picsum.photos/id/64/150/150](https://picsum.photos/id/64/150/150)",
+                bio: "Apaixonado por RPGs táticos e jogos retrô de PC."
+            };
+            localStorage.setItem("access_token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mockToken");
+            Actions.setUser(fakeUser);
+            resolve(fakeUser);
+        });
+    },
+    async logout() {
+        Actions.logout();
+    }
+};
+
+```
+
+---
+
+## 🚀 SPRINT 5: Layouts Base & Componentes Visuais Compartilhados
+
+**Objetivo:** Construir os componentes estruturais globais que envelopam as telas, injetando reatividade nos contadores visuais e menus de contexto.
+
+### Instruções de Implementação:
+
+1. Crie os componentes de estrutura reutilizáveis em `src/components/layout/Navbar.js` e `Footer.js`.
+
+
+2. Na **Navbar**, recupere os dados da Store dinamicamente para exibir o nome do usuário logado (ou botão de login) e os contadores numéricos dinâmicos no ícone do Carrinho e da Wishlist.
+
+
+3. Desenvolva `src/components/layout/SidebarAccount.js` com os links internos de navegação da conta do usuário.
+
+
+4. Crie os templates em `src/app/layouts/PublicLayout.js` (Navbar + Conteúdo + Footer) e `src/app/layouts/PrivateLayout.js` (Navbar + Container com Sidebar Lateral + Conteúdo + Footer).
+
+
+
+### Código de Referência Técnico:
+
+```javascript
+// src/components/layout/Navbar.js
+import { Store } from "../../store/store";
+
+export default function Navbar() {
+    const state = Store.getState();
+    const userBlock = state.user 
+        ? `<div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-cover bg-center" style="background-image: url('${state.user.avatar}')"></div>
+            <a href="/profile" class="text-sm font-medium hover:underline" data-link>${state.user.name}</a>
+            <button id="btn-logout" class="text-xs text-red-400 ml-2 hover:text-red-300">Sair</button>
+           </div>`
+        : `<button id="btn-login" class="px-4 py-2 bg-blue-600 rounded text-sm font-bold hover:bg-blue-500">Entrar com Google</button>`;
+
+    return `
+        <nav class="bg-zinc-900 text-white p-4 sticky top-0 z-50 shadow-md">
+            <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
+                <a href="/hub" class="text-xl font-black tracking-wider text-blue-500" data-link>GOG_PSN_STORE</a>
+                <div class="flex items-center gap-6">
+                    <a href="/hub" class="hover:text-blue-400 transition" data-link>Loja</a>
+                    <a href="/wishlist" class="relative hover:text-blue-400 transition" data-link>
+                        🔥 Desejos ${state.wishlist.length ? `<span class="absolute -top-2 -right-3 bg-red-500 text-xs px-1.5 rounded-full">${state.wishlist.length}</span>` : ""}
+                    </a>
+                    <a href="/cart" class="relative hover:text-blue-400 transition" data-link>
+                        🛒 Carrinho ${state.cart.length ? `<span class="absolute -top-2 -right-3 bg-blue-500 text-xs px-1.5 rounded-full">${state.cart.length}</span>` : ""}
+                    </a>
+                    <a href="/library" class="hover:text-blue-400 transition" data-link>Biblioteca</a>
+                </div>
+                <div>${userBlock}</div>
+            </div>
+        </nav>
+    `;
+}
+
+export function attachNavbarEvents() {
+    const loginBtn = document.getElementById("btn-login");
+    const logoutBtn = document.getElementById("btn-logout");
+    if (loginBtn) {
+        loginBtn.addEventListener("click", async () => {
+            const { AuthService } = await import("../../services/auth/auth.service");
+            await AuthService.loginGoogleSimulado();
+            const { navigate } = await import("../../app/router/navigate");
+            navigate("/hub");
+        });
+    }
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            const { AuthService } = await import("../../services/auth/auth.service");
+            await AuthService.logout();
+            const { navigate } = await import("../../app/router/navigate");
+            navigate("/hub");
+        });
+    }
+}
+
+```
+
+```javascript
+// src/app/layouts/PublicLayout.js
+import Navbar from "../../components/layout/Navbar";
+import Footer from "../../components/layout/Footer";
+
+export default function PublicLayout(contentHtml) {
+    return `
+        <div class="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 font-sans">
+            ${Navbar()}
+            <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+                ${contentHtml}
+            </main>
+            ${Footer ? Footer() : '<footer class="bg-zinc-900 p-4 text-center text-xs text-zinc-500 border-t border-zinc-800">© 2026 Game Marketplace</footer>'}
+        </div>
+    `;
+}
+
+```
+
+---
+
+## 🚀 SPRINT 6: Módulo de Loja (Hub & Página Dinâmica do Jogo)
+
+**Objetivo:** Criar o catálogo de jogos responsivo baseado em grids flexíveis e a visualização rica do jogo lendo o parâmetro da URL de forma dinâmica.
+
+### Instruções de Implementação:
+
+1. Desenvolva `src/pages/hub/HubPage.js`. Ela deve carregar os jogos de forma assíncrona do `GamesService` e listá-los em uma estrutura de CSS Grid altamente responsiva (`grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6`).
+
+
+2. Garanta que cada card de jogo injete a imagem de capa através de estilo inline com `background-image`.
+
+
+3. Crie `src/pages/game/GamePage.js`. Ela aceita o objeto `params`. Deve buscar o jogo específico utilizando o `params.slug`.
+
+
+4. Monte seções organizadas em blocos estruturados na página do jogo: Banner horizontal superior, Detalhes de preço, Botão de Compra, Galeria de Imagens em miniatura horizontais flexíveis, Requisitos Mínimos/Recomendados e Idiomas suportados.
+
+
+
+### Código de Referência Técnico:
+
+```javascript
+// src/pages/hub/HubPage.js
+import PublicLayout from "../../app/layouts/PublicLayout";
+import { attachNavbarEvents } from "../../components/layout/Navbar";
+import { GamesService } from "../../services/games/games.service";
+
+export default async function HubPage() {
+    const games = await GamesService.list();
+
+    const gridCards = games.map(game => `
+        <div class="bg-zinc-900 rounded-lg overflow-hidden flex flex-col border border-zinc-800 shadow-lg hover:border-zinc-700 transition">
+            <div class="h-72 w-full bg-cover bg-center" style="background-image: url('${game.cover_url}')"></div>
+            <div class="p-4 flex flex-col flex-1 justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-white tracking-tight line-clamp-1">${game.title}</h3>
+                    <p class="text-xs text-zinc-400 mt-1">${game.publisher}</p>
+                </div>
+                <div class="flex items-center justify-between mt-auto">
+                    <span class="text-blue-400 font-black text-xl">R$ ${game.price.toFixed(2)}</span>
+                    <a href="/game/${game.slug}" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded text-zinc-200 transition" data-link>Detalhes</a>
+                </div>
+            </div>
+        </div>
+    `).join("");
+
+    return PublicLayout(`
+        <div class="flex flex-col gap-8">
+            <div class="h-64 md:h-96 w-full rounded-2xl bg-cover bg-center flex items-end p-6 md:p-12 relative overflow-hidden" style="background-image: url('[https://picsum.photos/id/1067/1200/400](https://picsum.photos/id/1067/1200/400)')">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
+                <div class="relative z-10 max-w-xl">
+                    <span class="bg-blue-600 text-xs px-2 py-1 rounded font-bold uppercase text-white tracking-wider">Destaque da Semana</span>
+                    <h1 class="text-2xl md:text-5xl font-black text-white tracking-tight mt-2">EXPANSÃO DISPONÍVEL</h1>
+                    <p class="text-sm text-zinc-300 mt-2 line-clamp-2">Explore novos horizontes tecnológicos com conteúdos exclusivos adicionados diretamente na loja.</p>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-bold tracking-tight text-white mb-6 flex items-center gap-2">✨ Catálogo de Jogos</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    ${gridCards}
+                </div>
+            </div>
+        </div>
+    `);
+}
+
+export function afterRender() {
+    attachNavbarEvents();
+}
+
+```
+
+---
+
+## 🚀 SPRINT 7: Módulo Interativo: Carrinho & Lista de Desejos (Wishlist)
+
+**Objetivo:** Interligar as interações de ação dos botões da página de produto com a Store e desenhar as telas específicas de listagem de pedidos.
+
+### Instruções de Implementação:
+
+1. No arquivo `src/pages/game/GamePage.js`, capture os cliques nos botões através do método `afterRender(params)` instanciando as funções de `Actions.addToCart(game)` e `Actions.toggleWishlist(game)`.
+
+
+2. Crie `src/pages/cart/CartPage.js` listando os itens selecionados, calculando o valor acumulado da compra e inserindo um botão proeminente de "Finalizar Pedido".
+
+
+3. Crie `src/pages/wishlist/WishlistPage.js` listando os jogos favoritados com a opção de movê-los para o carrinho ou excluí-los da lista.
+
+
+
+### Código de Referência Técnico das Páginas:
+
+```javascript
+// src/pages/game/GamePage.js
+import PublicLayout from "../../app/layouts/PublicLayout";
+import { attachNavbarEvents } from "../../components/layout/Navbar";
+import { GamesService } from "../../services/games/games.service";
+import { Store } from "../../store/store";
+import { Actions } from "../../store/actions";
+
+export default async function GamePage(params) {
+    const game = await GamesService.getBySlug(params.slug);
+    if (!game) return PublicLayout(`<div class="p-12 text-center text-zinc-400">Jogo não encontrado.</div>`);
+
+    const state = Store.getState();
+    const isInCart = state.cart.some(item => item.id === game.id);
+    const isInWishlist = state.wishlist.some(item => item.id === game.id);
+    const isInLibrary = state.library.some(item => item.id === game.id);
+
+    let actionsHtml = "";
+    if (isInLibrary) {
+        actionsHtml = `<span class="block text-center py-3 bg-zinc-800 text-green-400 font-bold rounded-lg border border-green-900/30">✓ Adquirido (Na sua Biblioteca)</span>`;
+    } else {
+        actionsHtml = `
+            <button id="btn-add-cart" class="w-full py-3 ${isInCart ? "bg-zinc-800 text-zinc-400" : "bg-blue-600 hover:bg-blue-500 text-white"} font-bold rounded-lg transition" ${isInCart ? "disabled" : ""}>
+                ${isInCart ? "Já no Carrinho" : "🛒 Adicionar ao Carrinho"}
+            </button>
+            <button id="btn-toggle-wish" class="w-full py-2.5 border ${isInWishlist ? "border-red-500 text-red-400 bg-red-950/10" : "border-zinc-700 text-zinc-300 hover:bg-zinc-900"} font-semibold rounded-lg transition">
+                ${isInWishlist ? "❤️ Na Lista de Desejos" : "🤍 Adicionar à Lista de Desejos"}
+            </button>
+        `;
+    }
+
+    const screenshotsHtml = game.screenshots.map(src => `
+        <div class="aspect-video bg-cover bg-center rounded-lg border border-zinc-800" style="background-image: url('${src}')"></div>
+    `).join("");
+
+    return PublicLayout(`
+        <div class="flex flex-col gap-8">
+            <div class="h-48 md:h-80 w-full bg-cover bg-center rounded-2xl relative" style="background-image: url('${game.banner_url}')">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent"></div>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-8 items-start">
+                <div class="w-full lg:w-2/3 flex flex-col gap-6">
+                    <div>
+                        <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight">${game.title}</h1>
+                        <p class="text-sm text-blue-400 font-semibold mt-1">${game.publisher}</p>
+                    </div>
+                    <p class="text-zinc-300 leading-relaxed text-base">${game.long_description}</p>
+                    
+                    <div>
+                        <h2 class="text-lg font-bold text-white mb-3">🖼 Capturas de Tela</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">${screenshotsHtml}</div>
+                    </div>
+
+                    <div class="bg-zinc-900 p-5 rounded-xl border border-zinc-800 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                        <div>
+                            <h3 class="text-zinc-400 font-bold mb-2 uppercase tracking-wide text-xs">Requisitos Mínimos</h3>
+                            <p><strong class="text-zinc-300">SO:</strong> ${game.requirements.minimum.os}</p>
+                            <p><strong class="text-zinc-300">CPU:</strong> ${game.requirements.minimum.cpu}</p>
+                            <p><strong class="text-zinc-300">RAM:</strong> ${game.requirements.minimum.ram}</p>
+                            <p><strong class="text-zinc-300">GPU:</strong> ${game.requirements.minimum.gpu}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-zinc-400 font-bold mb-2 uppercase tracking-wide text-xs">Requisitos Recomendados</h3>
+                            <p><strong class="text-zinc-300">SO:</strong> ${game.requirements.recommended.os}</p>
+                            <p><strong class="text-zinc-300">CPU:</strong> ${game.requirements.recommended.cpu}</p>
+                            <p><strong class="text-zinc-300">RAM:</strong> ${game.requirements.recommended.ram}</p>
+                            <p><strong class="text-zinc-300">GPU:</strong> ${game.requirements.recommended.gpu}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-1/3 bg-zinc-900 p-6 rounded-xl border border-zinc-800 flex flex-col gap-4 sticky top-24">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-zinc-400 uppercase font-bold tracking-wide">Preço Final</span>
+                        <span class="text-3xl font-black text-blue-400">R$ ${game.price.toFixed(2)}</span>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-2">${actionsHtml}</div>
+                </div>
+            </div>
+        </div>
+    `);
+}
+
+export async function afterRender(params) {
+    attachNavbarEvents();
+    const game = await GamesService.getBySlug(params.slug);
+    if (!game) return;
+
+    const cartBtn = document.getElementById("btn-add-cart");
+    const wishBtn = document.getElementById("btn-toggle-wish");
+
+    if (cartBtn) {
+        cartBtn.addEventListener("click", () => {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                const { navigate } = require("../../app/router/navigate");
+                navigate("/login");
+                return;
+            }
+            Actions.addToCart(game);
+        });
+    }
+    if (wishBtn) {
+        wishBtn.addEventListener("click", () => {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                const { navigate } = require("../../app/router/navigate");
+                navigate("/login");
+                return;
+            }
+            Actions.toggleWishlist(game);
+        });
+    }
+}
+
+```
+
+```javascript
+// src/pages/cart/CartPage.js
+import PrivateLayout from "../../app/layouts/PrivateLayout";
+import PublicLayout from "../../app/layouts/PublicLayout";
+import { attachNavbarEvents } from "../../components/layout/Navbar";
+import { Store } from "../../store/store";
+import { Actions } from "../../store/actions";
+
+export default async function CartPage() {
+    const state = Store.getState();
+    const token = localStorage.getItem("access_token");
+    
+    if (!token) return PublicLayout(`<div class="p-12 text-center text-zinc-400">Por favor, faça login para ver seu carrinho.</div>`);
+
+    if (state.cart.length === 0) {
+        return PrivateLayout(`
+            <div class="p-12 text-center bg-zinc-900 rounded-xl border border-zinc-800 text-zinc-400">
+                <p class="text-lg font-semibold">Seu carrinho está vazio</p>
+                <a href="/hub" class="text-blue-500 hover:underline mt-2 inline-block text-sm" data-link>Explorar a loja</a>
+            </div>
+        `);
+    }
+
+    const total = state.cart.reduce((acc, curr) => acc + curr.price, 0);
+
+    const itemsHtml = state.cart.map(game => `
+        <div class="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-lg gap-4 flex-wrap">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-20 bg-cover bg-center rounded" style="background-image: url('${game.cover_url}')"></div>
+                <div>
+                    <h4 class="font-bold text-white text-base">${game.title}</h4>
+                    <p class="text-xs text-zinc-400">${game.publisher}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6 ml-auto">
+                <span class="font-bold text-blue-400 text-lg">R$ ${game.price.toFixed(2)}</span>
+                <button data-id="${game.id}" class="btn-remove-item text-xs text-red-400 hover:text-red-300 font-medium">Remover</button>
+            </div>
+        </div>
+    `).join("");
+
+    return PrivateLayout(`
+        <div class="flex flex-col gap-6">
+            <h1 class="text-2xl font-black text-white tracking-tight">🛒 Meu Carrinho de Compras</h1>
+            <div class="flex flex-col lg:flex-row gap-6 items-start">
+                <div class="w-full lg:w-2/3 flex flex-col gap-4">${itemsHtml}</div>
+                <div class="w-full lg:w-1/3 bg-zinc-900 border border-zinc-800 p-6 rounded-xl flex flex-col gap-4">
+                    <h3 class="text-sm font-bold text-zinc-400 uppercase tracking-wide">Resumo do Pedido</h3>
+                    <div class="flex justify-between items-center border-t border-zinc-800 pt-3">
+                        <span class="text-zinc-300">Total Geral:</span>
+                        <span class="text-2xl font-black text-blue-400">R$ ${total.toFixed(2)}</span>
+                    </div>
+                    <button id="btn-checkout" class="w-full py-3 bg-green-600 hover:bg-green-500 font-bold rounded-lg text-white text-center shadow transition mt-2">
+                        Finalizar Compra
+                    </button>
+                </div>
+            </div>
+        </div>
+    `);
+}
+
+export function afterRender() {
+    attachNavbarEvents();
+    document.querySelectorAll(".btn-remove-item").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const id = e.target.getAttribute("data-id");
+            Actions.removeFromCart(id);
+        });
+    });
+
+    const checkoutBtn = document.getElementById("btn-checkout");
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener("click", () => {
+            Actions.purchaseCart();
+            alert("Compra realizada com sucesso! Os jogos foram inseridos na sua biblioteca.");
+            const { navigate } = require("../../app/router/navigate");
+            navigate("/library");
+        });
+    }
+}
+
+```
+
+---
+
+## 🚀 SPRINT 8: Módulo de Conclusão: Biblioteca de Jogos Adquiridos & Perfil
+
+**Objetivo:** Encerrar a jornada final do fluxo do usuário implementando a exibição da biblioteca após o checkout simulado da compra e a visualização do perfil pessoal.
+
+### Instruções de Implementação:
+
+1. Implemente `src/pages/library/LibraryPage.js`. Ela recupera a chave `library` da Store e plota as capas dos jogos que foram adquiridos no checkout da Sprint 7.
+
+
+2. Crie `src/pages/profile/ProfilePage.js` injetando as variáveis informativas do usuário mockadas na Sprint 4 em blocos limpos com layouts flexíveis responsivos.
+
+
+
+### Código de Referência Técnico:
+
+```javascript
+// src/pages/library/LibraryPage.js
+import PrivateLayout from "../../app/layouts/PrivateLayout";
+import { attachNavbarEvents } from "../../components/layout/Navbar";
+import { Store } from "../../store/store";
+
+export default async function LibraryPage() {
+    const state = Store.getState();
+
+    if (state.library.length === 0) {
+        return PrivateLayout(`
+            <div class="p-12 text-center bg-zinc-900 rounded-xl border border-zinc-800 text-zinc-400">
+                <p class="text-lg font-semibold">Sua biblioteca está vazia</p>
+                <p class="text-xs text-zinc-500 mt-1">Os jogos comprados aparecerão listados aqui automaticamente.</p>
+            </div>
+        `);
+    }
+
+    const cardsHtml = state.library.map(game => `
+        <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col group">
+            <div class="h-60 w-full bg-cover bg-center group-hover:scale-105 transition duration-300" style="background-image: url('${game.cover_url}')"></div>
+            <div class="p-3 flex flex-col gap-1">
+                <h4 class="font-bold text-white text-sm truncate">${game.title}</h4>
+                <button class="w-full mt-2 py-1 bg-zinc-800 hover:bg-blue-600 text-xs font-bold text-zinc-300 hover:text-white rounded transition">Jogar Agora</button>
+            </div>
+        </div>
+    `).join("");
+
+    return PrivateLayout(`
+        <div class="flex flex-col gap-6">
+            <h1 class="text-2xl font-black text-white tracking-tight">🎮 Minha Biblioteca de Jogos</h1>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                ${cardsHtml}
+            </div>
+        </div>
+    `);
+}
+
+export function afterRender() {
+    attachNavbarEvents();
+}
+
+```
+
+---
+
+## 🏁 Inicialização do Projeto (`main.js`)
+
+Substitua completamente o ponto de partida do projeto em `src/main.js` para chamar o inicializador do ciclo SPA:
+
+```javascript
+// src/main.js
+import { Router } from "./app/router/router";
+
+document.addEventListener("DOMContentLoaded", () => {
+    Router.init();
+});
+
+```
+
+```
+
+---
+
+### 💡 Como proceder a partir daqui com a IA executora?
+
+1. Abra o seu chat da IA de desenvolvimento (Cursor, Claude, etc.) ou use seu prompt de preferência.
+2. Comece passando as **Diretrizes Gerais** e o **Mapa Arquitetural**.
+3. Diga: *"Vamos implementar o projeto por etapas. Escreva os arquivos referentes à **SPRINT 1 (Infraestrutura de Roteamento SPA Vanilla)** de acordo com as especificações contidas no arquivo mestre."*
+4. Após ela gerar e você validar que a navegação e a estrutura de pastas inicial foram bem-sucedidas, passe para a **SPRINT 2**, e assim por diante. 
+
+Essa separação cirúrgica de dependências (Router ➡️ Store ➡️ Mocks/Services ➡️ Layouts ➡️ Páginas) garantirá que o projeto seja escalado sem bugs na compilação do Vite e sem gerar códigos truncados ou contraditórios!
+
+```

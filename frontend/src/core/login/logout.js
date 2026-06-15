@@ -1,6 +1,6 @@
 import { signOut } from "firebase/auth";
-import { auth } from "./firebase.js";
+import { auth } from "../firebase.js";
 
-async function logout() {
+export async function logout() {
   await signOut(auth);
 }

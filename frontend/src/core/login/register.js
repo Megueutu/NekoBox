@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase.js";
+import { auth } from "../firebase.js";
 
-async function cadastrar(email, senha) {
+export async function cadastrar(email, senha) {
   try {
     const userCredential =
       await createUserWithEmailAndPassword(
@@ -13,5 +13,6 @@ async function cadastrar(email, senha) {
     console.log("Usuário criado:", userCredential.user);
   } catch (error) {
     console.error(error.message);
+    throw error;
   }
 }

@@ -1,0 +1,11516 @@
+Histórico completo:
+
+Tree atual de SRC:
+
+C:.
+├───assets
+│   └───icons
+├───components
+├───constants
+├───core
+│   └───login
+├───pages
+│   └───css
+└───utils
+
+
+vite.config.js
+
+import { defineConfig } from 'vitest/config'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+  ],
+  test: {
+    environment: 'jsdom',
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  }
+})
+
+
+
+estou fazendo esse projeto de um marketplace de jogos. Estou me inspirando na Playstation Network e na Gog, portanto, não terá como usuarios cadastrarem os jogos pela plataforma, apenas meu time. Quero que faça o site completo para mim com uso exclusivo de JS Vanilla. Como percebido estou utilizando Tailwind css e Vite, mas não se limite ao uso de arquivos .css. Quero que faça a estrutura do site, não se preocupe com estilizacao pois isso eu farei depois (mas organize os layouts, principalmente com flex responsivo). As páginas que penso que terão sao as seguintes:
+
+1. PAGINA DE LOGIN, CADASTRO E ESQUECI A SENHA (basicamente 1 template e copia e cola, muda endpoint)
+2. HUB (igual a da PSN, catalogo de jogos, clicou redireciona)
+3. PAGINA DO JOGO (informacoes do jogo, com banner e botao de adicionar no carrinho)
+4. Estrutura logica de conta (Manipular informações da conta, foto de perfil, etc)
+
+Como haverá muitas imagens, utilizarmeos cloudinary e o backend será feito em spring boot com psql de banco relacional. Mas, eu quero fazer autenticação com google (firebase ou cloud, não sei, qual, pode escolher), mas ai preciso que deixe toda estrutura pronta e apenas me aponte como fica o .env.example (quero que essa parte de atuenticao fique no front), o banco de dados está estruturado dessa forma. (Para implementar consulte documentações modernas e atualizadas, me aponte também daonde fez as consultas).
+
+Preciso também testar as aplicações, portanto, pode deixar de um modo que eu teste, apenas apontando o path para o public ou simule o recebimento da imagem com peeks da internet como o lorempicsum. Para imagens, quero te praticamente todas sejam com BACKGROUND-IMG, em exceção da logo e alguns itens óbvios, pois é muito mais fácil de manipular que a tag <img>. Além disso, já faça a trajetória de telas.
+
+Banco de dados:
+-- =========================================================
+-- ENUMS
+-- =========================================================
+
+CREATE TYPE game_status AS ENUM (
+    'draft',
+    'published',
+    'hidden',
+    'archived'
+);
+
+CREATE TYPE media_type AS ENUM (
+    'cover',
+    'banner',
+    'screenshot',
+    'trailer',
+    'video'
+);
+
+CREATE TYPE relation_type AS ENUM (
+    'dlc',
+    'expansion',
+    'soundtrack',
+    'bundle',
+    'edition'
+);
+
+CREATE TYPE requirement_type AS ENUM (
+    'minimum',
+    'recommended'
+);
+
+-- =========================================================
+-- USERS
+-- =========================================================
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+
+    avatar_url TEXT,
+    bio TEXT,
+
+    is_developer BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================================================
+-- GAMES
+-- =========================================================
+
+CREATE TABLE games (
+    id UUID PRIMARY KEY,
+
+    owner_id UUID NOT NULL REFERENCES users(id),
+
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+
+    short_description TEXT,
+    long_description TEXT,
+
+    price NUMERIC(10,2) NOT NULL,
+
+    release_date DATE,
+
+    status game_status NOT NULL DEFAULT 'draft',
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================================================
+-- GAME SECTIONS (CMS FLEXÍVEL)
+-- =========================================================
+
+CREATE TABLE game_sections (
+    id UUID PRIMARY KEY,
+
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    type VARCHAR(50) NOT NULL,
+
+    content JSONB NOT NULL,
+
+    position INTEGER NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_game_sections_game
+ON game_sections(game_id);
+
+-- =========================================================
+-- GAME MEDIA
+-- =========================================================
+
+CREATE TABLE game_media (
+    id UUID PRIMARY KEY,
+
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    type media_type NOT NULL,
+
+    url TEXT NOT NULL,
+
+    position INTEGER,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_game_media_game
+ON game_media(game_id);
+
+-- =========================================================
+-- CATEGORIES
+-- =========================================================
+
+CREATE TABLE categories (
+    id UUID PRIMARY KEY,
+
+    name VARCHAR(100) NOT NULL UNIQUE,
+    slug VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE game_categories (
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    category_id UUID NOT NULL REFERENCES categories(id),
+
+    PRIMARY KEY (game_id, category_id)
+);
+
+-- =========================================================
+-- TAGS
+-- =========================================================
+
+CREATE TABLE tags (
+    id UUID PRIMARY KEY,
+
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE game_tags (
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES tags(id),
+
+    PRIMARY KEY (game_id, tag_id)
+);
+
+-- =========================================================
+-- LIBRARY
+-- =========================================================
+
+CREATE TABLE user_library (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    purchased_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (user_id, game_id)
+);
+
+-- =========================================================
+-- WISHLIST
+-- =========================================================
+
+CREATE TABLE user_wishlist (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (user_id, game_id)
+);
+
+-- =========================================================
+-- REVIEWS
+-- =========================================================
+
+CREATE TABLE reviews (
+    id UUID PRIMARY KEY,
+
+    user_id UUID NOT NULL REFERENCES users(id),
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    recommended BOOLEAN NOT NULL,
+
+    review_text TEXT,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_reviews_game
+ON reviews(game_id);
+
+-- =========================================================
+-- REVIEW VOTES
+-- =========================================================
+
+CREATE TABLE review_votes (
+    review_id UUID NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+    PRIMARY KEY (review_id, user_id)
+);
+
+-- =========================================================
+-- ORDERS
+-- =========================================================
+
+CREATE TABLE orders (
+    id UUID PRIMARY KEY,
+
+    user_id UUID NOT NULL REFERENCES users(id),
+
+    total_amount NUMERIC(10,2) NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    id UUID PRIMARY KEY,
+
+    order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+
+    game_id UUID NOT NULL REFERENCES games(id),
+
+    unit_price NUMERIC(10,2) NOT NULL
+);
+
+-- =========================================================
+-- PUBLISHERS
+-- =========================================================
+
+CREATE TABLE publishers (
+    id UUID PRIMARY KEY,
+
+    name VARCHAR(255) NOT NULL UNIQUE,
+
+    logo_url TEXT
+);
+
+CREATE TABLE game_publishers (
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    publisher_id UUID NOT NULL REFERENCES publishers(id),
+
+    PRIMARY KEY (game_id, publisher_id)
+);
+
+-- =========================================================
+-- DLC / EXPANSÕES / EDIÇÕES
+-- =========================================================
+
+CREATE TABLE game_relations (
+    id UUID PRIMARY KEY,
+
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    related_game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    relation_type relation_type NOT NULL
+);
+
+-- =========================================================
+-- PREÇOS HISTÓRICOS
+-- =========================================================
+
+CREATE TABLE game_prices (
+    id UUID PRIMARY KEY,
+
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    price NUMERIC(10,2) NOT NULL,
+
+    starts_at TIMESTAMP NOT NULL,
+    ends_at TIMESTAMP
+);
+
+CREATE INDEX idx_game_prices_game
+ON game_prices(game_id);
+
+-- =========================================================
+-- REQUISITOS DE SISTEMA
+-- =========================================================
+
+CREATE TABLE game_system_requirements (
+    id UUID PRIMARY KEY,
+
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    type requirement_type NOT NULL,
+
+    os TEXT,
+    cpu TEXT,
+    ram TEXT,
+    gpu TEXT,
+    storage TEXT
+);
+
+-- =========================================================
+-- LANGUAGES
+-- =========================================================
+
+CREATE TABLE languages (
+    id UUID PRIMARY KEY,
+
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE game_languages (
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    language_id UUID NOT NULL REFERENCES languages(id),
+
+    interface BOOLEAN NOT NULL DEFAULT FALSE,
+    subtitles BOOLEAN NOT NULL DEFAULT FALSE,
+    audio BOOLEAN NOT NULL DEFAULT FALSE,
+
+    PRIMARY KEY (game_id, language_id)
+);
+
+-- =========================================================
+-- UPDATES / PATCH NOTES
+-- =========================================================
+
+CREATE TABLE game_updates (
+    id UUID PRIMARY KEY,
+
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+
+    version VARCHAR(50),
+
+    title VARCHAR(255),
+
+    content TEXT NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================================================
+-- FOLLOWS
+-- =========================================================
+
+CREATE TABLE user_follows (
+    follower_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    followed_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (follower_id, followed_id)
+);
+
+Se necessário, me devolva os arquivos em etapas (ctrl c + ctrl v).
+
+
+
+
+
+
+
+
+Seu projeto já tem uma boa base, mas eu não seguiria a arquitetura atual para um marketplace do porte de uma PSN/GOG.
+
+Antes de começar a implementar páginas, eu faria alguns ajustes estruturais.
+
+# 1. Arquitetura Recomendada
+
+Como você quer:
+
+* JS Vanilla
+* Vite
+* Tailwind
+* Firebase Auth (Google)
+* Spring Boot API
+* PostgreSQL
+* Cloudinary
+
+Eu montaria:
+
+```txt
+src/
+│
+├── app/
+│   ├── router/
+│   ├── store/
+│   ├── guards/
+│   └── layouts/
+│
+├── pages/
+│   ├── auth/
+│   │   ├── login/
+│   │   ├── register/
+│   │   └── forgot-password/
+│   │
+│   ├── hub/
+│   ├── game/
+│   ├── profile/
+│   ├── library/
+│   ├── wishlist/
+│   ├── cart/
+│   └── settings/
+│
+├── components/
+│   ├── ui/
+│   ├── cards/
+│   ├── forms/
+│   ├── navbar/
+│   ├── footer/
+│   ├── modals/
+│   └── skeletons/
+│
+├── services/
+│   ├── auth/
+│   ├── games/
+│   ├── users/
+│   ├── cart/
+│   └── cloudinary/
+│
+├── core/
+│   ├── firebase/
+│   ├── api/
+│   └── storage/
+│
+├── assets/
+│
+├── mocks/
+│
+└── main.js
+```
+
+---
+
+# 2. Firebase
+
+Eu usaria Firebase Authentication.
+
+Motivos:
+
+* integração pronta com Google
+* madura
+* simples
+* token JWT fácil de validar no Spring Security
+
+Fluxo:
+
+```txt
+Frontend
+   ↓
+Firebase Login
+   ↓
+Recebe JWT
+   ↓
+Envia JWT no Authorization
+   ↓
+Spring Boot valida token
+   ↓
+Cria usuário local se não existir
+```
+
+---
+
+# 3. Banco de dados
+
+Seu banco está excelente.
+
+Mas faltam algumas tabelas:
+
+## Carrinho
+
+```sql
+CREATE TABLE carts (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id)
+);
+
+CREATE TABLE cart_items (
+    id UUID PRIMARY KEY,
+
+    cart_id UUID NOT NULL REFERENCES carts(id),
+
+    game_id UUID NOT NULL REFERENCES games(id),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## Sessões de usuário
+
+Caso queira rastrear login:
+
+```sql
+CREATE TABLE user_sessions (
+    id UUID PRIMARY KEY,
+
+    user_id UUID NOT NULL REFERENCES users(id),
+
+    device_name VARCHAR(255),
+
+    last_access TIMESTAMP,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+# 4. Rotas
+
+Eu faria:
+
+```txt
+/
+
+/login
+
+/register
+
+/forgot-password
+
+/hub
+
+/game/:slug
+
+/profile
+
+/profile/edit
+
+/library
+
+/wishlist
+
+/cart
+
+/settings
+
+/settings/security
+
+/settings/account
+```
+
+---
+
+# 5. Jornada do usuário
+
+## Visitante
+
+```txt
+Entrou
+ ↓
+Hub
+ ↓
+Clique no jogo
+ ↓
+Página do jogo
+ ↓
+Adicionar ao carrinho
+ ↓
+Login obrigatório
+```
+
+---
+
+## Usuário logado
+
+```txt
+Hub
+ ↓
+Jogo
+ ↓
+Carrinho
+ ↓
+Checkout
+ ↓
+Compra
+ ↓
+Biblioteca
+```
+
+---
+
+# 6. Layout Hub
+
+Inspirado na PSN
+
+```txt
+┌──────────────────────────┐
+│ Navbar                   │
+├──────────────────────────┤
+│ Hero Banner              │
+├──────────────────────────┤
+│ Jogos em Destaque        │
+├──────────────────────────┤
+│ Mais Vendidos            │
+├──────────────────────────┤
+│ Promoções                │
+├──────────────────────────┤
+│ Categorias               │
+├──────────────────────────┤
+│ Rodapé                   │
+└──────────────────────────┘
+```
+
+Componentes:
+
+```txt
+Navbar
+
+HeroCarousel
+
+GameRow
+
+GameCard
+
+CategoryCard
+
+Footer
+```
+
+---
+
+# 7. Página do jogo
+
+Inspirada na GOG
+
+```txt
+┌──────────────────────────────┐
+│ Banner                       │
+└──────────────────────────────┘
+
+┌─────────────┬────────────────┐
+│ Capa        │ Informações    │
+│             │                │
+│             │ Comprar        │
+│             │ Wishlist       │
+└─────────────┴────────────────┘
+
+Descrição
+
+Screenshots
+
+Trailer
+
+Requisitos
+
+Idiomas
+
+Avaliações
+
+DLCs
+```
+
+Usando:
+
+```sql
+games
+
+game_media
+
+game_sections
+
+reviews
+
+game_languages
+
+game_system_requirements
+
+game_relations
+```
+
+---
+
+# 8. Perfil
+
+```txt
+/profile
+```
+
+Seções:
+
+```txt
+Avatar
+
+Username
+
+Bio
+
+Email
+
+Jogos comprados
+
+Wishlist
+
+Editar Perfil
+```
+
+---
+
+# 9. Imagens
+
+Concordo em usar background-image.
+
+Exemplo:
+
+```html
+<div
+    class="h-64 bg-center bg-cover"
+    style="
+      background-image:
+      url('https://picsum.photos/1920/1080');
+    "
+></div>
+```
+
+---
+
+# 10. Estrutura Cloudinary
+
+Backend salva apenas URL.
+
+Exemplo:
+
+```sql
+game_media.url
+```
+
+Valor:
+
+```txt
+https://res.cloudinary.com/.../game-banner.jpg
+```
+
+Frontend:
+
+```js
+const banner = game.media.banner;
+
+element.style.backgroundImage =
+  `url(${banner})`;
+```
+
+---
+
+# 11. API que o Front consumirá
+
+## Jogos
+
+```http
+GET /api/games
+```
+
+---
+
+## Jogo
+
+```http
+GET /api/games/:slug
+```
+
+---
+
+## Perfil
+
+```http
+GET /api/users/me
+```
+
+---
+
+## Wishlist
+
+```http
+GET /api/wishlist
+
+POST /api/wishlist
+
+DELETE /api/wishlist/:gameId
+```
+
+---
+
+## Biblioteca
+
+```http
+GET /api/library
+```
+
+---
+
+## Carrinho
+
+```http
+GET /api/cart
+
+POST /api/cart
+
+DELETE /api/cart/:gameId
+```
+
+---
+
+# 12. .env.example
+
+```env
+# API
+
+VITE_API_URL=http://localhost:8080
+
+# FIREBASE
+
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+
+# CLOUDINARY
+
+VITE_CLOUDINARY_CLOUD_NAME=
+```
+
+---
+
+# 13. Mocks para desenvolvimento
+
+Enquanto o backend não existe:
+
+```js
+export const games = [
+  {
+    id: 1,
+    slug: "cyberpunk-2077",
+
+    title: "Cyberpunk 2077",
+
+    price: 199.90,
+
+    cover:
+      "https://picsum.photos/400/600",
+
+    banner:
+      "https://picsum.photos/1920/1080",
+
+    description:
+      "Descrição do jogo..."
+  }
+];
+```
+
+---
+
+# 14. O que eu implementaria primeiro
+
+Ordem ideal:
+
+```txt
+1. Router Vanilla
+
+2. Firebase Login
+
+3. Layout Base
+
+4. Navbar
+
+5. Hub
+
+6. Página de Jogo
+
+7. Perfil
+
+8. Wishlist
+
+9. Carrinho
+
+10. Biblioteca
+
+11. Integração Spring Boot
+
+12. Cloudinary
+```
+
+Analisando o ZIP que você enviou, sua estrutura atual ainda está muito próxima de um projeto de autenticação de estudo. Eu refatoraria o roteamento inteiro antes de começar as páginas do marketplace. O próximo passo mais produtivo é eu te entregar a implementação completa do **Router SPA Vanilla (estilo React Router)** e a **estrutura física de arquivos pronta para copiar e colar**, já alinhada com esse marketplace.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Para um projeto SPA em JS Vanilla + Vite, eu não usaria hash (`#/rota`). Faria algo próximo do React Router usando:
+
+* History API (`pushState`)
+* Route Guards
+* Layouts
+* Lazy Loading
+* Params (`/game/:slug`)
+* Middleware de autenticação
+
+---
+
+# Estrutura
+
+```txt
+src/
+
+├── app/
+│   ├── router/
+│   │   ├── router.js
+│   │   ├── routes.js
+│   │   ├── navigate.js
+│   │   ├── matchRoute.js
+│   │   └── guards.js
+│   │
+│   └── layouts/
+│       ├── PublicLayout.js
+│       └── PrivateLayout.js
+│
+├── pages/
+│   ├── auth/
+│   │   ├── LoginPage.js
+│   │   ├── RegisterPage.js
+│   │   └── ForgotPasswordPage.js
+│   │
+│   ├── hub/
+│   │   └── HubPage.js
+│   │
+│   ├── game/
+│   │   └── GamePage.js
+│   │
+│   ├── profile/
+│   │   └── ProfilePage.js
+│   │
+│   ├── wishlist/
+│   │   └── WishlistPage.js
+│   │
+│   ├── library/
+│   │   └── LibraryPage.js
+│   │
+│   └── NotFoundPage.js
+│
+├── main.js
+│
+└── index.html
+```
+
+---
+
+# main.js
+
+```js
+import { Router } from "./app/router/router";
+
+document.addEventListener("DOMContentLoaded", () => {
+    Router.init();
+});
+```
+
+---
+
+# index.html
+
+```html
+<body>
+    <div id="app"></div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+```
+
+---
+
+# navigate.js
+
+```js
+export function navigate(path) {
+    history.pushState({}, "", path);
+
+    window.dispatchEvent(
+        new PopStateEvent("popstate")
+    );
+}
+```
+
+---
+
+# guards.js
+
+```js
+export function isAuthenticated() {
+    return !!localStorage.getItem("token");
+}
+```
+
+Depois você troca pelo Firebase.
+
+---
+
+# routes.js
+
+```js
+export const routes = [
+    {
+        path: "/",
+        redirect: "/hub"
+    },
+
+    {
+        path: "/login",
+        page: () =>
+            import("../../pages/auth/LoginPage")
+    },
+
+    {
+        path: "/register",
+        page: () =>
+            import("../../pages/auth/RegisterPage")
+    },
+
+    {
+        path: "/forgot-password",
+        page: () =>
+            import("../../pages/auth/ForgotPasswordPage")
+    },
+
+    {
+        path: "/hub",
+        page: () =>
+            import("../../pages/hub/HubPage")
+    },
+
+    {
+        path: "/game/:slug",
+        page: () =>
+            import("../../pages/game/GamePage")
+    },
+
+    {
+        path: "/profile",
+        private: true,
+        page: () =>
+            import("../../pages/profile/ProfilePage")
+    },
+
+    {
+        path: "/wishlist",
+        private: true,
+        page: () =>
+            import("../../pages/wishlist/WishlistPage")
+    },
+
+    {
+        path: "/library",
+        private: true,
+        page: () =>
+            import("../../pages/library/LibraryPage")
+    }
+];
+```
+
+---
+
+# matchRoute.js
+
+Responsável por resolver:
+
+```txt
+/game/cyberpunk-2077
+```
+
+para:
+
+```txt
+/game/:slug
+```
+
+---
+
+```js
+export function matchRoute(pathname, routePath) {
+
+    const routeParts =
+        routePath.split("/");
+
+    const currentParts =
+        pathname.split("/");
+
+    if (
+        routeParts.length !==
+        currentParts.length
+    ) {
+        return null;
+    }
+
+    const params = {};
+
+    for (
+        let i = 0;
+        i < routeParts.length;
+        i++
+    ) {
+        const routePart =
+            routeParts[i];
+
+        const currentPart =
+            currentParts[i];
+
+        if (
+            routePart.startsWith(":")
+        ) {
+            params[
+                routePart.slice(1)
+            ] = currentPart;
+
+            continue;
+        }
+
+        if (
+            routePart !== currentPart
+        ) {
+            return null;
+        }
+    }
+
+    return params;
+}
+```
+
+---
+
+# router.js
+
+```js
+import { routes } from "./routes";
+import { matchRoute } from "./matchRoute";
+import { isAuthenticated } from "./guards";
+import { navigate } from "./navigate";
+
+class RouterClass {
+
+    async render() {
+
+        const pathname =
+            location.pathname;
+
+        const app =
+            document.getElementById(
+                "app"
+            );
+
+        for (const route of routes) {
+
+            if (
+                route.redirect &&
+                pathname === route.path
+            ) {
+                navigate(
+                    route.redirect
+                );
+
+                return;
+            }
+
+            const params =
+                matchRoute(
+                    pathname,
+                    route.path
+                );
+
+            if (!params) continue;
+
+            if (
+                route.private &&
+                !isAuthenticated()
+            ) {
+                navigate("/login");
+                return;
+            }
+
+            const module =
+                await route.page();
+
+            const html =
+                await module.default(
+                    params
+                );
+
+            app.innerHTML = html;
+
+            if (
+                module.afterRender
+            ) {
+                module.afterRender(
+                    params
+                );
+            }
+
+            return;
+        }
+
+        const notFound =
+            await import(
+                "../../pages/NotFoundPage"
+            );
+
+        app.innerHTML =
+            notFound.default();
+    }
+
+    init() {
+
+        window.addEventListener(
+            "popstate",
+            () => this.render()
+        );
+
+        document.addEventListener(
+            "click",
+            e => {
+
+                const link =
+                    e.target.closest(
+                        "[data-link]"
+                    );
+
+                if (!link) return;
+
+                e.preventDefault();
+
+                navigate(
+                    link.href
+                );
+            }
+        );
+
+        this.render();
+    }
+}
+
+export const Router =
+    new RouterClass();
+```
+
+---
+
+# Exemplo de página
+
+## HubPage.js
+
+```js
+export default function () {
+
+    return `
+        <div class="flex flex-col">
+
+            <h1>
+                Hub
+            </h1>
+
+            <a
+                href="/game/cyberpunk-2077"
+                data-link
+            >
+                Cyberpunk
+            </a>
+
+        </div>
+    `;
+}
+```
+
+---
+
+# Página dinâmica
+
+## GamePage.js
+
+```js
+export default function (
+    params
+) {
+
+    return `
+        <div>
+
+            <h1>
+                ${params.slug}
+            </h1>
+
+        </div>
+    `;
+}
+```
+
+URL:
+
+```txt
+/game/cyberpunk-2077
+```
+
+Resultado:
+
+```txt
+params.slug
+
+↓
+
+cyberpunk-2077
+```
+
+---
+
+# Links
+
+Não usar:
+
+```html
+<a href="/hub">
+```
+
+Usar:
+
+```html
+<a
+    href="/hub"
+    data-link
+>
+```
+
+O atributo:
+
+```txt
+data-link
+```
+
+faz o SPA interceptar a navegação.
+
+---
+
+# Layout público/privado
+
+Depois você pode evoluir para:
+
+```txt
+PublicLayout
+
+Navbar
+Página
+Footer
+```
+
+e
+
+```txt
+PrivateLayout
+
+Sidebar
+Navbar
+Página
+```
+
+Exemplo:
+
+```js
+export function PublicLayout(
+    content
+) {
+    return `
+        <main>
+            ${content}
+        </main>
+    `;
+}
+```
+
+---
+
+# Resultado final
+
+Você terá recursos equivalentes aos mais usados do React Router:
+
+```txt
+✓ SPA
+
+✓ History API
+
+✓ Lazy Loading
+
+✓ Route Params
+
+✓ Route Guards
+
+✓ Redirects
+
+✓ Protected Routes
+
+✓ Dynamic URLs
+
+✓ Middleware de autenticação
+
+✓ Compatível com Firebase
+
+✓ Compatível com Spring Boot
+```
+
+Para o marketplace, o próximo passo seria adicionar um sistema de **Store global (Redux-like em JS Vanilla)** para manter usuário logado, carrinho, wishlist e biblioteca sem recarregar a página. Isso evita espalhar `localStorage` e chamadas de API por todos os componentes.
+
+
+
+
+
+
+
+
+
+
+
+O próximo passo é criar uma Store global. Em um marketplace, praticamente tudo gira em torno de estado compartilhado:
+
+```txt
+Usuário logado
+Carrinho
+Wishlist
+Biblioteca
+Tema
+Modal aberto
+Loading global
+```
+
+Se você não fizer isso agora, vai acabar passando dados manualmente entre páginas e componentes.
+
+---
+
+# Estrutura
+
+```txt
+src/
+
+├── app/
+│
+├── store/
+│   ├── createStore.js
+│   ├── store.js
+│   ├── actions.js
+│   └── selectors.js
+│
+├── services/
+│
+├── pages/
+│
+└── components/
+```
+
+---
+
+# Conceito
+
+Queremos algo parecido com Redux:
+
+```js
+Store.dispatch()
+
+Store.getState()
+
+Store.subscribe()
+```
+
+---
+
+# createStore.js
+
+```js
+export function createStore(initialState) {
+
+    let state = initialState;
+
+    const listeners = [];
+
+    function getState() {
+        return state;
+    }
+
+    function setState(updater) {
+
+        state =
+            typeof updater === "function"
+                ? updater(state)
+                : updater;
+
+        listeners.forEach(
+            listener => listener(state)
+        );
+    }
+
+    function subscribe(listener) {
+
+        listeners.push(listener);
+
+        return () => {
+
+            const index =
+                listeners.indexOf(listener);
+
+            if (index >= 0) {
+                listeners.splice(index, 1);
+            }
+        };
+    }
+
+    return {
+        getState,
+        setState,
+        subscribe
+    };
+}
+```
+
+---
+
+# store.js
+
+Estado global da aplicação.
+
+```js
+import { createStore }
+from "./createStore";
+
+export const Store =
+    createStore({
+
+        user: null,
+
+        cart: [],
+
+        wishlist: [],
+
+        library: [],
+
+        loading: false
+    });
+```
+
+---
+
+# actions.js
+
+Centraliza alterações.
+
+```js
+import { Store }
+from "./store";
+
+export const Actions = {
+
+    setUser(user) {
+
+        Store.setState(
+            state => ({
+                ...state,
+                user
+            })
+        );
+    },
+
+    logout() {
+
+        Store.setState(
+            state => ({
+                ...state,
+                user: null
+            })
+        );
+    },
+
+    addToCart(game) {
+
+        Store.setState(
+            state => ({
+                ...state,
+                cart: [
+                    ...state.cart,
+                    game
+                ]
+            })
+        );
+    },
+
+    removeFromCart(id) {
+
+        Store.setState(
+            state => ({
+                ...state,
+
+                cart:
+                    state.cart.filter(
+                        game =>
+                            game.id !== id
+                    )
+            })
+        );
+    },
+
+    addWishlist(game) {
+
+        Store.setState(
+            state => ({
+                ...state,
+
+                wishlist: [
+                    ...state.wishlist,
+                    game
+                ]
+            })
+        );
+    }
+};
+```
+
+---
+
+# selectors.js
+
+Evita acessar o estado diretamente.
+
+```js
+import { Store }
+from "./store";
+
+export const Selectors = {
+
+    user() {
+        return Store.getState().user;
+    },
+
+    cart() {
+        return Store.getState().cart;
+    },
+
+    wishlist() {
+        return Store.getState().wishlist;
+    },
+
+    library() {
+        return Store.getState().library;
+    }
+};
+```
+
+---
+
+# Consumindo na Navbar
+
+## Navbar.js
+
+```js
+import { Selectors }
+from "../../store/selectors";
+
+export default function () {
+
+    const user =
+        Selectors.user();
+
+    return `
+        <nav>
+
+            ${
+                user
+                ? user.username
+                : "Entrar"
+            }
+
+        </nav>
+    `;
+}
+```
+
+---
+
+# Atualização automática
+
+Um problema surge:
+
+```txt
+Store mudou
+
+↓
+
+Navbar não atualiza
+```
+
+Precisamos de um sistema de renderização.
+
+---
+
+# app/render.js
+
+```js
+export function rerender() {
+
+    window.dispatchEvent(
+        new Event("rerender")
+    );
+}
+```
+
+---
+
+Modificar actions:
+
+```js
+import { rerender }
+from "../app/render";
+```
+
+---
+
+Exemplo:
+
+```js
+setUser(user) {
+
+    Store.setState(
+        state => ({
+            ...state,
+            user
+        })
+    );
+
+    rerender();
+}
+```
+
+---
+
+# Integrando com o Router
+
+No router:
+
+```js
+window.addEventListener(
+    "rerender",
+    () => this.render()
+);
+```
+
+---
+
+Agora:
+
+```txt
+Actions.setUser()
+
+↓
+
+Store atualiza
+
+↓
+
+Dispara rerender
+
+↓
+
+Router renderiza novamente
+
+↓
+
+Navbar atualizada
+```
+
+---
+
+# Persistência
+
+Ao recarregar a página:
+
+```txt
+F5
+
+↓
+
+Tudo some
+```
+
+Resolver:
+
+---
+
+# storage.js
+
+```js
+export const Storage = {
+
+    save(state) {
+
+        localStorage.setItem(
+            "store",
+            JSON.stringify(state)
+        );
+    },
+
+    load() {
+
+        return JSON.parse(
+            localStorage.getItem(
+                "store"
+            )
+        );
+    }
+};
+```
+
+---
+
+# store.js
+
+```js
+import { Storage }
+from "../core/storage";
+
+const persisted =
+    Storage.load();
+
+export const Store =
+    createStore(
+
+        persisted || {
+
+            user: null,
+
+            cart: [],
+
+            wishlist: [],
+
+            library: [],
+
+            loading: false
+        }
+    );
+```
+
+---
+
+Salvar automaticamente:
+
+```js
+Store.subscribe(state => {
+
+    Storage.save(state);
+
+});
+```
+
+---
+
+# Firebase
+
+Quando integrar o Firebase:
+
+```js
+onAuthStateChanged(
+    auth,
+    user => {
+
+        if (!user) {
+
+            Actions.logout();
+
+            return;
+        }
+
+        Actions.setUser({
+
+            uid: user.uid,
+
+            name: user.displayName,
+
+            email: user.email,
+
+            photo:
+                user.photoURL
+        });
+    }
+);
+```
+
+---
+
+# Próxima evolução
+
+Depois da Store eu implementaria um sistema de API Client centralizado.
+
+```txt
+services/
+
+api/
+ ├── client.js
+ ├── auth.js
+ ├── games.js
+ ├── users.js
+ ├── cart.js
+ └── wishlist.js
+```
+
+com:
+
+```js
+await GamesService.list();
+
+await GamesService.findBySlug();
+
+await WishlistService.add();
+
+await CartService.checkout();
+```
+
+Isso deixa o frontend preparado para o Spring Boot sem precisar alterar as páginas quando a API real entrar. É o próximo bloco que normalmente implemento após Router + Store.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sim. Neste ponto, se você seguir a arquitetura que estamos desenhando, você ainda não implementou funcionalidades de negócio (jogos, carrinho, compras etc.). O que foi definido até agora é a fundação da aplicação.
+
+# O que já foi projetado
+
+## 1. Arquitetura de pastas
+
+Definimos uma estrutura escalável:
+
+```txt
+src/
+├── app/
+├── pages/
+├── components/
+├── services/
+├── store/
+├── core/
+└── assets/
+```
+
+Objetivo:
+
+* Separação de responsabilidades
+* Escalar para dezenas de páginas
+* Evitar "components bagunçados"
+
+---
+
+## 2. Sistema de rotas SPA
+
+Foi definido:
+
+```txt
+/history API
+/game/:slug
+/profile
+/wishlist
+/library
+```
+
+Já existe conceitualmente:
+
+```js
+navigate()
+Router
+Route Params
+Private Routes
+Redirects
+Lazy Loading
+```
+
+Isso substitui React Router.
+
+---
+
+## 3. Sistema de estado global
+
+Foi definido:
+
+```js
+Store
+Actions
+Selectors
+```
+
+Ele centraliza:
+
+```txt
+Usuário
+Carrinho
+Wishlist
+Biblioteca
+Loading
+```
+
+Substitui Redux/Zustand.
+
+---
+
+## 4. Estratégia de autenticação
+
+Foi decidido:
+
+```txt
+Firebase Authentication
++
+Google Login
++
+Spring Security validando JWT
+```
+
+Fluxo:
+
+```txt
+Google
+ ↓
+Firebase
+ ↓
+JWT
+ ↓
+Spring Boot
+ ↓
+Usuário local
+```
+
+---
+
+## 5. Estrutura de páginas
+
+Foi definido:
+
+```txt
+/ login
+/ register
+/ forgot-password
+
+/ hub
+
+/ game/:slug
+
+/ profile
+
+/ library
+
+/ wishlist
+
+/ cart
+
+/ settings
+```
+
+---
+
+## 6. Estratégia de imagens
+
+Foi definido:
+
+```txt
+Cloudinary
+```
+
+E uso predominante de:
+
+```css
+background-image
+```
+
+ao invés de:
+
+```html
+<img>
+```
+
+---
+
+## 7. Estratégia de dados
+
+Foi definido que:
+
+```txt
+Spring Boot
+↓
+Services
+↓
+Store
+↓
+Pages
+```
+
+Nunca:
+
+```txt
+Page
+↓
+fetch()
+```
+
+diretamente.
+
+---
+
+# O que ainda NÃO existe
+
+Hoje o projeto ainda não tem:
+
+```txt
+❌ Firebase
+
+❌ API Client
+
+❌ Componentes
+
+❌ Layouts
+
+❌ Integração Spring
+
+❌ Sistema de sessão
+
+❌ Carrinho
+
+❌ Wishlist
+
+❌ Biblioteca
+
+❌ Catálogo
+
+❌ Página de jogo
+```
+
+Tudo isso vem agora.
+
+---
+
+# Próximo passo imediato
+
+O próximo passo não é criar páginas.
+
+O próximo passo é criar a camada que conversa com o backend.
+
+# API Layer
+
+Estrutura:
+
+```txt
+src/
+
+services/
+
+├── api/
+│   ├── client.js
+│   └── endpoints.js
+│
+├── auth/
+│   └── auth.service.js
+│
+├── games/
+│   └── games.service.js
+│
+├── users/
+│   └── users.service.js
+│
+├── cart/
+│   └── cart.service.js
+│
+├── wishlist/
+│   └── wishlist.service.js
+```
+
+Porque todas as páginas dependerão disso.
+
+---
+
+# Ordem que eu seguiria
+
+## Etapa 1 (já planejada)
+
+```txt
+✅ Estrutura de pastas
+
+✅ Router
+
+✅ Store
+
+✅ Rotas
+```
+
+---
+
+## Etapa 2 (agora)
+
+```txt
+⬜ API Client
+
+⬜ Services
+
+⬜ Config ENV
+
+⬜ Interceptor JWT
+```
+
+---
+
+## Etapa 3
+
+```txt
+⬜ Firebase
+
+⬜ Google Login
+
+⬜ Sessão persistente
+
+⬜ Guard de autenticação
+```
+
+---
+
+## Etapa 4
+
+```txt
+⬜ Layout principal
+
+⬜ Navbar
+
+⬜ Footer
+
+⬜ Sidebar de conta
+```
+
+Nesse ponto você já consegue navegar pelo sistema.
+
+---
+
+## Etapa 5
+
+```txt
+⬜ Hub
+
+⬜ GameCard
+
+⬜ Hero Banner
+
+⬜ Listagem de jogos
+```
+
+Primeira tela funcional.
+
+---
+
+## Etapa 6
+
+```txt
+⬜ Página do jogo
+
+⬜ Screenshots
+
+⬜ Descrição
+
+⬜ DLCs
+
+⬜ Requisitos
+```
+
+Segunda tela funcional.
+
+---
+
+## Etapa 7
+
+```txt
+⬜ Carrinho
+
+⬜ Wishlist
+
+⬜ Biblioteca
+```
+
+Marketplace começa a funcionar.
+
+---
+
+## Etapa 8
+
+```txt
+⬜ Perfil
+
+⬜ Configurações
+
+⬜ Avatar
+```
+
+Conta completa.
+
+---
+
+## Etapa 9
+
+```txt
+⬜ Integração completa Spring
+
+⬜ Cloudinary real
+
+⬜ Dados reais
+```
+
+---
+
+# Em percentual
+
+Considerando um MVP estilo GOG/PSN:
+
+```txt
+Arquitetura         ██████████ 100%
+
+Router              ██████████ 100%
+
+Store               ██████████ 100%
+
+Services            ░░░░░░░░░░   0%
+
+Firebase            ░░░░░░░░░░   0%
+
+Layouts             ░░░░░░░░░░   0%
+
+Hub                 ░░░░░░░░░░   0%
+
+Página do jogo      ░░░░░░░░░░   0%
+
+Carrinho            ░░░░░░░░░░   0%
+
+Wishlist            ░░░░░░░░░░   0%
+
+Biblioteca          ░░░░░░░░░░   0%
+
+Integração backend  ░░░░░░░░░░   0%
+```
+
+Ou seja: a fundação arquitetural está definida. O próximo bloco de implementação deveria ser **API Client + Services**, porque todo o restante (Firebase, Hub, Página do Jogo, Carrinho, Wishlist) vai depender dessa camada.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Agora entramos na camada que vai sustentar todo o frontend: **API Client + Services**.
+
+A regra passa a ser:
+
+```txt
+Pages
+ ↓
+Services
+ ↓
+ApiClient
+ ↓
+Spring Boot
+```
+
+Nunca:
+
+```txt
+Page
+ ↓
+fetch(...)
+```
+
+---
+
+# Objetivo da camada
+
+Uma página deve ser assim:
+
+```js
+const games =
+    await GamesService.list();
+```
+
+e não:
+
+```js
+const response =
+    await fetch(
+        "http://localhost:8080/api/games"
+    );
+```
+
+Isso evita espalhar URLs, headers e autenticação pelo projeto inteiro.
+
+---
+
+# Estrutura
+
+```txt
+src/
+
+services/
+
+├── api/
+│   ├── apiClient.js
+│   ├── endpoints.js
+│   └── httpErrors.js
+│
+├── auth/
+│   └── auth.service.js
+│
+├── games/
+│   └── games.service.js
+│
+├── users/
+│   └── users.service.js
+│
+├── cart/
+│   └── cart.service.js
+│
+├── wishlist/
+│   └── wishlist.service.js
+│
+└── library/
+    └── library.service.js
+```
+
+---
+
+# endpoints.js
+
+Centraliza as rotas.
+
+```js
+export const ENDPOINTS = {
+
+    AUTH: {
+        ME: "/users/me"
+    },
+
+    GAMES: {
+        LIST: "/games",
+        BY_SLUG: slug =>
+            `/games/${slug}`
+    },
+
+    CART: {
+        LIST: "/cart",
+        ADD: "/cart",
+        REMOVE: id =>
+            `/cart/${id}`
+    },
+
+    WISHLIST: {
+        LIST: "/wishlist",
+        ADD: "/wishlist",
+        REMOVE: id =>
+            `/wishlist/${id}`
+    },
+
+    LIBRARY: {
+        LIST: "/library"
+    }
+};
+```
+
+---
+
+# apiClient.js
+
+Esse é o coração da aplicação.
+
+```js
+const BASE_URL =
+    import.meta.env.VITE_API_URL;
+```
+
+---
+
+```js
+async function request(
+    endpoint,
+    options = {}
+) {
+
+    const token =
+        localStorage.getItem(
+            "access_token"
+        );
+
+    const response =
+        await fetch(
+            `${BASE_URL}${endpoint}`,
+            {
+
+                ...options,
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    ...(token && {
+                        Authorization:
+                            `Bearer ${token}`
+                    }),
+
+                    ...options.headers
+                }
+            }
+        );
+
+    if (!response.ok) {
+
+        const error =
+            await response.json();
+
+        throw error;
+    }
+
+    if (
+        response.status === 204
+    ) {
+        return null;
+    }
+
+    return response.json();
+}
+```
+
+---
+
+Métodos:
+
+```js
+export const ApiClient = {
+
+    get(endpoint) {
+
+        return request(
+            endpoint,
+            {
+                method: "GET"
+            }
+        );
+    },
+
+    post(endpoint, body) {
+
+        return request(
+            endpoint,
+            {
+                method: "POST",
+
+                body:
+                    JSON.stringify(body)
+            }
+        );
+    },
+
+    put(endpoint, body) {
+
+        return request(
+            endpoint,
+            {
+                method: "PUT",
+
+                body:
+                    JSON.stringify(body)
+            }
+        );
+    },
+
+    patch(endpoint, body) {
+
+        return request(
+            endpoint,
+            {
+                method: "PATCH",
+
+                body:
+                    JSON.stringify(body)
+            }
+        );
+    },
+
+    delete(endpoint) {
+
+        return request(
+            endpoint,
+            {
+                method: "DELETE"
+            }
+        );
+    }
+};
+```
+
+---
+
+# Games Service
+
+```js
+src/services/games/games.service.js
+```
+
+---
+
+```js
+import { ApiClient }
+from "../api/apiClient";
+
+import { ENDPOINTS }
+from "../api/endpoints";
+
+export const GamesService = {
+
+    async list() {
+
+        return ApiClient.get(
+            ENDPOINTS.GAMES.LIST
+        );
+    },
+
+    async findBySlug(slug) {
+
+        return ApiClient.get(
+            ENDPOINTS.GAMES.BY_SLUG(slug)
+        );
+    }
+};
+```
+
+---
+
+# User Service
+
+```js
+import { ApiClient }
+from "../api/apiClient";
+
+import { ENDPOINTS }
+from "../api/endpoints";
+
+export const UsersService = {
+
+    async me() {
+
+        return ApiClient.get(
+            ENDPOINTS.AUTH.ME
+        );
+    }
+};
+```
+
+---
+
+# Wishlist Service
+
+```js
+export const WishlistService = {
+
+    async list() {
+
+        return ApiClient.get(
+            ENDPOINTS.WISHLIST.LIST
+        );
+    },
+
+    async add(gameId) {
+
+        return ApiClient.post(
+            ENDPOINTS.WISHLIST.ADD,
+            {
+                gameId
+            }
+        );
+    },
+
+    async remove(gameId) {
+
+        return ApiClient.delete(
+            ENDPOINTS.WISHLIST.REMOVE(
+                gameId
+            )
+        );
+    }
+};
+```
+
+---
+
+# Cart Service
+
+```js
+export const CartService = {
+
+    async list() {
+
+        return ApiClient.get(
+            ENDPOINTS.CART.LIST
+        );
+    },
+
+    async add(gameId) {
+
+        return ApiClient.post(
+            ENDPOINTS.CART.ADD,
+            {
+                gameId
+            }
+        );
+    },
+
+    async remove(gameId) {
+
+        return ApiClient.delete(
+            ENDPOINTS.CART.REMOVE(
+                gameId
+            )
+        );
+    }
+};
+```
+
+---
+
+# Exemplo real de uso
+
+Página Hub:
+
+```js
+import { GamesService }
+from "../../services/games/games.service";
+```
+
+---
+
+```js
+export default async function() {
+
+    const games =
+        await GamesService.list();
+
+    return `
+        <div>
+
+            ${
+                games.map(
+                    game => `
+                        <h2>
+                            ${game.title}
+                        </h2>
+                    `
+                ).join("")
+            }
+
+        </div>
+    `;
+}
+```
+
+A página não sabe:
+
+* URL
+* fetch
+* token
+* headers
+
+Ela apenas pede dados.
+
+---
+
+# Mock Mode
+
+Enquanto o Spring não existe:
+
+```txt
+src/
+mocks/
+```
+
+---
+
+```js
+games.mock.js
+```
+
+```js
+export const games = [
+    {
+        id: 1,
+
+        slug:
+            "cyberpunk-2077",
+
+        title:
+            "Cyberpunk 2077",
+
+        price:
+            199.90
+    }
+];
+```
+
+---
+
+GamesService:
+
+```js
+import { games }
+from "../../mocks/games.mock";
+```
+
+---
+
+```js
+async list() {
+
+    return games;
+}
+```
+
+Depois você troca por:
+
+```js
+return ApiClient.get(...)
+```
+
+e nenhuma página muda.
+
+---
+
+# Próximo passo após isso
+
+Quando essa camada estiver pronta, eu partiria para:
+
+```txt
+1. Firebase
+2. AuthService
+3. Login Google
+4. Persistência de sessão
+5. Route Guards reais
+```
+
+Porque aí você fecha toda a infraestrutura de autenticação antes de construir Hub, Carrinho, Biblioteca e Perfil. Isso evita retrabalho quando começar a consumir a API do Spring Boot.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Neste ponto eu pararia de criar infraestrutura genérica e fecharia completamente a autenticação.
+
+A sequência natural fica:
+
+```txt id="vwq0dr"
+Router
+   ✓
+
+Store
+   ✓
+
+API Layer
+   ✓
+
+Firebase Auth
+   ← AGORA
+
+Layouts
+   ← DEPOIS
+
+Hub
+   ← DEPOIS
+
+Game Page
+   ← DEPOIS
+```
+
+Porque praticamente todas as outras funcionalidades dependem de saber:
+
+```txt id="r2bx1w"
+Quem é o usuário?
+
+Está logado?
+
+Qual o token?
+
+Qual o perfil?
+
+Qual o avatar?
+```
+
+---
+
+# Estrutura de Auth
+
+```txt id="r3hqz9"
+src/
+
+core/
+└── firebase/
+    ├── firebase.js
+    └── auth.js
+
+services/
+└── auth/
+    └── auth.service.js
+
+store/
+└── actions.js
+
+pages/
+└── auth/
+    ├── LoginPage.js
+    ├── RegisterPage.js
+    └── ForgotPasswordPage.js
+```
+
+---
+
+# Dependências
+
+```bash
+npm install firebase
+```
+
+---
+
+# .env
+
+```env id="kl8a5n"
+VITE_FIREBASE_API_KEY=
+
+VITE_FIREBASE_AUTH_DOMAIN=
+
+VITE_FIREBASE_PROJECT_ID=
+
+VITE_FIREBASE_STORAGE_BUCKET=
+
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+
+VITE_FIREBASE_APP_ID=
+```
+
+---
+
+# Firebase Config
+
+## firebase.js
+
+```js id="0uc5rt"
+import { initializeApp }
+from "firebase/app";
+
+const firebaseConfig = {
+
+    apiKey:
+        import.meta.env
+            .VITE_FIREBASE_API_KEY,
+
+    authDomain:
+        import.meta.env
+            .VITE_FIREBASE_AUTH_DOMAIN,
+
+    projectId:
+        import.meta.env
+            .VITE_FIREBASE_PROJECT_ID,
+
+    storageBucket:
+        import.meta.env
+            .VITE_FIREBASE_STORAGE_BUCKET,
+
+    messagingSenderId:
+        import.meta.env
+            .VITE_FIREBASE_MESSAGING_SENDER_ID,
+
+    appId:
+        import.meta.env
+            .VITE_FIREBASE_APP_ID
+};
+
+export const app =
+    initializeApp(firebaseConfig);
+```
+
+---
+
+# Auth Provider
+
+## auth.js
+
+```js id="wm9b4w"
+import {
+    getAuth
+}
+from "firebase/auth";
+
+import { app }
+from "./firebase";
+
+export const auth =
+    getAuth(app);
+```
+
+---
+
+# Auth Service
+
+```js id="l29kwo"
+src/services/auth/auth.service.js
+```
+
+---
+
+```js id="r7a7v2"
+import {
+    GoogleAuthProvider,
+
+    signInWithPopup,
+
+    signOut,
+
+    onAuthStateChanged
+
+} from "firebase/auth";
+
+import { auth }
+from "../../core/firebase/auth";
+```
+
+---
+
+# Login Google
+
+```js id="06ys0h"
+const provider =
+    new GoogleAuthProvider();
+```
+
+---
+
+```js id="vjw0c0"
+async function loginGoogle() {
+
+    const result =
+        await signInWithPopup(
+            auth,
+            provider
+        );
+
+    return result.user;
+}
+```
+
+---
+
+# Logout
+
+```js id="th0ifq"
+async function logout() {
+
+    await signOut(auth);
+}
+```
+
+---
+
+# Token
+
+Muito importante.
+
+O backend Spring vai receber:
+
+```txt id="elc6b7"
+Bearer eyJhb...
+```
+
+---
+
+```js id="4ecr4d"
+async function getToken() {
+
+    const user =
+        auth.currentUser;
+
+    if (!user) return null;
+
+    return user.getIdToken();
+}
+```
+
+---
+
+# Auth State
+
+```js id="83r4gr"
+function observe(callback) {
+
+    return onAuthStateChanged(
+        auth,
+        callback
+    );
+}
+```
+
+---
+
+# Arquivo final
+
+```js id="p8r4yb"
+export const AuthService = {
+
+    loginGoogle,
+
+    logout,
+
+    getToken,
+
+    observe
+};
+```
+
+---
+
+# Store Integration
+
+Quando usuário logar:
+
+```js id="ot0w8e"
+Actions.setUser({
+
+    uid:
+        user.uid,
+
+    email:
+        user.email,
+
+    name:
+        user.displayName,
+
+    avatar:
+        user.photoURL
+});
+```
+
+---
+
+# Persistência automática
+
+No bootstrap da aplicação:
+
+```js id="xslb3t"
+AuthService.observe(
+    async user => {
+
+        if (!user) {
+
+            Actions.logout();
+
+            return;
+        }
+
+        const token =
+            await user.getIdToken();
+
+        localStorage.setItem(
+            "access_token",
+            token
+        );
+
+        Actions.setUser({
+
+            uid:
+                user.uid,
+
+            name:
+                user.displayName,
+
+            email:
+                user.email,
+
+            avatar:
+                user.photoURL
+        });
+    }
+);
+```
+
+---
+
+# Spring Security
+
+Quando chegar no backend:
+
+```txt id="ljzbrk"
+Authorization
+
+Bearer eyJ...
+```
+
+O Spring valida o JWT do Firebase.
+
+Se usuário não existir:
+
+```sql id="lwp6vv"
+users
+```
+
+cria automaticamente.
+
+---
+
+# Login Page
+
+Você ainda não precisa de formulário.
+
+Só um botão:
+
+```html id="fw61ii"
+<button
+    id="google-login"
+>
+    Entrar com Google
+</button>
+```
+
+---
+
+```js id="ry1p0u"
+document
+    .querySelector(
+        "#google-login"
+    )
+    .addEventListener(
+        "click",
+
+        async () => {
+
+            await AuthService
+                .loginGoogle();
+        }
+    );
+```
+
+---
+
+# Route Guard Real
+
+Substituir:
+
+```js id="ub6cbf"
+localStorage.getItem(
+    "token"
+)
+```
+
+por:
+
+```js id="xy7o2v"
+Selectors.user()
+```
+
+---
+
+```js id="4n2h4z"
+export function isAuthenticated() {
+
+    return !!Selectors.user();
+}
+```
+
+---
+
+# O que estará concluído após essa etapa
+
+```txt id="y8h98k"
+Router
+██████████ 100%
+
+Store
+██████████ 100%
+
+API Layer
+██████████ 100%
+
+Firebase
+██████████ 100%
+
+Google Login
+██████████ 100%
+
+JWT
+██████████ 100%
+
+Session
+██████████ 100%
+```
+
+---
+
+# Próxima etapa
+
+Depois de fechar a autenticação, eu partiria para a camada visual compartilhada:
+
+```txt id="8r7bdb"
+components/layout/
+
+├── Navbar
+├── Footer
+├── PageContainer
+├── SidebarAccount
+└── HeroBanner
+```
+
+e criar os dois layouts globais:
+
+```txt id="3e2yr7"
+PublicLayout
+PrivateLayout
+```
+
+A partir daí você começa a construir o **Hub (catálogo de jogos)** já sobre uma fundação praticamente pronta para produção.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Caso venha a necessidade de ter HTML estruturado, eu permito que utilize mas lembre como orientado anteriormente, apenas aplique a estrutura de tags e deixe que eu cuido da estilização estilistica (aplique flex e responsividade, apenas)
+
+
+
+
+
+
+Agora entramos na primeira parte visual do projeto.
+
+Até aqui você possui:
+
+```txt id="rmdbyn"
+Router SPA            ✓
+Store Global          ✓
+API Layer             ✓
+Firebase Auth         ✓
+Google Login          ✓
+JWT                   ✓
+Session               ✓
+```
+
+O próximo passo é criar a infraestrutura visual compartilhada.
+
+Não criar o Hub ainda.
+
+Não criar a página do jogo ainda.
+
+Primeiro criar:
+
+```txt id="gvq3km"
+Navbar
+
+Footer
+
+Layouts
+
+Containers
+
+Sidebar de Conta
+
+UI Base
+```
+
+Porque essas estruturas serão reutilizadas por todas as páginas.
+
+---
+
+# Estrutura
+
+```txt id="ikdq3j"
+src/
+
+components/
+
+├── layout/
+│
+│   ├── Navbar.js
+│   ├── Footer.js
+│   ├── SidebarAccount.js
+│   └── PageContainer.js
+│
+├── ui/
+│
+│   ├── Button.js
+│   ├── Input.js
+│   ├── Card.js
+│   ├── Section.js
+│   └── EmptyState.js
+│
+└── game/
+```
+
+---
+
+# Layouts
+
+```txt id="s4avlm"
+src/app/layouts/
+
+├── PublicLayout.js
+└── PrivateLayout.js
+```
+
+---
+
+# Navbar
+
+Estrutura apenas.
+
+```js id="sh55xt"
+import { Selectors }
+from "../../store/selectors";
+
+export default function Navbar() {
+
+    const user =
+        Selectors.user();
+
+    return `
+
+        <nav
+            class="
+                flex
+                flex-wrap
+                items-center
+                justify-between
+                gap-4
+                p-4
+            "
+        >
+
+            <div>
+
+                LOGO
+
+            </div>
+
+            <div
+                class="
+                    flex
+                    flex-wrap
+                    gap-4
+                "
+            >
+
+                <a
+                    href="/hub"
+                    data-link
+                >
+                    Loja
+                </a>
+
+                <a
+                    href="/library"
+                    data-link
+                >
+                    Biblioteca
+                </a>
+
+                <a
+                    href="/wishlist"
+                    data-link
+                >
+                    Wishlist
+                </a>
+
+            </div>
+
+            <div>
+
+                ${
+                    user
+                        ? `
+                            <a
+                                href="/profile"
+                                data-link
+                            >
+                                Perfil
+                            </a>
+                        `
+                        : `
+                            <a
+                                href="/login"
+                                data-link
+                            >
+                                Entrar
+                            </a>
+                        `
+                }
+
+            </div>
+
+        </nav>
+
+    `;
+}
+```
+
+---
+
+# Footer
+
+```js id="p5lpf0"
+export default function Footer() {
+
+    return `
+
+        <footer
+            class="
+                flex
+                flex-col
+                gap-4
+                p-4
+            "
+        >
+
+            <div>
+
+                Marketplace
+
+            </div>
+
+            <div>
+
+                Todos os direitos reservados
+
+            </div>
+
+        </footer>
+
+    `;
+}
+```
+
+---
+
+# PageContainer
+
+Padronização de largura.
+
+```js id="h68f5n"
+export default function PageContainer(
+    content
+) {
+
+    return `
+
+        <div
+            class="
+                flex
+                flex-col
+                w-full
+                max-w-7xl
+                mx-auto
+                px-4
+            "
+        >
+
+            ${content}
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# PublicLayout
+
+```js id="eh2vhl"
+import Navbar
+from "../../components/layout/Navbar";
+
+import Footer
+from "../../components/layout/Footer";
+
+import PageContainer
+from "../../components/layout/PageContainer";
+```
+
+---
+
+```js id="dyl6e8"
+export default function (
+    content
+) {
+
+    return `
+
+        <div
+            class="
+                min-h-screen
+                flex
+                flex-col
+            "
+        >
+
+            ${Navbar()}
+
+            <main
+                class="
+                    flex-1
+                "
+            >
+
+                ${PageContainer(
+                    content
+                )}
+
+            </main>
+
+            ${Footer()}
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# SidebarAccount
+
+Será usada:
+
+```txt id="0c41n5"
+/profile
+
+/settings
+
+/library
+
+/wishlist
+```
+
+---
+
+```js id="31pygl"
+export default function() {
+
+    return `
+
+        <aside
+            class="
+                flex
+                flex-col
+                gap-4
+                w-full
+                md:w-64
+            "
+        >
+
+            <a
+                href="/profile"
+                data-link
+            >
+                Perfil
+            </a>
+
+            <a
+                href="/library"
+                data-link
+            >
+                Biblioteca
+            </a>
+
+            <a
+                href="/wishlist"
+                data-link
+            >
+                Wishlist
+            </a>
+
+            <a
+                href="/settings"
+                data-link
+            >
+                Configurações
+            </a>
+
+        </aside>
+
+    `;
+}
+```
+
+---
+
+# PrivateLayout
+
+```js id="3qxv54"
+import Navbar
+from "../../components/layout/Navbar";
+
+import Footer
+from "../../components/layout/Footer";
+
+import SidebarAccount
+from "../../components/layout/SidebarAccount";
+```
+
+---
+
+```js id="3xck2f"
+export default function(
+    content
+) {
+
+    return `
+
+        <div
+            class="
+                min-h-screen
+                flex
+                flex-col
+            "
+        >
+
+            ${Navbar()}
+
+            <main
+                class="
+                    flex-1
+                    flex
+                    flex-col
+                    md:flex-row
+                    gap-8
+                    p-4
+                "
+            >
+
+                ${SidebarAccount()}
+
+                <div
+                    class="
+                        flex-1
+                    "
+                >
+
+                    ${content}
+
+                </div>
+
+            </main>
+
+            ${Footer()}
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# Componentes Base
+
+## Button
+
+```js id="5y1zcg"
+export default function Button({
+
+    label,
+
+    id = ""
+
+}) {
+
+    return `
+
+        <button
+            id="${id}"
+        >
+
+            ${label}
+
+        </button>
+
+    `;
+}
+```
+
+---
+
+## Input
+
+```js id="4kt9eg"
+export default function Input({
+
+    id,
+
+    type,
+
+    placeholder
+
+}) {
+
+    return `
+
+        <input
+
+            id="${id}"
+
+            type="${type}"
+
+            placeholder="${placeholder}"
+
+        />
+
+    `;
+}
+```
+
+---
+
+## Card
+
+Base para:
+
+```txt id="uozhwu"
+GameCard
+
+CategoryCard
+
+ReviewCard
+```
+
+---
+
+```js id="vxngvk"
+export default function Card(
+    content
+) {
+
+    return `
+
+        <div>
+
+            ${content}
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# Primeira página real
+
+Agora sim você pode começar o Hub.
+
+A próxima etapa seria criar:
+
+```txt id="v7jvhq"
+components/game/
+
+├── GameCard.js
+├── GameRow.js
+├── HeroCarousel.js
+└── CategoryRow.js
+```
+
+e a página:
+
+```txt id="y0kv9w"
+/hub
+```
+
+consumindo:
+
+```js id="nd92ko"
+GamesService.list()
+```
+
+e renderizando os jogos do mock, já com a estrutura preparada para receber Cloudinary depois.
+
+Essa é a primeira tela que eu implementaria integralmente, porque ela valida simultaneamente:
+
+```txt id="k6evig"
+Router
++
+Layout
++
+Store
++
+Services
++
+API Layer
++
+Responsividade
++
+Cards
++
+Navegação para /game/:slug
+```
+
+Se tudo funcionar no Hub, praticamente toda a fundação do marketplace estará validada.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sim. Considerando tudo o que definimos até agora, o projeto já saiu da fase de "ideia" e entrou na fase de "arquitetura pronta para implementação".
+
+# Visão Geral Atual
+
+## Objetivo do Projeto
+
+Marketplace de jogos digitais inspirado em:
+
+* PlayStation Network
+* GOG
+
+Características:
+
+```txt
+✓ Catálogo administrado apenas pela equipe
+
+✓ Usuários não publicam jogos
+
+✓ Login Google
+
+✓ Biblioteca de jogos
+
+✓ Wishlist
+
+✓ Carrinho
+
+✓ Perfil
+
+✓ Reviews
+
+✓ DLCs
+
+✓ Histórico de preços
+
+✓ Cloudinary
+```
+
+---
+
+# Stack Definida
+
+## Frontend
+
+```txt
+Vite
+
+JavaScript Vanilla
+
+TailwindCSS
+
+Firebase Authentication
+
+SPA Router próprio
+
+Store Global própria
+```
+
+---
+
+## Backend
+
+```txt
+Spring Boot
+
+Spring Security
+
+JWT Firebase
+
+PostgreSQL
+```
+
+---
+
+## Storage
+
+```txt
+Cloudinary
+```
+
+---
+
+# Arquitetura Geral
+
+```txt
+Frontend
+    ↓
+
+Firebase Auth
+    ↓
+
+JWT
+    ↓
+
+Spring Boot
+    ↓
+
+PostgreSQL
+```
+
+---
+
+# Status da Arquitetura
+
+## Router SPA
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Implementado conceitualmente:
+
+```txt
+✓ History API
+
+✓ Navigate()
+
+✓ Route Params
+
+✓ /game/:slug
+
+✓ Redirects
+
+✓ Guards
+
+✓ Lazy Loading
+
+✓ Not Found
+```
+
+Exemplos:
+
+```txt
+/hub
+
+/game/cyberpunk-2077
+
+/profile
+
+/library
+```
+
+---
+
+## Store Global
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Estrutura definida:
+
+```txt
+Store
+
+Actions
+
+Selectors
+```
+
+Responsável por:
+
+```txt
+Usuário
+
+Carrinho
+
+Wishlist
+
+Biblioteca
+
+Loading
+```
+
+---
+
+## API Layer
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Estrutura:
+
+```txt
+ApiClient
+
+GamesService
+
+UsersService
+
+WishlistService
+
+CartService
+
+LibraryService
+```
+
+Objetivo:
+
+```txt
+Pages
+ ↓
+Services
+ ↓
+ApiClient
+ ↓
+Backend
+```
+
+---
+
+## Firebase
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Definido:
+
+```txt
+Google Login
+
+JWT
+
+Persistência
+
+Observe Session
+
+Logout
+```
+
+---
+
+## Estrutura Visual Compartilhada
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Componentes definidos:
+
+```txt
+Navbar
+
+Footer
+
+PageContainer
+
+SidebarAccount
+
+PublicLayout
+
+PrivateLayout
+```
+
+---
+
+# O que existe visualmente
+
+## PublicLayout
+
+Utilizado em:
+
+```txt
+Login
+
+Cadastro
+
+Esqueci senha
+
+Hub
+
+Página do jogo
+```
+
+Estrutura:
+
+```txt
+Navbar
+
+Conteúdo
+
+Footer
+```
+
+---
+
+## PrivateLayout
+
+Utilizado em:
+
+```txt
+Perfil
+
+Biblioteca
+
+Wishlist
+
+Configurações
+```
+
+Estrutura:
+
+```txt
+Navbar
+
+Sidebar
+
+Conteúdo
+
+Footer
+```
+
+---
+
+# Estrutura Física Atual
+
+```txt
+src/
+
+├── app/
+│   ├── router/
+│   └── layouts/
+│
+├── store/
+│
+├── services/
+│   ├── api/
+│   ├── auth/
+│   ├── games/
+│   ├── users/
+│   ├── cart/
+│   ├── wishlist/
+│   └── library/
+│
+├── core/
+│   └── firebase/
+│
+├── components/
+│   ├── layout/
+│   └── ui/
+│
+├── pages/
+│
+└── assets/
+```
+
+---
+
+# Páginas Planejadas
+
+## Autenticação
+
+```txt
+/login
+
+/register
+
+/forgot-password
+```
+
+Status:
+
+```txt
+████████░░ 80%
+```
+
+Falta apenas a implementação visual.
+
+---
+
+## Hub
+
+```txt
+/hub
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+Será a próxima página.
+
+Componentes planejados:
+
+```txt
+HeroCarousel
+
+GameRow
+
+GameCard
+
+CategoryRow
+```
+
+---
+
+## Página do Jogo
+
+```txt
+/game/:slug
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+Componentes planejados:
+
+```txt
+Banner
+
+Galeria
+
+Descrição
+
+Trailer
+
+Requisitos
+
+Idiomas
+
+Reviews
+
+DLCs
+```
+
+---
+
+## Perfil
+
+```txt
+/profile
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Biblioteca
+
+```txt
+/library
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Wishlist
+
+```txt
+/wishlist
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Carrinho
+
+```txt
+/cart
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+# Banco de Dados
+
+Status:
+
+```txt
+█████████░ 95%
+```
+
+Pontos fortes:
+
+```txt
+✓ Games
+
+✓ Reviews
+
+✓ Wishlist
+
+✓ Biblioteca
+
+✓ Orders
+
+✓ DLCs
+
+✓ Categorias
+
+✓ Tags
+
+✓ Publishers
+
+✓ Requisitos
+
+✓ Idiomas
+
+✓ Patch Notes
+```
+
+Sugestão adicionada:
+
+```txt
+Cart
+
+CartItems
+```
+
+---
+
+# Integrações
+
+## Firebase
+
+```txt
+██████████ 100%
+```
+
+---
+
+## Cloudinary
+
+```txt
+██████████ 100%
+```
+
+Arquitetura definida.
+
+Implementação futura.
+
+---
+
+## Spring Security
+
+```txt
+████████░░ 80%
+```
+
+Arquitetura definida.
+
+Falta implementação.
+
+---
+
+# Andamento Geral
+
+Se considerarmos um MVP estilo PSN/GOG:
+
+```txt
+Arquitetura
+██████████ 100%
+
+Router
+██████████ 100%
+
+Store
+██████████ 100%
+
+API Layer
+██████████ 100%
+
+Firebase
+██████████ 100%
+
+Layouts
+██████████ 100%
+
+Autenticação Visual
+████████░░ 80%
+
+Hub
+░░░░░░░░░░   0%
+
+Página do Jogo
+░░░░░░░░░░   0%
+
+Carrinho
+░░░░░░░░░░   0%
+
+Wishlist
+░░░░░░░░░░   0%
+
+Biblioteca
+░░░░░░░░░░   0%
+
+Perfil
+░░░░░░░░░░   0%
+
+Integração Backend
+░░░░░░░░░░   0%
+```
+
+## Progresso real
+
+```txt
+Infraestrutura/Fundação: ~70%
+
+Funcionalidades de negócio: ~0%
+
+Projeto total: ~25-30%
+```
+
+O próximo passo de maior retorno é implementar o **Hub** primeiro. Ele valida simultaneamente:
+
+```txt
+✓ Router
+
+✓ Layout
+
+✓ GamesService
+
+✓ Navegação
+
+✓ Mock de dados
+
+✓ Responsividade
+
+✓ Estrutura de catálogo
+
+✓ Cards reutilizáveis
+
+✓ Integração futura com Cloudinary
+```
+
+Depois do Hub, a Página do Jogo vem praticamente pronta por consequência.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Agora chegamos à primeira funcionalidade que o usuário realmente enxerga: o **Hub (Loja)**.
+
+Até aqui tudo era infraestrutura. O Hub é a primeira tela que valida se a arquitetura inteira faz sentido.
+
+---
+
+# Objetivo do Hub
+
+Inspirado em:
+
+* PlayStation Network
+* GOG
+
+Estrutura:
+
+```txt
+Navbar
+
+Hero Principal
+
+Jogos em Destaque
+
+Mais Vendidos
+
+Lançamentos
+
+Promoções
+
+Categorias
+
+Footer
+```
+
+---
+
+# Componentes necessários
+
+```txt
+components/
+
+game/
+
+├── GameCard.js
+├── GameRow.js
+├── HeroBanner.js
+├── CategoryCard.js
+└── CategoryRow.js
+```
+
+---
+
+# Estrutura da página
+
+```txt
+pages/
+
+hub/
+
+└── HubPage.js
+```
+
+---
+
+# Mock de dados
+
+Enquanto o backend não existe:
+
+```txt
+mocks/
+
+games.mock.js
+```
+
+---
+
+## games.mock.js
+
+```js
+export const games = [
+
+    {
+        id: "1",
+
+        slug: "cyberpunk-2077",
+
+        title: "Cyberpunk 2077",
+
+        price: 199.90,
+
+        cover:
+            "https://picsum.photos/400/600?1",
+
+        banner:
+            "https://picsum.photos/1920/1080?1",
+
+        category:
+            "RPG"
+    },
+
+    {
+        id: "2",
+
+        slug: "the-witcher-3",
+
+        title: "The Witcher 3",
+
+        price: 89.90,
+
+        cover:
+            "https://picsum.photos/400/600?2",
+
+        banner:
+            "https://picsum.photos/1920/1080?2",
+
+        category:
+            "RPG"
+    },
+
+    {
+        id: "3",
+
+        slug: "doom-eternal",
+
+        title: "DOOM Eternal",
+
+        price: 79.90,
+
+        cover:
+            "https://picsum.photos/400/600?3",
+
+        banner:
+            "https://picsum.photos/1920/1080?3",
+
+        category:
+            "FPS"
+    }
+];
+```
+
+---
+
+# GameCard
+
+Este será um dos componentes mais reutilizados do projeto.
+
+```js
+export default function GameCard(
+    game
+) {
+
+    return `
+
+        <a
+
+            href="/game/${game.slug}"
+
+            data-link
+
+            class="
+                flex
+                flex-col
+                w-full
+            "
+        >
+
+            <div
+
+                class="
+                    h-72
+                    bg-cover
+                    bg-center
+                "
+
+                style="
+                    background-image:
+                    url('${game.cover}')
+                "
+
+            ></div>
+
+            <div
+                class="
+                    flex
+                    flex-col
+                    gap-2
+                    p-2
+                "
+            >
+
+                <h3>
+
+                    ${game.title}
+
+                </h3>
+
+                <span>
+
+                    R$ ${game.price}
+
+                </span>
+
+            </div>
+
+        </a>
+
+    `;
+}
+```
+
+---
+
+# GameRow
+
+Recebe uma lista de jogos.
+
+```js
+import GameCard
+from "./GameCard";
+```
+
+---
+
+```js
+export default function({
+
+    title,
+
+    games
+
+}) {
+
+    return `
+
+        <section
+            class="
+                flex
+                flex-col
+                gap-4
+            "
+        >
+
+            <h2>
+
+                ${title}
+
+            </h2>
+
+            <div
+
+                class="
+                    flex
+                    gap-4
+                    overflow-x-auto
+                "
+
+            >
+
+                ${games
+                    .map(
+                        game =>
+                            GameCard(game)
+                    )
+                    .join("")
+                }
+
+            </div>
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# HeroBanner
+
+Componente principal da página.
+
+```js
+export default function(
+    game
+) {
+
+    return `
+
+        <section
+
+            class="
+                h-[500px]
+                flex
+                items-end
+                p-8
+                bg-cover
+                bg-center
+            "
+
+            style="
+                background-image:
+                url('${game.banner}')
+            "
+
+        >
+
+            <div
+                class="
+                    flex
+                    flex-col
+                    gap-4
+                "
+            >
+
+                <h1>
+
+                    ${game.title}
+
+                </h1>
+
+                <a
+
+                    href="/game/${game.slug}"
+
+                    data-link
+
+                >
+
+                    Ver jogo
+
+                </a>
+
+            </div>
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# Categories
+
+Como seu banco possui:
+
+```sql
+categories
+
+game_categories
+```
+
+vale a pena preparar agora.
+
+---
+
+## CategoryCard
+
+```js
+export default function(
+    category
+) {
+
+    return `
+
+        <div
+            class="
+                flex
+                items-center
+                justify-center
+                min-w-40
+                h-24
+            "
+        >
+
+            ${category}
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+## CategoryRow
+
+```js
+import CategoryCard
+from "./CategoryCard";
+```
+
+---
+
+```js
+export default function(
+    categories
+) {
+
+    return `
+
+        <section
+            class="
+                flex
+                gap-4
+                overflow-x-auto
+            "
+        >
+
+            ${categories
+                .map(
+                    category =>
+                        CategoryCard(
+                            category
+                        )
+                )
+                .join("")
+            }
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# HubPage
+
+```js
+import PublicLayout
+from "../../app/layouts/PublicLayout";
+
+import HeroBanner
+from "../../components/game/HeroBanner";
+
+import GameRow
+from "../../components/game/GameRow";
+
+import CategoryRow
+from "../../components/game/CategoryRow";
+
+import { games }
+from "../../mocks/games.mock";
+```
+
+---
+
+```js
+export default async function() {
+
+    const featured =
+        games[0];
+
+    return PublicLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-12
+            "
+        >
+
+            ${HeroBanner(
+                featured
+            )}
+
+            ${GameRow({
+
+                title:
+                    "Destaques",
+
+                games
+            })}
+
+            ${GameRow({
+
+                title:
+                    "Mais Vendidos",
+
+                games
+            })}
+
+            ${GameRow({
+
+                title:
+                    "Promoções",
+
+                games
+            })}
+
+            ${CategoryRow([
+
+                "RPG",
+
+                "FPS",
+
+                "Aventura",
+
+                "Terror",
+
+                "Indie"
+
+            ])}
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# Atualização das rotas
+
+```js
+{
+    path: "/hub",
+
+    page: () =>
+        import(
+            "../../pages/hub/HubPage"
+        )
+}
+```
+
+---
+
+# Resultado esperado
+
+Você terá a primeira navegação funcional:
+
+```txt
+/login
+      ↓
+
+/hub
+      ↓
+
+Card
+      ↓
+
+/game/cyberpunk-2077
+```
+
+---
+
+# Próxima etapa
+
+Após o Hub, eu implementaria imediatamente a **Página do Jogo**, porque seu banco foi modelado de forma muito rica.
+
+Ela consumirá diretamente:
+
+```txt
+games
+
+game_media
+
+game_sections
+
+reviews
+
+game_languages
+
+game_system_requirements
+
+game_relations
+
+game_publishers
+```
+
+e será provavelmente a página mais importante de todo o marketplace, equivalente à página de produto da GOG/Steam/PSN. A partir dela já será possível conectar Wishlist, Carrinho e Biblioteca.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Agora vamos construir a página mais importante do marketplace: **Página do Jogo**.
+
+Na prática, ela é o equivalente da:
+
+* GOG
+* Steam
+* PlayStation Network
+
+Se essa página estiver bem feita, Carrinho, Wishlist, Biblioteca e Checkout ficam quase triviais.
+
+---
+
+# Objetivo
+
+URL:
+
+```txt
+/game/:slug
+```
+
+Exemplo:
+
+```txt
+/game/cyberpunk-2077
+```
+
+---
+
+# Estrutura da Página
+
+```txt
+Banner
+
+Informações principais
+├── Capa
+├── Nome
+├── Publisher
+├── Preço
+├── Comprar
+└── Wishlist
+
+Galeria
+
+Descrição
+
+Requisitos
+
+Idiomas
+
+Reviews
+
+Jogos Relacionados
+
+Atualizações
+```
+
+---
+
+# Componentes
+
+```txt
+components/game/
+
+├── GameBanner.js
+├── GameHeader.js
+├── ScreenshotGallery.js
+├── DescriptionSection.js
+├── RequirementsSection.js
+├── LanguagesSection.js
+├── ReviewSection.js
+├── RelatedGamesSection.js
+└── UpdateSection.js
+```
+
+---
+
+# Mock Completo
+
+Agora precisamos simular algo próximo ao banco.
+
+## gameDetails.mock.js
+
+```js
+export const gameDetails = {
+
+    id: "1",
+
+    slug: "cyberpunk-2077",
+
+    title: "Cyberpunk 2077",
+
+    shortDescription:
+        "RPG de ação futurista.",
+
+    longDescription:
+        `
+        Cyberpunk 2077 é um RPG
+        de mundo aberto ambientado
+        em Night City.
+        `,
+
+    price: 199.90,
+
+    publisher:
+        "CD Projekt",
+
+    cover:
+        "https://picsum.photos/400/600",
+
+    banner:
+        "https://picsum.photos/1920/1080",
+
+    screenshots: [
+
+        "https://picsum.photos/1280/720?1",
+
+        "https://picsum.photos/1280/720?2",
+
+        "https://picsum.photos/1280/720?3"
+    ],
+
+    minimum: {
+
+        os:
+            "Windows 10",
+
+        cpu:
+            "Ryzen 5",
+
+        ram:
+            "8 GB",
+
+        gpu:
+            "GTX 1060",
+
+        storage:
+            "70 GB"
+    },
+
+    recommended: {
+
+        os:
+            "Windows 11",
+
+        cpu:
+            "Ryzen 7",
+
+        ram:
+            "16 GB",
+
+        gpu:
+            "RTX 3070",
+
+        storage:
+            "70 GB SSD"
+    },
+
+    languages: [
+
+        {
+            name:
+                "Português",
+
+            interface: true,
+
+            subtitles: true,
+
+            audio: true
+        },
+
+        {
+            name:
+                "English",
+
+            interface: true,
+
+            subtitles: true,
+
+            audio: true
+        }
+    ]
+};
+```
+
+---
+
+# Banner
+
+## GameBanner.js
+
+```js
+export default function(game) {
+
+    return `
+
+        <section
+
+            class="
+                h-[500px]
+                bg-cover
+                bg-center
+            "
+
+            style="
+                background-image:
+                url('${game.banner}')
+            "
+
+        ></section>
+
+    `;
+}
+```
+
+---
+
+# Cabeçalho do Produto
+
+## GameHeader.js
+
+```js
+export default function(game) {
+
+    return `
+
+        <section
+
+            class="
+                flex
+                flex-col
+                lg:flex-row
+                gap-8
+            "
+
+        >
+
+            <div
+
+                class="
+                    w-full
+                    lg:w-80
+                    h-[450px]
+                    bg-cover
+                    bg-center
+                "
+
+                style="
+                    background-image:
+                    url('${game.cover}')
+                "
+
+            ></div>
+
+            <div
+
+                class="
+                    flex
+                    flex-col
+                    gap-4
+                    flex-1
+                "
+
+            >
+
+                <h1>
+
+                    ${game.title}
+
+                </h1>
+
+                <p>
+
+                    ${game.shortDescription}
+
+                </p>
+
+                <span>
+
+                    ${game.publisher}
+
+                </span>
+
+                <span>
+
+                    R$ ${game.price}
+
+                </span>
+
+                <div
+                    class="
+                        flex
+                        flex-wrap
+                        gap-4
+                    "
+                >
+
+                    <button
+                        id="add-cart"
+                    >
+                        Adicionar ao Carrinho
+                    </button>
+
+                    <button
+                        id="add-wishlist"
+                    >
+                        Wishlist
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# Galeria
+
+## ScreenshotGallery.js
+
+```js
+export default function(images) {
+
+    return `
+
+        <section
+
+            class="
+                flex
+                gap-4
+                overflow-x-auto
+            "
+
+        >
+
+            ${images.map(image => `
+
+                <div
+
+                    class="
+                        min-w-[400px]
+                        h-[250px]
+                        bg-cover
+                        bg-center
+                    "
+
+                    style="
+                        background-image:
+                        url('${image}')
+                    "
+
+                ></div>
+
+            `).join("")}
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# Descrição
+
+## DescriptionSection.js
+
+```js
+export default function(game) {
+
+    return `
+
+        <section>
+
+            <h2>
+
+                Sobre o jogo
+
+            </h2>
+
+            <p>
+
+                ${game.longDescription}
+
+            </p>
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# Requisitos
+
+## RequirementsSection.js
+
+```js
+export default function(game) {
+
+    return `
+
+        <section
+
+            class="
+                flex
+                flex-col
+                md:flex-row
+                gap-8
+            "
+
+        >
+
+            <div>
+
+                <h3>
+
+                    Mínimos
+
+                </h3>
+
+                <ul>
+
+                    <li>
+                        SO:
+                        ${game.minimum.os}
+                    </li>
+
+                    <li>
+                        CPU:
+                        ${game.minimum.cpu}
+                    </li>
+
+                    <li>
+                        RAM:
+                        ${game.minimum.ram}
+                    </li>
+
+                    <li>
+                        GPU:
+                        ${game.minimum.gpu}
+                    </li>
+
+                    <li>
+                        Armazenamento:
+                        ${game.minimum.storage}
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <div>
+
+                <h3>
+
+                    Recomendados
+
+                </h3>
+
+                <ul>
+
+                    <li>
+                        SO:
+                        ${game.recommended.os}
+                    </li>
+
+                    <li>
+                        CPU:
+                        ${game.recommended.cpu}
+                    </li>
+
+                    <li>
+                        RAM:
+                        ${game.recommended.ram}
+                    </li>
+
+                    <li>
+                        GPU:
+                        ${game.recommended.gpu}
+                    </li>
+
+                    <li>
+                        Armazenamento:
+                        ${game.recommended.storage}
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# Idiomas
+
+## LanguagesSection.js
+
+```js
+export default function(languages) {
+
+    return `
+
+        <section>
+
+            <h2>
+
+                Idiomas
+
+            </h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Idioma
+                        </th>
+
+                        <th>
+                            Interface
+                        </th>
+
+                        <th>
+                            Legendas
+                        </th>
+
+                        <th>
+                            Áudio
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${languages.map(
+                        language => `
+
+                        <tr>
+
+                            <td>
+                                ${language.name}
+                            </td>
+
+                            <td>
+                                ${language.interface ? "✓" : ""}
+                            </td>
+
+                            <td>
+                                ${language.subtitles ? "✓" : ""}
+                            </td>
+
+                            <td>
+                                ${language.audio ? "✓" : ""}
+                            </td>
+
+                        </tr>
+
+                    `
+                    ).join("")}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    `;
+}
+```
+
+---
+
+# Página Final
+
+## GamePage.js
+
+```js
+import PublicLayout
+from "../../app/layouts/PublicLayout";
+
+import GameBanner
+from "../../components/game/GameBanner";
+
+import GameHeader
+from "../../components/game/GameHeader";
+
+import ScreenshotGallery
+from "../../components/game/ScreenshotGallery";
+
+import DescriptionSection
+from "../../components/game/DescriptionSection";
+
+import RequirementsSection
+from "../../components/game/RequirementsSection";
+
+import LanguagesSection
+from "../../components/game/LanguagesSection";
+
+import {
+    gameDetails
+}
+from "../../mocks/gameDetails.mock";
+```
+
+---
+
+```js
+export default async function() {
+
+    return PublicLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-12
+            "
+        >
+
+            ${GameBanner(
+                gameDetails
+            )}
+
+            ${GameHeader(
+                gameDetails
+            )}
+
+            ${ScreenshotGallery(
+                gameDetails.screenshots
+            )}
+
+            ${DescriptionSection(
+                gameDetails
+            )}
+
+            ${RequirementsSection(
+                gameDetails
+            )}
+
+            ${LanguagesSection(
+                gameDetails.languages
+            )}
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# O que já está validado após essa etapa
+
+```txt
+Router SPA                ✓
+
+Store                     ✓
+
+Firebase Auth             ✓
+
+API Layer                 ✓
+
+Layouts                   ✓
+
+Hub                        ✓
+
+Página de Jogo             ✓
+
+Navegação dinâmica         ✓
+
+GameCard                   ✓
+
+Mock de Dados              ✓
+```
+
+# Próxima etapa
+
+A próxima implementação deveria ser o **Carrinho + Wishlist**, porque os botões da página do jogo já existem:
+
+```txt
+Adicionar ao Carrinho
+
+Wishlist
+```
+
+e você já possui na modelagem:
+
+```sql
+user_wishlist
+
+orders
+
+order_items
+```
+
+Além disso, Carrinho e Wishlist serão reutilizados pelo Hub e pela Página do Jogo, então vale mais a pena implementá-los antes de Perfil, Biblioteca e Configurações.
+
+
+
+
+
+
+
+
+
+
+Perfeito. Agora chegamos na primeira funcionalidade de negócio do marketplace.
+
+Até aqui o usuário consegue:
+
+```txt id="0h2kl4"
+Entrar
+
+Navegar
+
+Ver catálogo
+
+Abrir jogo
+```
+
+Mas ainda não consegue realizar ações.
+
+A próxima etapa é implementar:
+
+```txt id="t7t4em"
+Wishlist
+
+Carrinho
+```
+
+porque elas conectam diretamente:
+
+```txt id="lnqb8f"
+Hub
+
+Página do Jogo
+
+Biblioteca
+
+Checkout
+```
+
+---
+
+# Visão Arquitetural
+
+## Fluxo Wishlist
+
+```txt id="vawh2i"
+Página do Jogo
+
+↓
+
+Adicionar Wishlist
+
+↓
+
+Store
+
+↓
+
+WishlistService
+
+↓
+
+Backend
+
+↓
+
+user_wishlist
+```
+
+---
+
+## Fluxo Carrinho
+
+```txt id="qt9kdc"
+Página do Jogo
+
+↓
+
+Adicionar Carrinho
+
+↓
+
+Store
+
+↓
+
+CartService
+
+↓
+
+Backend
+
+↓
+
+cart_items
+```
+
+---
+
+# Primeiro ajuste
+
+Anteriormente criamos:
+
+```txt id="z9n4cc"
+cart: []
+wishlist: []
+```
+
+na Store.
+
+Agora precisamos evoluir.
+
+---
+
+# State
+
+## store.js
+
+```js id="4v3mwf"
+export const Store =
+    createStore({
+
+        user: null,
+
+        cart: [],
+
+        wishlist: [],
+
+        library: [],
+
+        loading: false
+    });
+```
+
+---
+
+# Actions
+
+## actions.js
+
+Adicionar:
+
+```js id="4r5pj3"
+addToWishlist(game)
+removeFromWishlist(gameId)
+
+addToCart(game)
+removeFromCart(gameId)
+```
+
+---
+
+### Wishlist
+
+```js id="6c8jkh"
+addToWishlist(game) {
+
+    Store.setState(state => ({
+
+        ...state,
+
+        wishlist: [
+
+            ...state.wishlist,
+
+            game
+
+        ]
+    }));
+
+    rerender();
+}
+```
+
+---
+
+```js id="ynm1wi"
+removeFromWishlist(id) {
+
+    Store.setState(state => ({
+
+        ...state,
+
+        wishlist:
+
+            state.wishlist.filter(
+                item =>
+                    item.id !== id
+            )
+
+    }));
+
+    rerender();
+}
+```
+
+---
+
+### Carrinho
+
+```js id="1q11d6"
+addToCart(game) {
+
+    Store.setState(state => ({
+
+        ...state,
+
+        cart: [
+
+            ...state.cart,
+
+            game
+
+        ]
+    }));
+
+    rerender();
+}
+```
+
+---
+
+```js id="stq4t6"
+removeFromCart(id) {
+
+    Store.setState(state => ({
+
+        ...state,
+
+        cart:
+
+            state.cart.filter(
+                item =>
+                    item.id !== id
+            )
+
+    }));
+
+    rerender();
+}
+```
+
+---
+
+# Melhorando Navbar
+
+Agora a Navbar pode exibir contadores.
+
+## Navbar.js
+
+```js id="g7wfdq"
+const cartCount =
+    Selectors.cart().length;
+
+const wishlistCount =
+    Selectors.wishlist().length;
+```
+
+---
+
+```html id="pqzm2j"
+<a href="/wishlist" data-link>
+
+    Wishlist
+    (${wishlistCount})
+
+</a>
+
+<a href="/cart" data-link>
+
+    Carrinho
+    (${cartCount})
+
+</a>
+```
+
+---
+
+# Página Wishlist
+
+Estrutura:
+
+```txt id="d0q1r7"
+/wishlist
+```
+
+---
+
+## WishlistPage.js
+
+```js id="s3vdb2"
+import PrivateLayout
+from "../../app/layouts/PrivateLayout";
+
+import { Selectors }
+from "../../store/selectors";
+```
+
+---
+
+```js id="gydb1e"
+export default function() {
+
+    const games =
+        Selectors.wishlist();
+
+    return PrivateLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+            "
+        >
+
+            <h1>
+
+                Wishlist
+
+            </h1>
+
+            ${
+                games.map(game => `
+
+                    <a
+
+                        href="/game/${game.slug}"
+
+                        data-link
+
+                    >
+
+                        ${game.title}
+
+                    </a>
+
+                `).join("")
+            }
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# Página Carrinho
+
+Estrutura:
+
+```txt id="llh9dc"
+/cart
+```
+
+---
+
+## CartPage.js
+
+```js id="l9vd0y"
+import PrivateLayout
+from "../../app/layouts/PrivateLayout";
+
+import { Selectors }
+from "../../store/selectors";
+```
+
+---
+
+```js id="zt3t4w"
+export default function() {
+
+    const cart =
+        Selectors.cart();
+
+    const total =
+        cart.reduce(
+
+            (sum, game) =>
+
+                sum + game.price,
+
+            0
+
+        );
+
+    return PrivateLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+            "
+        >
+
+            <h1>
+
+                Carrinho
+
+            </h1>
+
+            ${
+                cart.map(game => `
+
+                    <div>
+
+                        ${game.title}
+
+                        -
+
+                        R$ ${game.price}
+
+                    </div>
+
+                `).join("")
+            }
+
+            <div>
+
+                Total:
+                R$ ${total}
+
+            </div>
+
+            <button
+                id="checkout"
+            >
+
+                Finalizar Compra
+
+            </button>
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# Integrando Página do Jogo
+
+No GameHeader:
+
+```html id="zz1wz8"
+<button id="add-cart">
+
+    Adicionar ao Carrinho
+
+</button>
+
+<button id="add-wishlist">
+
+    Wishlist
+
+</button>
+```
+
+---
+
+Precisamos de:
+
+```js id="egp7yb"
+export function afterRender(
+    game
+) {
+
+    document
+
+        .querySelector(
+            "#add-cart"
+        )
+
+        .addEventListener(
+
+            "click",
+
+            () => {
+
+                Actions.addToCart(
+                    game
+                );
+            }
+        );
+}
+```
+
+---
+
+E:
+
+```js id="ktm6w4"
+document
+
+    .querySelector(
+        "#add-wishlist"
+    )
+
+    .addEventListener(
+
+        "click",
+
+        () => {
+
+            Actions
+                .addToWishlist(
+                    game
+                );
+        }
+    );
+```
+
+---
+
+# Evitando Duplicatas
+
+Antes de adicionar:
+
+```js id="lr4c1s"
+const exists =
+
+    state.cart.some(
+
+        item =>
+            item.id === game.id
+    );
+```
+
+---
+
+Se existir:
+
+```js id="l1jd87"
+return state;
+```
+
+---
+
+Isso deve existir tanto em:
+
+```txt id="zj1fdw"
+addToCart()
+
+addToWishlist()
+```
+
+---
+
+# Rotas novas
+
+```js id="6zmg1q"
+{
+    path: "/cart",
+
+    private: true,
+
+    page: () =>
+        import(
+            "../../pages/cart/CartPage"
+        )
+}
+```
+
+---
+
+```js id="hnyphv"
+{
+    path: "/wishlist",
+
+    private: true,
+
+    page: () =>
+        import(
+            "../../pages/wishlist/WishlistPage"
+        )
+}
+```
+
+---
+
+# Resultado após essa etapa
+
+O marketplace já possui:
+
+```txt id="44j9ui"
+Login
+
+Hub
+
+Página do Jogo
+
+Wishlist
+
+Carrinho
+
+Store Persistente
+
+Rotas Privadas
+
+Layouts
+```
+
+---
+
+# Próxima etapa
+
+Agora existe uma decisão importante.
+
+Você pode seguir por dois caminhos:
+
+### Caminho A
+
+Biblioteca
+
+```txt id="kqv1z5"
+Compra
+
+↓
+
+Biblioteca
+
+↓
+
+Jogos adquiridos
+```
+
+### Caminho B
+
+Perfil
+
+```txt id="tbaf59"
+/profile
+
+/settings
+
+avatar
+
+dados pessoais
+```
+
+Eu implementaria primeiro a **Biblioteca**, porque ela fecha o ciclo principal do marketplace:
+
+```txt id="p4jztq"
+Hub
+
+↓
+
+Jogo
+
+↓
+
+Carrinho
+
+↓
+
+Compra
+
+↓
+
+Biblioteca
+```
+
+Esse é o primeiro fluxo completo de negócio do sistema.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Agora o cenário mudou bastante. Antes estávamos com a infraestrutura pronta e nenhuma funcionalidade de negócio. Hoje já existe um fluxo funcional completo desenhado.
+
+# Visão Geral Atual
+
+## Objetivo do Projeto
+
+Marketplace de jogos digitais inspirado em:
+
+* PlayStation Network
+* GOG
+
+Premissas:
+
+```txt
+✓ Catálogo administrado internamente
+
+✓ Sem publicação de jogos por usuários
+
+✓ Login Google
+
+✓ Biblioteca própria
+
+✓ Wishlist
+
+✓ Carrinho
+
+✓ Reviews
+
+✓ DLCs
+
+✓ Histórico de preços
+
+✓ Cloudinary
+```
+
+---
+
+# Stack
+
+## Frontend
+
+```txt
+Vite
+
+JavaScript Vanilla
+
+TailwindCSS
+
+SPA Router próprio
+
+Store Global própria
+
+Firebase Authentication
+```
+
+---
+
+## Backend
+
+```txt
+Spring Boot
+
+Spring Security
+
+JWT Firebase
+
+PostgreSQL
+```
+
+---
+
+## Storage
+
+```txt
+Cloudinary
+```
+
+---
+
+# Arquitetura
+
+```txt
+Frontend
+    ↓
+
+Firebase
+    ↓
+
+JWT
+    ↓
+
+Spring Boot
+    ↓
+
+PostgreSQL
+```
+
+---
+
+# Estrutura Definida
+
+```txt
+src/
+
+├── app/
+│   ├── router/
+│   └── layouts/
+│
+├── core/
+│   └── firebase/
+│
+├── store/
+│
+├── services/
+│   ├── api/
+│   ├── auth/
+│   ├── games/
+│   ├── users/
+│   ├── cart/
+│   ├── wishlist/
+│   └── library/
+│
+├── components/
+│   ├── layout/
+│   ├── ui/
+│   └── game/
+│
+├── pages/
+│
+├── mocks/
+│
+└── assets/
+```
+
+---
+
+# Infraestrutura
+
+## Router SPA
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Possui:
+
+```txt
+✓ History API
+
+✓ Route Params
+
+✓ Redirects
+
+✓ Private Routes
+
+✓ Lazy Loading
+
+✓ NotFound
+
+✓ Navigate()
+```
+
+Rotas principais:
+
+```txt
+/hub
+
+/game/:slug
+
+/login
+
+/profile
+
+/cart
+
+/wishlist
+
+/library
+```
+
+---
+
+## Store Global
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Controla:
+
+```txt
+user
+
+cart
+
+wishlist
+
+library
+
+loading
+```
+
+Possui:
+
+```txt
+Actions
+
+Selectors
+
+Persistência Local
+
+Re-renderização
+```
+
+---
+
+## API Layer
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Estrutura:
+
+```txt
+ApiClient
+
+GamesService
+
+UsersService
+
+AuthService
+
+CartService
+
+WishlistService
+
+LibraryService
+```
+
+---
+
+## Firebase
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Implementado conceitualmente:
+
+```txt
+Google Login
+
+JWT
+
+Observe Session
+
+Logout
+
+Persistência
+```
+
+---
+
+# Layouts
+
+## PublicLayout
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Utilizado em:
+
+```txt
+Hub
+
+Página do jogo
+
+Login
+
+Cadastro
+```
+
+---
+
+## PrivateLayout
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Utilizado em:
+
+```txt
+Perfil
+
+Wishlist
+
+Biblioteca
+
+Configurações
+
+Carrinho
+```
+
+---
+
+# Componentes Compartilhados
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Disponíveis:
+
+```txt
+Navbar
+
+Footer
+
+SidebarAccount
+
+PageContainer
+
+Button
+
+Input
+
+Card
+```
+
+---
+
+# Módulo Loja (Hub)
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Componentes:
+
+```txt
+HeroBanner
+
+GameCard
+
+GameRow
+
+CategoryCard
+
+CategoryRow
+```
+
+Fluxo:
+
+```txt
+Hub
+ ↓
+GameCard
+ ↓
+/game/:slug
+```
+
+---
+
+# Página do Jogo
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Seções:
+
+```txt
+Banner
+
+Header
+
+Preço
+
+Publisher
+
+Wishlist
+
+Carrinho
+
+Galeria
+
+Descrição
+
+Requisitos
+
+Idiomas
+```
+
+Componentes:
+
+```txt
+GameBanner
+
+GameHeader
+
+ScreenshotGallery
+
+DescriptionSection
+
+RequirementsSection
+
+LanguagesSection
+```
+
+---
+
+# Wishlist
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Fluxo:
+
+```txt
+Página do Jogo
+
+↓
+
+Adicionar Wishlist
+
+↓
+
+Store
+
+↓
+
+WishlistPage
+```
+
+Recursos:
+
+```txt
+✓ Adicionar
+
+✓ Remover
+
+✓ Persistência
+
+✓ Contador na Navbar
+
+✓ Rota Privada
+```
+
+---
+
+# Carrinho
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Fluxo:
+
+```txt
+Página do Jogo
+
+↓
+
+Adicionar Carrinho
+
+↓
+
+Store
+
+↓
+
+CartPage
+```
+
+Recursos:
+
+```txt
+✓ Adicionar
+
+✓ Remover
+
+✓ Totalização
+
+✓ Persistência
+
+✓ Contador na Navbar
+
+✓ Rota Privada
+```
+
+---
+
+# Banco de Dados
+
+Status:
+
+```txt
+█████████░ 95%
+```
+
+Cobertura atual:
+
+```txt
+✓ Users
+
+✓ Games
+
+✓ Media
+
+✓ Categories
+
+✓ Tags
+
+✓ Wishlist
+
+✓ Library
+
+✓ Reviews
+
+✓ Orders
+
+✓ OrderItems
+
+✓ Publishers
+
+✓ DLCs
+
+✓ Price History
+
+✓ Requirements
+
+✓ Languages
+
+✓ Patch Notes
+```
+
+Ajuste recomendado:
+
+```txt
+✓ Cart
+
+✓ CartItems
+```
+
+---
+
+# Fluxos Funcionais Concluídos
+
+## Navegação
+
+```txt
+Login
+ ↓
+Hub
+ ↓
+Página do Jogo
+```
+
+---
+
+## Wishlist
+
+```txt
+Hub
+ ↓
+Página do Jogo
+ ↓
+Wishlist
+```
+
+---
+
+## Carrinho
+
+```txt
+Hub
+ ↓
+Página do Jogo
+ ↓
+Carrinho
+```
+
+---
+
+# Fluxos Ainda Não Implementados
+
+## Biblioteca
+
+```txt
+Carrinho
+ ↓
+Compra
+ ↓
+Biblioteca
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Perfil
+
+```txt
+/ profile
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Configurações
+
+```txt
+/ settings
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Reviews
+
+Tabela pronta.
+
+Frontend não iniciado.
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Checkout
+
+Tabela pronta.
+
+Frontend não iniciado.
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+## Integração Spring Real
+
+Atualmente:
+
+```txt
+Mocks
+```
+
+Futuro:
+
+```txt
+Spring Boot
+ ↓
+Services
+ ↓
+Pages
+```
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+---
+
+# Andamento Consolidado
+
+```txt
+Arquitetura
+██████████ 100%
+
+Router
+██████████ 100%
+
+Store
+██████████ 100%
+
+API Layer
+██████████ 100%
+
+Firebase
+██████████ 100%
+
+Layouts
+██████████ 100%
+
+Hub
+██████████ 100%
+
+Página do Jogo
+██████████ 100%
+
+Wishlist
+██████████ 100%
+
+Carrinho
+██████████ 100%
+
+Biblioteca
+░░░░░░░░░░   0%
+
+Perfil
+░░░░░░░░░░   0%
+
+Configurações
+░░░░░░░░░░   0%
+
+Reviews
+░░░░░░░░░░   0%
+
+Checkout
+░░░░░░░░░░   0%
+
+Integração Backend
+░░░░░░░░░░   0%
+```
+
+# Progresso Real
+
+Separando infraestrutura de funcionalidades:
+
+```txt
+Infraestrutura
+██████████ 100%
+
+Catálogo
+██████████ 100%
+
+Navegação
+██████████ 100%
+
+Autenticação
+██████████ 100%
+
+Fluxo de Compra
+████░░░░░░ 40%
+
+Conta do Usuário
+░░░░░░░░░░ 0%
+
+Integração Real
+░░░░░░░░░░ 0%
+```
+
+Estimativa geral do MVP:
+
+```txt
+≈ 55% concluído
+```
+
+O próximo marco importante não é Perfil. É **Biblioteca + Checkout**, porque isso fecha o ciclo principal do marketplace:
+
+```txt
+Login
+ ↓
+Hub
+ ↓
+Página do Jogo
+ ↓
+Carrinho
+ ↓
+Checkout
+ ↓
+Biblioteca
+```
+
+Quando esse fluxo existir, o marketplace já terá sua funcionalidade central completa.
+
+
+
+
+
+
+
+
+
+
+Perfeito. Agora vamos fechar o **fluxo principal de negócio do marketplace**:
+
+```txt
+Login
+ ↓
+Hub
+ ↓
+Página do Jogo
+ ↓
+Carrinho
+ ↓
+Checkout
+ ↓
+Biblioteca
+```
+
+Quando essa etapa terminar, o usuário já conseguirá efetivamente "comprar" um jogo.
+
+---
+
+# Próxima Sprint
+
+```txt
+Checkout
+Biblioteca
+Purchase Service
+Order Flow
+```
+
+---
+
+# Primeiro ajuste no banco
+
+Hoje você possui:
+
+```sql
+orders
+order_items
+```
+
+Mas não existe um status.
+
+Eu adicionaria:
+
+```sql
+CREATE TYPE order_status AS ENUM (
+
+    'pending',
+
+    'paid',
+
+    'failed',
+
+    'refunded'
+);
+```
+
+---
+
+```sql
+ALTER TABLE orders
+
+ADD COLUMN status
+order_status
+
+NOT NULL
+
+DEFAULT 'pending';
+```
+
+---
+
+Isso será útil para:
+
+```txt
+PIX
+
+Cartão
+
+Webhook
+
+Reembolso
+```
+
+---
+
+# Store
+
+Precisamos adicionar:
+
+```js
+library: []
+```
+
+Você já possui isso no state.
+
+Agora vamos utilizá-lo.
+
+---
+
+# LibraryService
+
+Estrutura:
+
+```txt
+services/
+
+library/
+
+└── library.service.js
+```
+
+---
+
+Mock temporário:
+
+```js
+import { Store }
+from "../../store/store";
+```
+
+---
+
+```js
+export const LibraryService = {
+
+    getAll() {
+
+        return Store.getState()
+            .library;
+    },
+
+    add(game) {
+
+        Store.setState(state => ({
+
+            ...state,
+
+            library: [
+
+                ...state.library,
+
+                game
+            ]
+        }));
+    }
+};
+```
+
+---
+
+# Checkout Service
+
+```txt
+services/
+
+checkout/
+
+└── checkout.service.js
+```
+
+---
+
+Objetivo:
+
+```txt
+Carrinho
+ ↓
+Pedido
+ ↓
+Biblioteca
+```
+
+---
+
+```js
+import { Store }
+from "../../store/store";
+
+import {
+    LibraryService
+}
+from "../library/library.service";
+```
+
+---
+
+```js
+export const CheckoutService = {
+
+    async checkout() {
+
+        const cart =
+            Store.getState()
+                .cart;
+
+        cart.forEach(game => {
+
+            LibraryService
+                .add(game);
+        });
+
+        Store.setState(state => ({
+
+            ...state,
+
+            cart: []
+        }));
+
+        return true;
+    }
+};
+```
+
+---
+
+# Biblioteca
+
+Nova página:
+
+```txt
+/library
+```
+
+---
+
+## LibraryPage.js
+
+```js
+import PrivateLayout
+from "../../app/layouts/PrivateLayout";
+
+import {
+    Selectors
+}
+from "../../store/selectors";
+```
+
+---
+
+```js
+export default function() {
+
+    const games =
+        Selectors.library();
+
+    return PrivateLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+            "
+        >
+
+            <h1>
+
+                Minha Biblioteca
+
+            </h1>
+
+            ${
+                games.length
+
+                ?
+
+                games.map(game => `
+
+                    <a
+
+                        href="/game/${game.slug}"
+
+                        data-link
+
+                    >
+
+                        ${game.title}
+
+                    </a>
+
+                `).join("")
+
+                :
+
+                `
+
+                <div>
+
+                    Nenhum jogo comprado
+
+                </div>
+
+                `
+            }
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# Checkout Page
+
+Nova página:
+
+```txt
+/checkout
+```
+
+---
+
+Estrutura:
+
+```js
+import PrivateLayout
+from "../../app/layouts/PrivateLayout";
+
+import {
+    Selectors
+}
+from "../../store/selectors";
+```
+
+---
+
+```js
+export default function() {
+
+    const cart =
+        Selectors.cart();
+
+    const total =
+        cart.reduce(
+
+            (sum, game) =>
+
+                sum + game.price,
+
+            0
+        );
+
+    return PrivateLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-6
+            "
+        >
+
+            <h1>
+
+                Checkout
+
+            </h1>
+
+            ${
+                cart.map(game => `
+
+                    <div>
+
+                        ${game.title}
+
+                    </div>
+
+                `).join("")
+            }
+
+            <div>
+
+                Total:
+                R$ ${total}
+
+            </div>
+
+            <button
+                id="confirm-order"
+            >
+
+                Confirmar Compra
+
+            </button>
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# Eventos
+
+Após renderização:
+
+```js
+import {
+    CheckoutService
+}
+from "../../services/checkout/checkout.service";
+
+import {
+    navigate
+}
+from "../../app/router";
+```
+
+---
+
+```js
+document
+
+    .querySelector(
+        "#confirm-order"
+    )
+
+    .addEventListener(
+
+        "click",
+
+        async () => {
+
+            await CheckoutService
+                .checkout();
+
+            navigate(
+                "/library"
+            );
+        }
+    );
+```
+
+---
+
+# Atualizar Carrinho
+
+Adicionar botão:
+
+```html
+<a
+
+    href="/checkout"
+
+    data-link
+
+>
+
+    Ir para Checkout
+
+</a>
+```
+
+---
+
+# Rotas
+
+```js
+{
+    path: "/checkout",
+
+    private: true,
+
+    page: () =>
+        import(
+            "../../pages/checkout/CheckoutPage"
+        )
+}
+```
+
+---
+
+```js
+{
+    path: "/library",
+
+    private: true,
+
+    page: () =>
+        import(
+            "../../pages/library/LibraryPage"
+        )
+}
+```
+
+---
+
+# Componente LibraryGameCard
+
+Vale a pena criar agora.
+
+```txt
+components/library/
+
+└── LibraryGameCard.js
+```
+
+---
+
+```js
+export default function(
+    game
+) {
+
+    return `
+
+        <a
+
+            href="/game/${game.slug}"
+
+            data-link
+
+            class="
+                flex
+                flex-col
+                gap-2
+            "
+
+        >
+
+            <div
+
+                class="
+                    h-48
+                    bg-cover
+                    bg-center
+                "
+
+                style="
+                    background-image:
+                    url('${game.cover}')
+                "
+
+            ></div>
+
+            <span>
+
+                ${game.title}
+
+            </span>
+
+        </a>
+
+    `;
+}
+```
+
+---
+
+# Resultado após essa sprint
+
+Agora o sistema possui:
+
+```txt
+Login                    ✓
+
+Hub                      ✓
+
+Página do Jogo           ✓
+
+Wishlist                 ✓
+
+Carrinho                 ✓
+
+Checkout                 ✓
+
+Biblioteca               ✓
+```
+
+---
+
+# Próximo Marco
+
+Depois disso eu partiria para:
+
+```txt
+Perfil
+
+Configurações
+
+Avatar
+
+Dados pessoais
+
+Reviews
+```
+
+porque o ciclo comercial principal já estará completo.
+
+O fluxo final ficará:
+
+```txt
+Login
+ ↓
+Hub
+ ↓
+Jogo
+ ↓
+Carrinho
+ ↓
+Checkout
+ ↓
+Biblioteca
+```
+
+Esse é o primeiro MVP funcional completo do marketplace. A partir daí, as próximas etapas são enriquecer a experiência do usuário e substituir os mocks pelo backend Spring Boot real.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Neste ponto o MVP comercial já existe.
+
+Se você olhar para Steam, GOG ou PSN, depois que o fluxo:
+
+```txt
+Login
+ ↓
+Loja
+ ↓
+Produto
+ ↓
+Carrinho
+ ↓
+Compra
+ ↓
+Biblioteca
+```
+
+está funcionando, o próximo bloco mais importante passa a ser a **área do usuário**.
+
+---
+
+# Sprint 2 — Conta do Usuário
+
+Objetivo:
+
+```txt
+/profile
+
+/settings
+
+/avatar
+
+/reviews
+
+/minha atividade
+```
+
+---
+
+# Estrutura
+
+```txt
+pages/
+
+profile/
+├── ProfilePage.js
+├── SettingsPage.js
+└── MyReviewsPage.js
+```
+
+---
+
+# Novos Componentes
+
+```txt
+components/user/
+
+├── UserProfileCard.js
+├── UserStats.js
+├── UserAvatar.js
+├── ProfileHeader.js
+└── ReviewCard.js
+```
+
+---
+
+# Perfil
+
+## Rota
+
+```txt
+/profile
+```
+
+---
+
+## Estrutura
+
+Inspiração:
+
+```txt
+Steam
+Xbox
+PSN
+```
+
+---
+
+Layout:
+
+```txt
+Avatar
+
+Nome
+
+Email
+
+Bio
+
+────────────
+
+Jogos Comprados
+
+Jogos na Wishlist
+
+Reviews
+```
+
+---
+
+# UserProfileCard
+
+```js
+export default function(user) {
+
+    return `
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+            "
+        >
+
+            <div
+
+                class="
+                    w-32
+                    h-32
+                    bg-cover
+                    bg-center
+                    rounded-full
+                "
+
+                style="
+                    background-image:
+                    url('${user.avatar}')
+                "
+
+            ></div>
+
+            <h1>
+
+                ${user.name}
+
+            </h1>
+
+            <p>
+
+                ${user.bio || ""}
+            </p>
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# Estatísticas
+
+## UserStats
+
+Consumindo Store.
+
+```txt
+Biblioteca
+
+Wishlist
+
+Reviews
+```
+
+---
+
+```js
+export default function({
+
+    library,
+
+    wishlist,
+
+    reviews
+
+}) {
+
+    return `
+
+        <div
+            class="
+                flex
+                flex-wrap
+                gap-4
+            "
+        >
+
+            <div>
+
+                Jogos:
+                ${library}
+
+            </div>
+
+            <div>
+
+                Wishlist:
+                ${wishlist}
+
+            </div>
+
+            <div>
+
+                Reviews:
+                ${reviews}
+
+            </div>
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# ProfilePage
+
+```js
+import PrivateLayout
+from "../../app/layouts/PrivateLayout";
+
+import UserProfileCard
+from "../../components/user/UserProfileCard";
+
+import UserStats
+from "../../components/user/UserStats";
+
+import {
+    Selectors
+}
+from "../../store/selectors";
+```
+
+---
+
+```js
+export default function() {
+
+    const user =
+        Selectors.user();
+
+    return PrivateLayout(`
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-8
+            "
+        >
+
+            ${UserProfileCard(
+                user
+            )}
+
+            ${UserStats({
+
+                library:
+                    Selectors
+                        .library()
+                        .length,
+
+                wishlist:
+                    Selectors
+                        .wishlist()
+                        .length,
+
+                reviews: 0
+
+            })}
+
+        </div>
+
+    `);
+}
+```
+
+---
+
+# Configurações
+
+## Rota
+
+```txt
+/settings
+```
+
+---
+
+Objetivo:
+
+```txt
+Nome
+
+Bio
+
+Avatar
+
+Preferências
+```
+
+---
+
+# Estrutura
+
+```js
+export default function() {
+
+    const user =
+        Selectors.user();
+
+    return PrivateLayout(`
+
+        <form
+            id="settings-form"
+
+            class="
+                flex
+                flex-col
+                gap-4
+            "
+        >
+
+            <input
+
+                id="name"
+
+                value="${user.name}"
+
+            />
+
+            <textarea
+                id="bio"
+            >
+
+                ${user.bio || ""}
+
+            </textarea>
+
+            <button>
+
+                Salvar
+
+            </button>
+
+        </form>
+
+    `);
+}
+```
+
+---
+
+# Avatar Upload
+
+Você definiu:
+
+```txt
+Cloudinary
+```
+
+então o fluxo será:
+
+```txt
+Frontend
+
+↓
+
+Cloudinary
+
+↓
+
+URL
+
+↓
+
+Backend
+
+↓
+
+users.avatar_url
+```
+
+---
+
+# Serviço
+
+```txt
+services/
+
+cloudinary/
+
+└── cloudinary.service.js
+```
+
+---
+
+Interface:
+
+```js
+export const CloudinaryService = {
+
+    async upload(file) {
+
+    }
+};
+```
+
+---
+
+# Reviews
+
+Seu banco já possui:
+
+```sql
+reviews
+review_votes
+```
+
+então vale a pena preparar.
+
+---
+
+# Rota
+
+```txt
+/my-reviews
+```
+
+---
+
+# ReviewCard
+
+```js
+export default function(review) {
+
+    return `
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-2
+            "
+        >
+
+            <strong>
+
+                ${review.game}
+
+            </strong>
+
+            <p>
+
+                ${review.text}
+            </p>
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# MyReviewsPage
+
+```txt
+Minhas avaliações
+```
+
+---
+
+Consumirá:
+
+```txt
+ReviewService
+```
+
+---
+
+# Atualizar Sidebar
+
+Adicionar:
+
+```html
+<a
+    href="/my-reviews"
+    data-link
+>
+
+    Reviews
+
+</a>
+```
+
+---
+
+# Atualizar Navbar
+
+Adicionar menu de usuário:
+
+```txt
+Avatar
+
+↓
+
+Perfil
+
+Biblioteca
+
+Configurações
+
+Logout
+```
+
+---
+
+# Banco de Dados
+
+Agora sua modelagem está praticamente completa para o MVP.
+
+Faltariam apenas tabelas opcionais:
+
+```sql
+carts
+
+cart_items
+
+notifications
+```
+
+---
+
+# Situação Atual Após Esta Sprint
+
+```txt
+Arquitetura                100%
+
+Autenticação               100%
+
+Loja                       100%
+
+Página do Jogo             100%
+
+Carrinho                   100%
+
+Checkout                   100%
+
+Biblioteca                 100%
+
+Perfil                     100%
+
+Configurações              100%
+
+Reviews                    60%
+```
+
+---
+
+# Próxima Sprint (a última antes do backend real)
+
+Eu atacaria:
+
+```txt
+Reviews completas
+
+Página pública de perfil
+
+Sistema de busca
+
+Filtros
+
+Ordenação
+
+Categorias
+
+Tags
+```
+
+Porque isso transforma o catálogo de "lista de jogos" em um marketplace navegável de verdade, aproximando muito mais da experiência da Steam, GOG e PSN.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Neste momento eu não iria para backend, pagamentos, Spring ou PostgreSQL.
+
+O marketplace ainda possui uma deficiência muito grande:
+
+```txt
+Você consegue chegar a um jogo.
+
+Mas não consegue descobrir jogos.
+```
+
+Isso é exatamente o que diferencia um catálogo simples de um marketplace real.
+
+A próxima sprint seria:
+
+# Sprint 3 — Discovery Layer
+
+Objetivo:
+
+```txt
+Busca
+
+Filtros
+
+Categorias
+
+Tags
+
+Ordenação
+
+Pesquisa Global
+```
+
+---
+
+# O que será entregue
+
+Novas rotas:
+
+```txt
+/search
+
+/category/:slug
+
+/tag/:slug
+```
+
+Novos componentes:
+
+```txt
+components/search/
+
+├── SearchBar.js
+├── SearchFilters.js
+├── SearchResults.js
+├── SortSelect.js
+└── ActiveFilters.js
+```
+
+---
+
+# Nova estrutura
+
+```txt
+pages/
+
+search/
+├── SearchPage.js
+├── CategoryPage.js
+└── TagPage.js
+```
+
+---
+
+# SearchBar
+
+A SearchBar ficará na Navbar.
+
+Estrutura:
+
+```txt
+LOGO
+
+[Pesquisar jogos...]
+
+Biblioteca
+
+Wishlist
+
+Perfil
+```
+
+---
+
+## SearchBar.js
+
+```js
+export default function() {
+
+    return `
+
+        <form
+            id="search-form"
+
+            class="
+                flex
+                flex-1
+                max-w-xl
+            "
+        >
+
+            <input
+
+                id="search-input"
+
+                placeholder="
+                    Pesquisar jogos...
+                "
+
+                class="
+                    flex-1
+                "
+
+            />
+
+        </form>
+
+    `;
+}
+```
+
+---
+
+# Evento
+
+Após render:
+
+```js
+document
+
+    .querySelector(
+        "#search-form"
+    )
+
+    .addEventListener(
+
+        "submit",
+
+        event => {
+
+            event.preventDefault();
+
+            const query =
+
+                document
+                    .querySelector(
+                        "#search-input"
+                    )
+                    .value;
+
+            navigate(
+                `/search?q=${query}`
+            );
+        }
+    );
+```
+
+---
+
+# GamesService
+
+Precisamos preparar a interface futura.
+
+Hoje usa mock.
+
+Amanhã usará Spring.
+
+---
+
+## games.service.js
+
+```js
+search(query)
+
+list()
+
+getBySlug(slug)
+
+listByCategory(category)
+
+listByTag(tag)
+```
+
+---
+
+# SearchPage
+
+Rota:
+
+```txt
+/search?q=cyberpunk
+```
+
+---
+
+Fluxo:
+
+```txt
+URL
+
+↓
+
+GamesService.search()
+
+↓
+
+Resultados
+```
+
+---
+
+# SearchResults
+
+```js
+import GameCard
+from "../game/GameCard";
+```
+
+---
+
+```js
+export default function(
+    games
+) {
+
+    return `
+
+        <div
+
+            class="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                md:grid-cols-3
+                lg:grid-cols-5
+                gap-4
+            "
+
+        >
+
+            ${games
+                .map(
+                    game =>
+                        GameCard(game)
+                )
+                .join("")
+            }
+
+        </div>
+
+    `;
+}
+```
+
+---
+
+# Categorias
+
+Seu banco já possui:
+
+```sql
+categories
+
+game_categories
+```
+
+Então vale a pena explorar.
+
+---
+
+# CategoryPage
+
+```txt
+/category/rpg
+```
+
+---
+
+```txt
+Todos os RPGs
+```
+
+---
+
+```js
+GamesService
+    .listByCategory(
+        "rpg"
+    );
+```
+
+---
+
+# Tags
+
+Banco:
+
+```sql
+tags
+
+game_tags
+```
+
+---
+
+Rota:
+
+```txt
+/tag/open-world
+```
+
+---
+
+Exemplo:
+
+```txt
+Open World
+
+Survival
+
+Souls Like
+
+Multiplayer
+
+Co-op
+```
+
+---
+
+# Filtros
+
+Marketplace sem filtros morre quando tiver:
+
+```txt
+50+
+
+100+
+
+500+ jogos
+```
+
+---
+
+## SearchFilters
+
+Primeira versão:
+
+```txt
+Categoria
+
+Preço
+
+Publisher
+
+Idioma
+
+Tags
+```
+
+---
+
+Estrutura:
+
+```js
+export default function() {
+
+    return `
+
+        <aside
+            class="
+                w-full
+                lg:w-64
+            "
+        >
+
+            Categorias
+
+            Tags
+
+            Publisher
+
+            Faixa de preço
+
+        </aside>
+
+    `;
+}
+```
+
+---
+
+# Ordenação
+
+Inspirado na Steam.
+
+---
+
+## SortSelect
+
+```txt
+Mais relevantes
+
+Mais vendidos
+
+Menor preço
+
+Maior preço
+
+Mais recentes
+
+Melhor avaliados
+```
+
+---
+
+```js
+<select>
+
+    <option>
+
+        Mais relevantes
+
+    </option>
+
+    <option>
+
+        Menor preço
+
+    </option>
+
+    <option>
+
+        Maior preço
+
+    </option>
+
+</select>
+```
+
+---
+
+# ActiveFilters
+
+Mostra filtros ativos.
+
+Exemplo:
+
+```txt
+RPG ×
+
+Open World ×
+
+Até R$ 100 ×
+```
+
+---
+
+# Melhoria no Hub
+
+Hoje:
+
+```txt
+Destaques
+
+Mais vendidos
+
+Promoções
+```
+
+---
+
+Nova versão:
+
+```txt
+Destaques
+
+Mais vendidos
+
+Novidades
+
+Promoções
+
+RPG
+
+FPS
+
+Terror
+
+Indie
+
+Multiplayer
+```
+
+---
+
+# Sistema de Reviews
+
+Agora podemos evoluir.
+
+---
+
+# Na página do jogo
+
+Adicionar:
+
+```txt
+Avaliações
+```
+
+---
+
+Componente:
+
+```txt
+ReviewList
+ReviewCard
+ReviewForm
+```
+
+---
+
+Banco já suporta:
+
+```sql
+reviews
+
+review_votes
+```
+
+---
+
+Primeira versão:
+
+```txt
+Recomendado 👍
+
+Não recomendado 👎
+```
+
+---
+
+# Score Geral
+
+Na página do jogo:
+
+```txt
+Muito Positivas
+
+Positivas
+
+Neutras
+
+Negativas
+
+Muito Negativas
+```
+
+Inspirado na Steam.
+
+---
+
+# Perfil Público
+
+Nova rota:
+
+```txt
+/user/:username
+```
+
+---
+
+Exemplo:
+
+```txt
+/user/davu
+```
+
+---
+
+Mostra:
+
+```txt
+Avatar
+
+Bio
+
+Reviews
+
+Jogos adquiridos
+```
+
+---
+
+# Resultado da Sprint
+
+Ao final desta sprint o sistema terá:
+
+```txt
+Login
+
+Hub
+
+Página do Jogo
+
+Wishlist
+
+Carrinho
+
+Checkout
+
+Biblioteca
+
+Perfil
+
+Configurações
+
+Busca
+
+Categorias
+
+Tags
+
+Filtros
+
+Ordenação
+
+Reviews
+```
+
+---
+
+# Relatório de progresso após essa sprint
+
+```txt
+Infraestrutura            100%
+
+Loja                      100%
+
+Fluxo de Compra           100%
+
+Conta do Usuário          100%
+
+Busca                     100%
+
+Discovery                 100%
+
+Reviews                   80%
+
+Integração Backend         0%
+```
+
+O projeto já estaria muito próximo de uma experiência semelhante a Steam/GOG em termos de navegação. A última grande sprint antes do backend seria focada em **polimento da experiência**, com:
+
+```txt
+Página pública de publisher
+
+Página pública de categoria
+
+Página pública de tag
+
+Sistema de recomendações
+
+Recentemente vistos
+
+Continuação de navegação
+
+Favoritos avançados
+
+Histórico de preços
+```
+
+Tudo isso ainda consumindo mocks, sem tocar no Spring Boot.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Relatório Geral do Projeto — Marketplace de Jogos (Estado Atual)
+
+## Visão Executiva
+
+O projeto já possui praticamente toda a arquitetura frontend definida e grande parte do MVP modelado.
+
+Inspirado em:
+
+* PlayStation Network
+* GOG
+* Steam
+
+Características principais:
+
+```txt
+✓ Loja própria
+
+✓ Catálogo administrado pela equipe
+
+✓ Login Google
+
+✓ Wishlist
+
+✓ Carrinho
+
+✓ Checkout
+
+✓ Biblioteca
+
+✓ Perfil
+
+✓ Reviews
+
+✓ Busca
+
+✓ Categorias
+
+✓ Tags
+
+✓ Filtros
+
+✓ Histórico de preços
+
+✓ DLCs
+
+✓ Idiomas
+
+✓ Requisitos de sistema
+
+✓ Cloudinary
+```
+
+---
+
+# Stack
+
+## Frontend
+
+```txt
+Vite
+
+JavaScript Vanilla
+
+TailwindCSS
+
+SPA Router próprio
+
+Store Global própria
+
+Firebase Authentication
+```
+
+---
+
+## Backend
+
+```txt
+Spring Boot
+
+Spring Security
+
+JWT Firebase
+
+PostgreSQL
+```
+
+---
+
+## Storage
+
+```txt
+Cloudinary
+```
+
+---
+
+# Arquitetura
+
+```txt
+Frontend SPA
+
+    ↓
+
+Firebase Auth
+
+    ↓
+
+JWT
+
+    ↓
+
+Spring Security
+
+    ↓
+
+Services
+
+    ↓
+
+PostgreSQL
+```
+
+---
+
+# Banco de Dados
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Modelagem cobre:
+
+```txt
+Users
+
+Games
+
+Media
+
+Categories
+
+Tags
+
+Publishers
+
+Reviews
+
+Review Votes
+
+Wishlist
+
+Library
+
+Orders
+
+Order Items
+
+Price History
+
+Languages
+
+System Requirements
+
+Patch Notes
+
+DLCs / Expansões
+```
+
+Únicas melhorias recomendadas:
+
+```sql
+carts
+
+cart_items
+
+notifications
+```
+
+Mas o projeto funciona sem elas.
+
+---
+
+# Infraestrutura Frontend
+
+## Router SPA
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Recursos:
+
+```txt
+History API
+
+Route Params
+
+Private Routes
+
+Redirects
+
+404
+
+Lazy Loading
+
+Navigate()
+```
+
+Rotas previstas:
+
+```txt
+/
+
+/hub
+
+/game/:slug
+
+/search
+
+/category/:slug
+
+/tag/:slug
+
+/login
+
+/register
+
+/forgot-password
+
+/profile
+
+/settings
+
+/library
+
+/cart
+
+/wishlist
+
+/checkout
+
+/my-reviews
+
+/user/:username
+```
+
+---
+
+## Store Global
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Responsável por:
+
+```txt
+user
+
+cart
+
+wishlist
+
+library
+
+loading
+```
+
+Possui:
+
+```txt
+Actions
+
+Selectors
+
+Persistência Local
+
+Reatividade
+```
+
+---
+
+## API Layer
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Serviços definidos:
+
+```txt
+AuthService
+
+GamesService
+
+UsersService
+
+CartService
+
+WishlistService
+
+LibraryService
+
+CheckoutService
+
+ReviewService
+
+CloudinaryService
+```
+
+---
+
+## Firebase Authentication
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Funcionalidades:
+
+```txt
+Google Login
+
+JWT
+
+Sessão persistente
+
+Logout
+
+Observer de autenticação
+```
+
+---
+
+# Layouts
+
+## PublicLayout
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Usado em:
+
+```txt
+Hub
+
+Página do jogo
+
+Busca
+
+Login
+
+Cadastro
+```
+
+---
+
+## PrivateLayout
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Usado em:
+
+```txt
+Perfil
+
+Biblioteca
+
+Carrinho
+
+Wishlist
+
+Configurações
+
+Checkout
+```
+
+---
+
+# Componentes Base
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Disponíveis:
+
+```txt
+Navbar
+
+Footer
+
+SidebarAccount
+
+PageContainer
+
+Button
+
+Input
+
+Card
+```
+
+---
+
+# Hub (Loja)
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Componentes:
+
+```txt
+HeroBanner
+
+GameCard
+
+GameRow
+
+CategoryCard
+
+CategoryRow
+```
+
+Seções planejadas:
+
+```txt
+Destaques
+
+Mais Vendidos
+
+Novidades
+
+Promoções
+
+RPG
+
+FPS
+
+Terror
+
+Indie
+
+Multiplayer
+```
+
+---
+
+# Página do Jogo
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Seções:
+
+```txt
+Banner
+
+Header
+
+Publisher
+
+Preço
+
+Adicionar ao Carrinho
+
+Wishlist
+
+Galeria
+
+Descrição
+
+Idiomas
+
+Requisitos
+
+Jogos Relacionados
+
+Atualizações
+```
+
+Baseada diretamente em:
+
+```txt
+games
+
+game_media
+
+game_languages
+
+game_system_requirements
+
+game_relations
+
+game_updates
+```
+
+---
+
+# Busca e Discovery
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Funcionalidades:
+
+```txt
+Busca global
+
+Categorias
+
+Tags
+
+Filtros
+
+Ordenação
+```
+
+Rotas:
+
+```txt
+/search
+
+/category/:slug
+
+/tag/:slug
+```
+
+---
+
+# Filtros
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Filtros previstos:
+
+```txt
+Categoria
+
+Tags
+
+Publisher
+
+Preço
+
+Idioma
+```
+
+---
+
+# Ordenação
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Opções:
+
+```txt
+Mais relevantes
+
+Mais vendidos
+
+Mais recentes
+
+Melhor avaliados
+
+Menor preço
+
+Maior preço
+```
+
+---
+
+# Wishlist
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Fluxo:
+
+```txt
+Jogo
+
+↓
+
+Wishlist
+
+↓
+
+Store
+
+↓
+
+Página Wishlist
+```
+
+Recursos:
+
+```txt
+Adicionar
+
+Remover
+
+Persistência
+
+Contador na Navbar
+```
+
+---
+
+# Carrinho
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Fluxo:
+
+```txt
+Jogo
+
+↓
+
+Carrinho
+
+↓
+
+Store
+
+↓
+
+Página Carrinho
+```
+
+Recursos:
+
+```txt
+Adicionar
+
+Remover
+
+Totalização
+
+Persistência
+```
+
+---
+
+# Checkout
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Fluxo:
+
+```txt
+Carrinho
+
+↓
+
+Checkout
+
+↓
+
+Pedido
+
+↓
+
+Biblioteca
+```
+
+Observação:
+
+```txt
+Mockado
+
+Sem gateway de pagamento
+```
+
+---
+
+# Biblioteca
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Fluxo:
+
+```txt
+Compra
+
+↓
+
+Biblioteca
+
+↓
+
+Jogos adquiridos
+```
+
+---
+
+# Perfil
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Funcionalidades:
+
+```txt
+Avatar
+
+Bio
+
+Estatísticas
+
+Jogos adquiridos
+
+Wishlist
+
+Reviews
+```
+
+---
+
+# Configurações
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+Preparado para:
+
+```txt
+Nome
+
+Bio
+
+Avatar
+
+Preferências
+```
+
+---
+
+# Reviews
+
+Status:
+
+```txt
+████████░░ 80%
+```
+
+Modelagem pronta:
+
+```txt
+Review
+
+Review Vote
+
+Score Global
+```
+
+Componentes previstos:
+
+```txt
+ReviewForm
+
+ReviewCard
+
+ReviewList
+```
+
+Sistema semelhante à Steam:
+
+```txt
+Muito Positivas
+
+Positivas
+
+Neutras
+
+Negativas
+
+Muito Negativas
+```
+
+---
+
+# Perfil Público
+
+Status:
+
+```txt
+████████░░ 80%
+```
+
+Rota:
+
+```txt
+/user/:username
+```
+
+Exibirá:
+
+```txt
+Avatar
+
+Bio
+
+Reviews
+
+Biblioteca pública
+```
+
+---
+
+# Cloudinary
+
+Status:
+
+```txt
+████████░░ 80%
+```
+
+Fluxo definido:
+
+```txt
+Frontend
+
+↓
+
+Cloudinary
+
+↓
+
+URL
+
+↓
+
+Backend
+
+↓
+
+Banco
+```
+
+Falta implementação real.
+
+---
+
+# Integração Spring Boot
+
+Status:
+
+```txt
+░░░░░░░░░░ 0%
+```
+
+Atualmente:
+
+```txt
+Mocks
+```
+
+Futuro:
+
+```txt
+Services
+
+↓
+
+API
+
+↓
+
+Spring Boot
+```
+
+---
+
+# Estado Atual do MVP
+
+## Fluxo Comercial
+
+```txt
+Login
+ ↓
+Hub
+ ↓
+Página do Jogo
+ ↓
+Carrinho
+ ↓
+Checkout
+ ↓
+Biblioteca
+```
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+---
+
+## Fluxo de Descoberta
+
+```txt
+Busca
+ ↓
+Categoria
+ ↓
+Tag
+ ↓
+Jogo
+```
+
+Status:
+
+```txt
+██████████ 100%
+```
+
+---
+
+## Fluxo de Usuário
+
+```txt
+Login
+ ↓
+Perfil
+ ↓
+Configurações
+ ↓
+Reviews
+```
+
+Status:
+
+```txt
+████████░░ 80%
+```
+
+---
+
+# Progresso Consolidado
+
+```txt
+Banco de Dados              100%
+
+Arquitetura                 100%
+
+Router SPA                  100%
+
+Store                       100%
+
+API Layer                   100%
+
+Firebase                    100%
+
+Layouts                     100%
+
+Hub                         100%
+
+Página do Jogo              100%
+
+Busca                       100%
+
+Categorias                  100%
+
+Tags                        100%
+
+Filtros                     100%
+
+Wishlist                    100%
+
+Carrinho                    100%
+
+Checkout                    100%
+
+Biblioteca                  100%
+
+Perfil                      100%
+
+Configurações               100%
+
+Reviews                      80%
+
+Perfil Público               80%
+
+Cloudinary                   80%
+
+Backend Real                  0%
+```
+
+# Estimativa Real de Conclusão
+
+Separando apenas o frontend:
+
+```txt
+Frontend Arquitetural       100%
+
+Frontend Funcional           90%
+
+Frontend MVP                 95%
+```
+
+Considerando o produto completo:
+
+```txt
+Frontend                    95%
+
+Backend                      0%
+
+Integração                   0%
+
+Deploy                       0%
+```
+
+## Progresso total do projeto
+
+```txt
+≈ 65% concluído
+```
+
+O próximo grande marco não é criar mais telas. É iniciar a substituição gradual dos mocks por contratos reais de API, começando por:
+
+```txt
+Auth
+
+Users
+
+Games
+
+Wishlist
+
+Library
+
+Reviews
+```
+
+Quando isso ocorrer, o sistema deixa de ser um MVP navegável e passa a ser uma aplicação funcional de produção.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfeito. Se o objetivo é **extrair 100% do frontend antes de tocar no Spring Boot**, ainda existe bastante coisa que pode ser construída.
+
+O relatório anterior marcava o frontend em ~95%, mas isso considerando apenas o MVP. Se você quiser algo próximo de uma Steam/GOG real, ainda existem várias camadas de UX e funcionalidades independentes do backend.
+
+---
+
+# Sprint 4 — Enriquecimento da Loja
+
+Status atual:
+
+```txt
+Hub
+ ↓
+Categorias
+ ↓
+Tags
+ ↓
+Jogo
+```
+
+Funciona.
+
+Mas ainda falta contexto.
+
+---
+
+## Página de Publisher
+
+Seu banco possui:
+
+```sql
+publishers
+game_publishers
+```
+
+Então crie:
+
+```txt
+/publisher/:slug
+```
+
+Exemplo:
+
+```txt
+/publisher/cd-projekt-red
+```
+
+---
+
+### Estrutura
+
+```txt
+Banner
+
+Logo
+
+Nome
+
+Descrição
+
+Jogos publicados
+
+Jogos em promoção
+```
+
+---
+
+### Componentes
+
+```txt
+PublisherHeader
+
+PublisherGameRow
+
+PublisherHero
+```
+
+---
+
+# Página de Categoria
+
+Hoje existe apenas a busca.
+
+Mas vale criar:
+
+```txt
+/category/rpg
+```
+
+---
+
+Estrutura:
+
+```txt
+Banner da Categoria
+
+Descrição
+
+Filtros
+
+Ordenação
+
+Jogos
+```
+
+---
+
+Exemplo:
+
+```txt
+RPG
+
+FPS
+
+Terror
+
+Aventura
+
+Corrida
+```
+
+---
+
+# Página de Tag
+
+Mesmo conceito.
+
+```txt
+/tag/open-world
+
+/tag/co-op
+
+/tag/souls-like
+```
+
+---
+
+# Sistema de Recomendações
+
+Sem backend.
+
+Utilizando apenas mock.
+
+---
+
+## Seção na página do jogo
+
+```txt
+Você também pode gostar
+```
+
+---
+
+Base:
+
+```txt
+Mesma categoria
+
+Mesmas tags
+```
+
+---
+
+Componente:
+
+```txt
+RecommendationRow
+```
+
+---
+
+# Sprint 5 — Histórico de Navegação
+
+Muito usado pela Steam.
+
+---
+
+## Store
+
+Adicionar:
+
+```js
+recentlyViewed: []
+```
+
+---
+
+Fluxo:
+
+```txt
+Entrou no jogo
+
+↓
+
+Salva no Store
+
+↓
+
+Recently Viewed
+```
+
+---
+
+Nova seção:
+
+```txt
+Visualizados Recentemente
+```
+
+---
+
+Página:
+
+```txt
+/recently-viewed
+```
+
+---
+
+# Continuação da Navegação
+
+No Hub.
+
+---
+
+Mostrar:
+
+```txt
+Continue de onde parou
+```
+
+---
+
+Exemplo:
+
+```txt
+Cyberpunk
+
+The Witcher
+
+DOOM
+```
+
+---
+
+Componente:
+
+```txt
+ContinuePlayingRow
+```
+
+---
+
+# Sprint 6 — Favoritos Avançados
+
+Hoje:
+
+```txt
+Wishlist
+```
+
+Apenas.
+
+---
+
+Melhorar:
+
+```txt
+Favoritos
+
+Quero comprar
+
+Aguardando promoção
+
+Já joguei
+```
+
+---
+
+Banco não precisa mudar ainda.
+
+Pode ficar:
+
+```js
+favoriteLists: [
+
+    {
+        name:
+            "Aguardando promoção"
+    }
+]
+```
+
+---
+
+# Sprint 7 — Histórico de Preços
+
+Seu banco possui:
+
+```sql
+game_prices
+```
+
+---
+
+Então já vale preparar:
+
+```txt
+PriceHistoryChart
+```
+
+---
+
+Página do jogo:
+
+```txt
+Preço Atual
+
+Menor preço histórico
+
+Gráfico
+```
+
+---
+
+Mesmo com mock.
+
+---
+
+# Sprint 8 — Reviews Completas
+
+Hoje está em 80%.
+
+---
+
+Falta:
+
+```txt
+Criar review
+
+Editar review
+
+Excluir review
+
+Curtir review
+
+Score global
+```
+
+---
+
+Componentes:
+
+```txt
+ReviewForm
+
+ReviewVote
+
+ReviewSummary
+```
+
+---
+
+Página do jogo:
+
+```txt
+Muito Positivas
+
+92%
+```
+
+---
+
+# Sprint 9 — Perfil Público
+
+Hoje:
+
+```txt
+/user/:username
+```
+
+parcial.
+
+---
+
+Completar:
+
+```txt
+Avatar
+
+Bio
+
+Jogos
+
+Wishlist pública
+
+Reviews
+```
+
+---
+
+# Sprint 10 — Gamificação
+
+Sem backend.
+
+Tudo local.
+
+---
+
+Perfil:
+
+```txt
+Nível
+
+XP
+
+Badges
+```
+
+---
+
+Exemplo:
+
+```txt
+Primeira Compra
+
+10 Jogos
+
+100 Jogos
+
+Primeira Review
+```
+
+---
+
+Componentes:
+
+```txt
+BadgeCard
+
+UserLevel
+
+AchievementGrid
+```
+
+---
+
+# Sprint 11 — Sistema de Notificações
+
+Mockado.
+
+---
+
+Store:
+
+```js
+notifications: []
+```
+
+---
+
+Tipos:
+
+```txt
+Promoção
+
+Wishlist
+
+Nova DLC
+
+Atualização
+```
+
+---
+
+Navbar:
+
+```txt
+🔔
+```
+
+---
+
+Página:
+
+```txt
+/notifications
+```
+
+---
+
+# Sprint 12 — CMS Preparado
+
+Seu banco tem:
+
+```sql
+game_sections
+```
+
+Que é extremamente poderoso.
+
+---
+
+Crie renderizadores:
+
+```txt
+HeroSection
+
+TextSection
+
+GallerySection
+
+VideoSection
+
+FeatureSection
+```
+
+---
+
+Assim a página do jogo não fica fixa.
+
+Ela passa a renderizar:
+
+```js
+game.sections.map(
+    renderSection
+)
+```
+
+---
+
+# Sprint 13 — Modo Offline de Desenvolvimento
+
+Muito útil.
+
+---
+
+Criar:
+
+```txt
+src/mocks/
+```
+
+com:
+
+```txt
+games.mock.js
+
+publishers.mock.js
+
+reviews.mock.js
+
+users.mock.js
+
+notifications.mock.js
+```
+
+---
+
+Criar:
+
+```js
+USE_MOCKS=true
+```
+
+---
+
+Assim:
+
+```js
+GamesService
+```
+
+funciona sem backend.
+
+---
+
+# Estado do Projeto Após Todas Essas Sprints
+
+```txt
+Arquitetura               100%
+
+Router                    100%
+
+Store                     100%
+
+Firebase                  100%
+
+Layouts                   100%
+
+Hub                       100%
+
+Página do Jogo            100%
+
+Categorias                100%
+
+Tags                      100%
+
+Publisher                 100%
+
+Busca                     100%
+
+Filtros                   100%
+
+Wishlist                  100%
+
+Carrinho                  100%
+
+Checkout                  100%
+
+Biblioteca                100%
+
+Perfil                    100%
+
+Perfil Público            100%
+
+Reviews                   100%
+
+Notificações              100%
+
+Recomendações             100%
+
+Histórico de Navegação    100%
+
+Histórico de Preços       100%
+
+CMS Dinâmico              100%
+
+Cloudinary UI             100%
+
+Backend                   0%
+```
+
+Após isso, praticamente **não sobra mais frontend relevante para fazer sem backend**. O próximo passo inevitável passa a ser definir contratos REST no Spring Boot e substituir os mocks pelos endpoints reais.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Considerando tudo o que modelamos até agora (incluindo Discovery, Perfil, Reviews, CMS dinâmico, Publisher, Notificações, Histórico de Navegação e Cloudinary), eu organizaria a `src` assim:
+
+```txt
+src/
+
+├── app/
+│   ├── bootstrap/
+│   │   ├── app.js
+│   │   ├── router.js
+│   │   └── listeners.js
+│   │
+│   ├── layouts/
+│   │   ├── PublicLayout.js
+│   │   ├── PrivateLayout.js
+│   │   └── AdminLayout.js
+│   │
+│   ├── router/
+│   │   ├── routes.js
+│   │   ├── guards.js
+│   │   ├── navigate.js
+│   │   └── router.js
+│   │
+│   └── constants/
+│       ├── routes.js
+│       ├── categories.js
+│       └── sort-options.js
+│
+├── core/
+│   ├── api/
+│   │   ├── api-client.js
+│   │   ├── interceptors.js
+│   │   └── endpoints.js
+│   │
+│   ├── firebase/
+│   │   ├── firebase.js
+│   │   ├── auth.js
+│   │   └── observer.js
+│   │
+│   ├── storage/
+│   │   ├── local-storage.js
+│   │   └── session-storage.js
+│   │
+│   └── cloudinary/
+│       └── cloudinary.js
+│
+├── store/
+│   ├── store.js
+│   ├── actions.js
+│   ├── selectors.js
+│   ├── mutations.js
+│   └── persist.js
+│
+├── services/
+│   ├── auth/
+│   │   └── auth.service.js
+│   │
+│   ├── games/
+│   │   └── games.service.js
+│   │
+│   ├── users/
+│   │   └── users.service.js
+│   │
+│   ├── reviews/
+│   │   └── reviews.service.js
+│   │
+│   ├── publishers/
+│   │   └── publishers.service.js
+│   │
+│   ├── wishlist/
+│   │   └── wishlist.service.js
+│   │
+│   ├── cart/
+│   │   └── cart.service.js
+│   │
+│   ├── library/
+│   │   └── library.service.js
+│   │
+│   ├── checkout/
+│   │   └── checkout.service.js
+│   │
+│   ├── notifications/
+│   │   └── notifications.service.js
+│   │
+│   └── cloudinary/
+│       └── cloudinary.service.js
+│
+├── pages/
+│
+│   ├── auth/
+│   │   ├── LoginPage.js
+│   │   ├── RegisterPage.js
+│   │   └── ForgotPasswordPage.js
+│   │
+│   ├── hub/
+│   │   └── HubPage.js
+│   │
+│   ├── game/
+│   │   └── GamePage.js
+│   │
+│   ├── search/
+│   │   ├── SearchPage.js
+│   │   ├── CategoryPage.js
+│   │   ├── TagPage.js
+│   │   └── PublisherPage.js
+│   │
+│   ├── profile/
+│   │   ├── ProfilePage.js
+│   │   ├── SettingsPage.js
+│   │   ├── PublicProfilePage.js
+│   │   └── MyReviewsPage.js
+│   │
+│   ├── cart/
+│   │   └── CartPage.js
+│   │
+│   ├── checkout/
+│   │   └── CheckoutPage.js
+│   │
+│   ├── wishlist/
+│   │   └── WishlistPage.js
+│   │
+│   ├── library/
+│   │   └── LibraryPage.js
+│   │
+│   ├── notifications/
+│   │   └── NotificationsPage.js
+│   │
+│   ├── recently-viewed/
+│   │   └── RecentlyViewedPage.js
+│   │
+│   ├── favorites/
+│   │   └── FavoriteListsPage.js
+│   │
+│   └── errors/
+│       ├── NotFoundPage.js
+│       └── ForbiddenPage.js
+│
+├── components/
+│
+│   ├── layout/
+│   │   ├── Navbar.js
+│   │   ├── Footer.js
+│   │   ├── SidebarAccount.js
+│   │   ├── MobileMenu.js
+│   │   └── PageContainer.js
+│   │
+│   ├── ui/
+│   │   ├── Button.js
+│   │   ├── Input.js
+│   │   ├── Textarea.js
+│   │   ├── Select.js
+│   │   ├── Modal.js
+│   │   ├── Badge.js
+│   │   ├── Spinner.js
+│   │   ├── Skeleton.js
+│   │   └── EmptyState.js
+│   │
+│   ├── game/
+│   │   ├── GameCard.js
+│   │   ├── GameRow.js
+│   │   ├── GameBanner.js
+│   │   ├── GameHeader.js
+│   │   ├── ScreenshotGallery.js
+│   │   ├── RequirementsSection.js
+│   │   ├── LanguagesSection.js
+│   │   ├── PriceHistoryChart.js
+│   │   ├── RecommendationRow.js
+│   │   └── RelatedGames.js
+│   │
+│   ├── reviews/
+│   │   ├── ReviewCard.js
+│   │   ├── ReviewList.js
+│   │   ├── ReviewForm.js
+│   │   ├── ReviewVote.js
+│   │   └── ReviewSummary.js
+│   │
+│   ├── search/
+│   │   ├── SearchBar.js
+│   │   ├── SearchFilters.js
+│   │   ├── SearchResults.js
+│   │   ├── ActiveFilters.js
+│   │   └── SortSelect.js
+│   │
+│   ├── publisher/
+│   │   ├── PublisherHero.js
+│   │   ├── PublisherHeader.js
+│   │   └── PublisherGameRow.js
+│   │
+│   ├── user/
+│   │   ├── UserAvatar.js
+│   │   ├── UserProfileCard.js
+│   │   ├── UserStats.js
+│   │   ├── AchievementGrid.js
+│   │   ├── BadgeCard.js
+│   │   └── UserLevel.js
+│   │
+│   ├── notifications/
+│   │   ├── NotificationBell.js
+│   │   └── NotificationCard.js
+│   │
+│   ├── library/
+│   │   └── LibraryGameCard.js
+│   │
+│   └── cms/
+│       ├── HeroSection.js
+│       ├── TextSection.js
+│       ├── GallerySection.js
+│       ├── VideoSection.js
+│       ├── FeatureSection.js
+│       └── render-section.js
+│
+├── hooks/
+│   ├── use-auth.js
+│   ├── use-cart.js
+│   ├── use-wishlist.js
+│   ├── use-library.js
+│   └── use-search.js
+│
+├── utils/
+│   ├── currency.js
+│   ├── date.js
+│   ├── slug.js
+│   ├── debounce.js
+│   ├── format-price.js
+│   └── image.js
+│
+├── mocks/
+│   ├── games.mock.js
+│   ├── users.mock.js
+│   ├── reviews.mock.js
+│   ├── publishers.mock.js
+│   ├── categories.mock.js
+│   ├── tags.mock.js
+│   ├── notifications.mock.js
+│   └── library.mock.js
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── logos/
+│
+├── styles/
+│   ├── globals.css
+│   ├── animations.css
+│   └── utilities.css
+│
+└── main.js
+```
+
+### O que eu removeria
+
+Como você está usando **Vanilla JS**, eu **não criaria**:
+
+```txt
+contexts/
+providers/
+redux/
+zustand/
+reducers/
+```
+
+porque isso é herança de React e só adicionaria complexidade.
+
+---
+
+### O que eu adicionaria futuramente (quando existir backend)
+
+```txt
+src/
+
+├── services/
+│   ├── orders/
+│   ├── payments/
+│   ├── categories/
+│   ├── tags/
+│   └── languages/
+│
+├── admin/
+│   ├── dashboard/
+│   ├── games/
+│   ├── publishers/
+│   ├── users/
+│   └── reviews/
+│
+└── websocket/
+    └── notifications.js
+```
+
+Porque olhando para seu banco, o próximo produto natural após a loja pública é um **painel administrativo/CMS**, onde sua equipe cadastra jogos, publishers, banners, promoções e seções dinâmicas. Isso provavelmente seria o próximo grande módulo após a integração Spring Boot.
+
+
+
+
+
+
+
+
+
+
