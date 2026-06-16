@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+@import "tailwindcss";
 
 @theme {
   --color-primary: #1a1a1a;
@@ -17,17 +17,17 @@
 }
 
 body {
-    overflow-x: hidden;
+  overflow-x: hidden;
 }
 
 h1 {
-    font-size: x-large;
+  font-size: x-large;
 }
 
 .bold {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 sub {
-    font-size: small;
+  font-size: small;
 }
