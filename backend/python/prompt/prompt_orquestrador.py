@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 prompt = """
 Você é o Agente Roteador Principal do nosso portal de jogos. Sua única função é analisar a mensagem enviada pelo usuário e decidir o fluxo correto de atendimento.
 
