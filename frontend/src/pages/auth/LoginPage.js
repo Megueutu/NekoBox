@@ -1,0 +1,294 @@
+import { AuthService } from "../../services/auth/auth.service";
+import { navigate } from "../../app/router/navigate";
+
+let activeTab = "login";
+
+export default function LoginPage() {
+  const loginForm = `
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">E-mail</label>
+        <input id="input-email" type="email" placeholder="seu@email.com"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">Senha</label>
+        <input id="input-password" type="password" placeholder="••••••••"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"/>
+      </div>
+      <div class="text-right">
+        <button id="btn-forgot-tab" class="text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
+          Esqueci minha senha
+        </button>
+      </div>
+      <button id="btn-login-email"
+              class="w-full py-2.5 bg-zinc-900 text-white font-bold rounded hover:bg-zinc-700 transition-colors text-sm">
+        Entrar
+      </button>
+      <div class="relative flex items-center gap-3 my-1">
+        <div class="flex-1 h-px bg-zinc-200"></div>
+        <span class="text-xs text-zinc-400">ou</span>
+        <div class="flex-1 h-px bg-zinc-200"></div>
+      </div>
+      <button id="btn-google-login"
+              class="w-full py-2.5 border-2 border-zinc-900 text-zinc-900 font-bold rounded hover:bg-zinc-900 hover:text-white transition-colors text-sm flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Entrar com Google
+      </button>
+      <p id="login-error" class="text-red-500 text-xs text-center hidden"></p>
+    </div>
+  `;
+
+  const registerForm = `
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">Nome de usuário</label>
+        <input id="input-reg-username" type="text" placeholder="jogador123"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">E-mail</label>
+        <input id="input-reg-email" type="email" placeholder="seu@email.com"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">Senha</label>
+        <input id="input-reg-password" type="password" placeholder="Mínimo 6 caracteres"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">Confirmar Senha</label>
+        <input id="input-reg-confirm" type="password" placeholder="Repita a senha"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+      </div>
+      <button id="btn-register"
+              class="w-full py-2.5 bg-zinc-900 text-white font-bold rounded hover:bg-zinc-700 transition-colors text-sm">
+        Criar Conta
+      </button>
+      <p id="register-error" class="text-red-500 text-xs text-center hidden"></p>
+    </div>
+  `;
+
+  const forgotForm = `
+    <div class="flex flex-col gap-4">
+      <p class="text-sm text-zinc-600">
+        Digite seu e-mail e enviaremos um link para você redefinir sua senha.
+      </p>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">E-mail cadastrado</label>
+        <input id="input-forgot-email" type="email" placeholder="seu@email.com"
+               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+      </div>
+      <button id="btn-send-reset"
+              class="w-full py-2.5 bg-zinc-900 text-white font-bold rounded hover:bg-zinc-700 transition-colors text-sm">
+        Enviar Link de Redefinição
+      </button>
+      <button id="btn-back-login" class="text-xs text-zinc-500 hover:text-zinc-900 transition-colors text-center">
+        ← Voltar para o Login
+      </button>
+      <p id="forgot-msg" class="text-green-600 text-xs text-center hidden"></p>
+    </div>
+  `;
+
+  const tabContent = {
+    login: loginForm,
+    register: registerForm,
+    forgot: forgotForm,
+  };
+
+  const tabLabel = {
+    login: "Entrar",
+    register: "Criar Conta",
+    forgot: "Recuperar Senha",
+  };
+
+  return `
+    <div class="grid grid-cols-1 md:grid-cols-2 min-h-[85vh]">
+
+      <!-- Coluna Esquerda: Banner Institucional -->
+      <div class="bg-zinc-900 hidden md:flex flex-col justify-center items-start p-12 gap-6">
+        <div>
+          <p class="text-white font-black text-3xl mb-2">GameStore</p>
+          <p class="text-zinc-300 text-lg font-light leading-relaxed">
+            Seu marketplace de<br>jogos digitais.
+          </p>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
+            </div>
+            <p class="text-zinc-300 text-sm">Acesse centenas de títulos digitais</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
+            </div>
+            <p class="text-zinc-300 text-sm">Salve favoritos e gerencie sua biblioteca</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
+            </div>
+            <p class="text-zinc-300 text-sm">Compras seguras com checkout simplificado</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Direita: Formulário -->
+      <div class="flex flex-col justify-center items-center p-8 md:p-12 bg-white">
+        <div class="w-full max-w-sm">
+
+          <!-- Título dinâmico da aba -->
+          <h1 class="text-2xl font-black mb-1">${tabLabel[activeTab]}</h1>
+          <p class="text-zinc-500 text-sm mb-6">
+            ${activeTab === "login" ? "Bem-vindo de volta." : activeTab === "register" ? "Crie sua conta gratuitamente." : "Recupere o acesso à sua conta."}
+          </p>
+
+          <!-- Seletores de Aba (Login / Cadastro) -->
+          ${
+            activeTab !== "forgot"
+              ? `
+            <div class="flex gap-1 mb-6 bg-zinc-100 rounded p-1">
+              <button id="tab-login"
+                      class="flex-1 py-2 text-sm font-semibold rounded transition-colors
+                             ${activeTab === "login" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"}">
+                Login
+              </button>
+              <button id="tab-register"
+                      class="flex-1 py-2 text-sm font-semibold rounded transition-colors
+                             ${activeTab === "register" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"}">
+                Cadastro
+              </button>
+            </div>
+          `
+              : ""
+          }
+
+          <!-- Conteúdo do Formulário Ativo -->
+          <div id="form-content">
+            ${tabContent[activeTab]}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+export async function afterRender() {
+  const redirecionarAposLogin = () => {
+    const target = localStorage.getItem("redirect_target");
+    if (target) {
+      localStorage.removeItem("redirect_target");
+      navigate(target);
+    } else {
+      navigate("/hub");
+    }
+  };
+
+  // Troca de abas
+  document.getElementById("tab-login")?.addEventListener("click", () => {
+    activeTab = "login";
+    navigate("/login");
+  });
+  document.getElementById("tab-register")?.addEventListener("click", () => {
+    activeTab = "register";
+    navigate("/login");
+  });
+  document.getElementById("btn-forgot-tab")?.addEventListener("click", () => {
+    activeTab = "forgot";
+    navigate("/login");
+  });
+  document.getElementById("btn-back-login")?.addEventListener("click", () => {
+    activeTab = "login";
+    navigate("/login");
+  });
+
+  // Login com Google
+  document.getElementById("btn-google-login")?.addEventListener("click", async () => {
+    const btn = document.getElementById("btn-google-login");
+    btn.textContent = "Autenticando...";
+    btn.disabled = true;
+    try {
+      await AuthService.loginComGoogle();
+      redirecionarAposLogin();
+    } catch {
+      const err = document.getElementById("login-error");
+      if (err) {
+        err.textContent = "Falha ao autenticar com Google. Tente novamente.";
+        err.classList.remove("hidden");
+      }
+      btn.disabled = false;
+      btn.textContent = "Entrar com Google";
+    }
+  });
+
+  // Login com e-mail
+  document.getElementById("btn-login-email")?.addEventListener("click", async () => {
+    const email = document.getElementById("input-email")?.value;
+    const password = document.getElementById("input-password")?.value;
+    const errEl = document.getElementById("login-error");
+    if (errEl) errEl.classList.add("hidden");
+    try {
+      await AuthService.loginComEmail(email, password);
+      redirecionarAposLogin();
+    } catch (err) {
+      if (errEl) {
+        errEl.textContent = err.message;
+        errEl.classList.remove("hidden");
+      }
+    }
+  });
+
+  // Registro
+  document.getElementById("btn-register")?.addEventListener("click", async () => {
+    const username = document.getElementById("input-reg-username")?.value;
+    const email = document.getElementById("input-reg-email")?.value;
+    const password = document.getElementById("input-reg-password")?.value;
+    const confirm = document.getElementById("input-reg-confirm")?.value;
+    const errEl = document.getElementById("register-error");
+    if (errEl) errEl.classList.add("hidden");
+
+    if (password !== confirm) {
+      if (errEl) {
+        errEl.textContent = "As senhas não coincidem.";
+        errEl.classList.remove("hidden");
+      }
+      return;
+    }
+    try {
+      await AuthService.registrar(username, email, password);
+      redirecionarAposLogin();
+    } catch (err) {
+      if (errEl) {
+        errEl.textContent = err.message;
+        errEl.classList.remove("hidden");
+      }
+    }
+  });
+
+  // Esqueci a senha
+  document.getElementById("btn-send-reset")?.addEventListener("click", async () => {
+    const email = document.getElementById("input-forgot-email")?.value;
+    const msgEl = document.getElementById("forgot-msg");
+    if (!email) return;
+    await AuthService.enviarRedefinicaoSenha(email);
+    if (msgEl) {
+      msgEl.textContent = `Link enviado para ${email}. Verifique sua caixa de entrada.`;
+      msgEl.classList.remove("hidden");
+    }
+  });
+}

@@ -1,0 +1,10 @@
+.github
+.idea
+.vscode
+*.iml
+*.log
+
+.env
+*.env
+*.env.local
+*.env.development
