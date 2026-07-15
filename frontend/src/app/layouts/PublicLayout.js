@@ -5,7 +5,7 @@ export function PublicLayout(content) {
   return `
     <div class="min-h-screen flex flex-col">
       ${Navbar()}
-      <main class="flex-1">
+      <main class="flex-1 bg-transparent">
         ${content}
       </main>
       ${Footer()}

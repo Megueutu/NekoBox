@@ -4,7 +4,6 @@ import { Actions } from "../../store/actions";
 
 export const AuthService = {
   async loginComGoogle() {
-    // Modo Firebase: usa autenticação real se as chaves estiverem configuradas
     if (auth && googleProvider) {
       try {
         const result = await signInWithPopup(auth, googleProvider);
@@ -27,7 +26,6 @@ export const AuthService = {
       }
     }
 
-    // Modo Fallback Mock: login automático sem Firebase configurado
     return new Promise((resolve) => {
       const mockUser = {
         id: "usr_mock_sandbox_99",
@@ -47,7 +45,6 @@ export const AuthService = {
   },
 
   async loginComEmail(email, password) {
-    // Mock de login por email — sem validação real
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (!email || !password) {
@@ -70,7 +67,6 @@ export const AuthService = {
   },
 
   async registrar(username, email, password) {
-    // Mock de registro — simula criação de conta
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (!username || !email || !password) {
@@ -97,7 +93,6 @@ export const AuthService = {
   },
 
   async enviarRedefinicaoSenha(email) {
-    // Mock de redefinição de senha
     return new Promise((resolve) => {
       setTimeout(() => {
         console.log(`[Mock] E-mail de redefinição enviado para: ${email}`);

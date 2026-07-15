@@ -7,31 +7,31 @@ export default function LoginPage() {
   const loginForm = `
     <div class="flex flex-col gap-4">
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">E-mail</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail</label>
         <input id="input-email" type="email" placeholder="seu@email.com"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">Senha</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Senha</label>
         <input id="input-password" type="password" placeholder="••••••••"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent"/>
       </div>
       <div class="text-right">
-        <button id="btn-forgot-tab" class="text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
+        <button id="btn-forgot-tab" class="text-xs text-[var(--color-muted-2)] hover:text-[var(--color-accent-400)] transition-colors">
           Esqueci minha senha
         </button>
       </div>
       <button id="btn-login-email"
-              class="w-full py-2.5 bg-zinc-900 text-white font-bold rounded hover:bg-zinc-700 transition-colors text-sm">
+              class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
         Entrar
       </button>
       <div class="relative flex items-center gap-3 my-1">
-        <div class="flex-1 h-px bg-zinc-200"></div>
-        <span class="text-xs text-zinc-400">ou</span>
-        <div class="flex-1 h-px bg-zinc-200"></div>
+        <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+        <span class="text-xs text-[var(--color-muted-2)]">ou</span>
+        <div class="flex-1 h-px bg-[var(--color-border)]"></div>
       </div>
       <button id="btn-google-login"
-              class="w-full py-2.5 border-2 border-zinc-900 text-zinc-900 font-bold rounded hover:bg-zinc-900 hover:text-white transition-colors text-sm flex items-center justify-center gap-2">
+              class="w-full py-2.5 border-2 border-[var(--color-border)] text-[var(--color-ink)] font-bold rounded-lg hover:border-[var(--color-brand-500)] hover:bg-[var(--color-surface-2)] transition-colors text-sm flex items-center justify-center gap-2">
         <svg class="w-4 h-4" viewBox="0 0 24 24">
           <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -40,58 +40,58 @@ export default function LoginPage() {
         </svg>
         Entrar com Google
       </button>
-      <p id="login-error" class="text-red-500 text-xs text-center hidden"></p>
+      <p id="login-error" class="text-red-400 text-xs text-center hidden"></p>
     </div>
   `;
 
   const registerForm = `
     <div class="flex flex-col gap-4">
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">Nome de usuário</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Nome de usuário</label>
         <input id="input-reg-username" type="text" placeholder="jogador123"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">E-mail</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail</label>
         <input id="input-reg-email" type="email" placeholder="seu@email.com"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">Senha</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Senha</label>
         <input id="input-reg-password" type="password" placeholder="Mínimo 6 caracteres"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">Confirmar Senha</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Confirmar Senha</label>
         <input id="input-reg-confirm" type="password" placeholder="Repita a senha"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <button id="btn-register"
-              class="w-full py-2.5 bg-zinc-900 text-white font-bold rounded hover:bg-zinc-700 transition-colors text-sm">
+              class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
         Criar Conta
       </button>
-      <p id="register-error" class="text-red-500 text-xs text-center hidden"></p>
+      <p id="register-error" class="text-red-400 text-xs text-center hidden"></p>
     </div>
   `;
 
   const forgotForm = `
     <div class="flex flex-col gap-4">
-      <p class="text-sm text-zinc-600">
+      <p class="text-sm text-[var(--color-muted)]">
         Digite seu e-mail e enviaremos um link para você redefinir sua senha.
       </p>
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1">E-mail cadastrado</label>
+        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail cadastrado</label>
         <input id="input-forgot-email" type="email" placeholder="seu@email.com"
-               class="w-full px-3 py-2.5 border border-zinc-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"/>
+               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <button id="btn-send-reset"
-              class="w-full py-2.5 bg-zinc-900 text-white font-bold rounded hover:bg-zinc-700 transition-colors text-sm">
+              class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
         Enviar Link de Redefinição
       </button>
-      <button id="btn-back-login" class="text-xs text-zinc-500 hover:text-zinc-900 transition-colors text-center">
+      <button id="btn-back-login" class="text-xs text-[var(--color-muted-2)] hover:text-[var(--color-accent-400)] transition-colors text-center">
         ← Voltar para o Login
       </button>
-      <p id="forgot-msg" class="text-green-600 text-xs text-center hidden"></p>
+      <p id="forgot-msg" class="text-[var(--color-accent-400)] text-xs text-center hidden"></p>
     </div>
   `;
 
@@ -111,33 +111,34 @@ export default function LoginPage() {
     <div class="grid grid-cols-1 md:grid-cols-2 min-h-[85vh]">
 
       <!-- Coluna Esquerda: Banner Institucional -->
-      <div class="bg-zinc-900 hidden md:flex flex-col justify-center items-start p-12 gap-6">
-        <div>
-          <p class="text-white font-black text-3xl mb-2">GameStore</p>
+      <div class="bg-[var(--color-surface)] relative overflow-hidden hidden md:flex flex-col justify-center items-start p-12 gap-6 border-r border-[var(--color-border)]">
+        <div class="absolute inset-0 opacity-60" style="background-image: radial-gradient(ellipse 600px 400px at 20% 20%, rgba(147,51,234,0.35), transparent 60%), radial-gradient(ellipse 500px 400px at 90% 90%, rgba(251,146,60,0.2), transparent 60%);"></div>
+        <div class="relative">
+          <p class="font-display font-bold text-3xl mb-2 text-gradient-brand">NEXUSPLAY</p>
           <p class="text-zinc-300 text-lg font-light leading-relaxed">
             Seu marketplace de<br>jogos digitais.
           </p>
         </div>
-        <div class="space-y-3">
+        <div class="relative space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-8 h-8 bg-[var(--color-brand-500)]/20 border border-[var(--color-brand-400)]/40 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-[var(--color-accent-400)]" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
               </svg>
             </div>
             <p class="text-zinc-300 text-sm">Acesse centenas de títulos digitais</p>
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-8 h-8 bg-[var(--color-brand-500)]/20 border border-[var(--color-brand-400)]/40 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-[var(--color-accent-400)]" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
               </svg>
             </div>
             <p class="text-zinc-300 text-sm">Salve favoritos e gerencie sua biblioteca</p>
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-8 h-8 bg-[var(--color-brand-500)]/20 border border-[var(--color-brand-400)]/40 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-[var(--color-accent-400)]" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
               </svg>
             </div>
@@ -147,12 +148,12 @@ export default function LoginPage() {
       </div>
 
       <!-- Coluna Direita: Formulário -->
-      <div class="flex flex-col justify-center items-center p-8 md:p-12 bg-white">
+      <div class="flex flex-col justify-center items-center p-8 md:p-12 bg-[var(--color-bg)]">
         <div class="w-full max-w-sm">
 
           <!-- Título dinâmico da aba -->
-          <h1 class="text-2xl font-black mb-1">${tabLabel[activeTab]}</h1>
-          <p class="text-zinc-500 text-sm mb-6">
+          <h1 class="font-display text-2xl font-bold mb-1">${tabLabel[activeTab]}</h1>
+          <p class="text-[var(--color-muted)] text-sm mb-6">
             ${activeTab === "login" ? "Bem-vindo de volta." : activeTab === "register" ? "Crie sua conta gratuitamente." : "Recupere o acesso à sua conta."}
           </p>
 
@@ -160,15 +161,15 @@ export default function LoginPage() {
           ${
             activeTab !== "forgot"
               ? `
-            <div class="flex gap-1 mb-6 bg-zinc-100 rounded p-1">
+            <div class="flex gap-1 mb-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-1">
               <button id="tab-login"
-                      class="flex-1 py-2 text-sm font-semibold rounded transition-colors
-                             ${activeTab === "login" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"}">
+                      class="flex-1 py-2 text-sm font-semibold rounded-md transition-all
+                             ${activeTab === "login" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"}">
                 Login
               </button>
               <button id="tab-register"
-                      class="flex-1 py-2 text-sm font-semibold rounded transition-colors
-                             ${activeTab === "register" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"}">
+                      class="flex-1 py-2 text-sm font-semibold rounded-md transition-all
+                             ${activeTab === "register" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"}">
                 Cadastro
               </button>
             </div>
@@ -199,7 +200,6 @@ export async function afterRender() {
     }
   };
 
-  // Troca de abas
   document.getElementById("tab-login")?.addEventListener("click", () => {
     activeTab = "login";
     navigate("/login");
@@ -217,7 +217,6 @@ export async function afterRender() {
     navigate("/login");
   });
 
-  // Login com Google
   document.getElementById("btn-google-login")?.addEventListener("click", async () => {
     const btn = document.getElementById("btn-google-login");
     btn.textContent = "Autenticando...";
@@ -236,7 +235,6 @@ export async function afterRender() {
     }
   });
 
-  // Login com e-mail
   document.getElementById("btn-login-email")?.addEventListener("click", async () => {
     const email = document.getElementById("input-email")?.value;
     const password = document.getElementById("input-password")?.value;
@@ -253,7 +251,6 @@ export async function afterRender() {
     }
   });
 
-  // Registro
   document.getElementById("btn-register")?.addEventListener("click", async () => {
     const username = document.getElementById("input-reg-username")?.value;
     const email = document.getElementById("input-reg-email")?.value;
@@ -280,7 +277,6 @@ export async function afterRender() {
     }
   });
 
-  // Esqueci a senha
   document.getElementById("btn-send-reset")?.addEventListener("click", async () => {
     const email = document.getElementById("input-forgot-email")?.value;
     const msgEl = document.getElementById("forgot-msg");

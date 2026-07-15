@@ -8,8 +8,8 @@ export function SidebarAccount() {
     const isActive = currentPath === href;
     return `
       <a href="${href}" data-link
-         class="flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors
-                ${isActive ? "bg-zinc-700 text-white" : "text-zinc-300 hover:bg-zinc-700 hover:text-white"}">
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                ${isActive ? "bg-gradient-to-r from-[var(--color-brand-600)]/40 to-[var(--color-brand-500)]/10 text-white border border-[var(--color-brand-500)]/40" : "text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-ink)] border border-transparent"}">
         ${icon}
         ${label}
       </a>
@@ -17,14 +17,14 @@ export function SidebarAccount() {
   };
 
   return `
-    <aside class="bg-zinc-900 rounded-lg p-4 border border-zinc-800 h-fit">
+    <aside class="bg-[var(--color-surface)] rounded-xl p-4 border border-[var(--color-border)] h-fit">
 
       <!-- Avatar e Info do Usuário -->
-      <div class="flex flex-col items-center text-center pb-4 mb-4 border-b border-zinc-800">
-        <div class="w-16 h-16 rounded-full bg-cover bg-center bg-zinc-700 mb-3 border-2 border-zinc-600"
-             style="background-image: url('${user?.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}')"></div>
-        <p class="text-white font-semibold text-sm">${user?.username || "Usuário"}</p>
-        <p class="text-zinc-400 text-xs mt-0.5 truncate max-w-full">${user?.email || ""}</p>
+      <div class="flex flex-col items-center text-center pb-4 mb-4 border-b border-[var(--color-border)]">
+        <div class="w-16 h-16 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] mb-3 border-2 border-transparent bg-origin-border p-0.5"
+             style="background-image: url('${user?.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}'); box-shadow: 0 0 0 2px var(--color-brand-500), 0 0 18px -2px rgba(147,51,234,0.65);"></div>
+        <p class="text-[var(--color-ink)] font-semibold text-sm">${user?.username || "Usuário"}</p>
+        <p class="text-[var(--color-muted-2)] text-xs mt-0.5 truncate max-w-full">${user?.email || ""}</p>
       </div>
 
       <!-- Links de Navegação -->
@@ -52,7 +52,7 @@ export function SidebarAccount() {
 
         <!-- Botão de Logout -->
         <button id="btn-sidebar-logout"
-                class="flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium text-red-400 hover:bg-zinc-700 hover:text-red-300 transition-colors w-full mt-2 border-t border-zinc-800 pt-3">
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-[var(--color-surface-2)] hover:text-red-300 transition-colors w-full mt-2 border-t border-[var(--color-border)] pt-3">
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
           </svg>

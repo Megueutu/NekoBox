@@ -46,7 +46,6 @@ export const Actions = {
 
   finalizarCheckoutCarrinho() {
     Store.setState((state) => {
-      // Evita duplicatas na biblioteca (compra de algo já adquirido)
       const novosItens = state.cart.filter(
         (cartItem) => !state.library.some((libItem) => libItem.id === cartItem.id)
       );

@@ -42,9 +42,9 @@ class RouterManager {
         console.error("Erro crítico de carregamento da View SPA:", error);
         appContainer.innerHTML = `
           <div class="p-12 text-center flex flex-col items-center justify-center min-h-[65vh]">
-            <h1 class="text-3xl font-black mb-2 text-red-600">Erro ao Carregar</h1>
-            <p class="text-zinc-500 mb-6">Houve um problema ao carregar esta página.</p>
-            <button data-link href="/hub" class="px-6 py-3 bg-zinc-900 text-white font-bold rounded cursor-pointer">
+            <h1 class="font-display text-3xl font-bold mb-2 text-red-400">Erro ao Carregar</h1>
+            <p class="text-[var(--color-muted)] mb-6">Houve um problema ao carregar esta página.</p>
+            <button data-link href="/hub" class="px-6 py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg cursor-pointer hover:brightness-110 transition-all glow-brand">
               Retornar ao Hub
             </button>
           </div>
@@ -56,10 +56,10 @@ class RouterManager {
     // 404
     appContainer.innerHTML = `
       <div class="p-12 text-center flex flex-col items-center justify-center min-h-[65vh]">
-        <h1 class="text-5xl font-black mb-4 text-zinc-300">404</h1>
-        <p class="text-xl font-bold mb-2">CATALOG ERROR</p>
-        <p class="text-zinc-500 mb-8">O título buscado não foi indexado ou foi movido do catálogo de lançamentos.</p>
-        <button data-link href="/hub" class="px-6 py-3 bg-zinc-900 text-white font-bold rounded cursor-pointer">
+        <h1 class="font-display text-7xl font-bold mb-4 text-gradient-brand">404</h1>
+        <p class="text-xl font-bold mb-2 text-[var(--color-ink)]">CATALOG ERROR</p>
+        <p class="text-[var(--color-muted)] mb-8 max-w-md">O título buscado não foi indexado ou foi movido do catálogo de lançamentos.</p>
+        <button data-link href="/hub" class="px-6 py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg cursor-pointer hover:brightness-110 transition-all glow-brand">
           Retornar ao Hub
         </button>
       </div>
