@@ -21,14 +21,14 @@ export default function WishlistPage() {
       <div class="flex items-center justify-between">
         <div>
           <h1 class="font-display text-2xl font-bold">Lista de Desejos</h1>
-          <p class="text-[var(--color-muted)] text-sm mt-1">${wishlist.length} item${wishlist.length !== 1 ? "s" : ""} salvo${wishlist.length !== 1 ? "s" : ""}</p>
+          <p class="text-muted text-sm mt-1">${wishlist.length} item${wishlist.length !== 1 ? "s" : ""} salvo${wishlist.length !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
       ${
         wishlist.length === 0
           ? `
-        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-12 text-center">
+        <div class="bg-surface border border-[var(--color-border)] rounded-xl p-12 text-center">
           <svg class="w-12 h-12 text-[var(--color-muted-2)] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
           </svg>
@@ -44,7 +44,7 @@ export default function WishlistPage() {
           ${wishlist
             .map(
               (game) => `
-            <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden card-hover-glow group">
+            <div class="bg-surface border border-[var(--color-border)] rounded-xl overflow-hidden card-hover-glow group">
               <!-- Capa -->
               <a href="/game/${game.slug}" data-link class="block">
                 <div class="w-full aspect-[2/3] bg-cover bg-center bg-no-repeat bg-[var(--color-surface-2)]"

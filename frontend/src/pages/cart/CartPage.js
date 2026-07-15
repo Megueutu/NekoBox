@@ -22,13 +22,13 @@ export default function CartPage() {
     <div class="space-y-6">
       <div>
         <h1 class="font-display text-2xl font-bold">Carrinho</h1>
-        <p class="text-[var(--color-muted)] text-sm mt-1">${cart.length} item${cart.length !== 1 ? "s" : ""} na sacola</p>
+        <p class="text-muted text-sm mt-1">${cart.length} item${cart.length !== 1 ? "s" : ""} na sacola</p>
       </div>
 
       ${
         cart.length === 0
           ? `
-        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-12 text-center">
+        <div class="bg-surface border border-[var(--color-border)] rounded-xl p-12 text-center">
           <svg class="w-12 h-12 text-[var(--color-muted-2)] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
           </svg>
@@ -47,7 +47,7 @@ export default function CartPage() {
             ${cart
               .map(
                 (game) => `
-              <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 flex items-center gap-4">
+              <div class="bg-surface border border-[var(--color-border)] rounded-xl p-4 flex items-center gap-4">
                 <!-- Capa Compacta -->
                 <a href="/game/${game.slug}" data-link class="shrink-0">
                   <div class="w-14 h-20 bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)]"
@@ -74,7 +74,7 @@ export default function CartPage() {
 
           <!-- Resumo do Pedido -->
           <div class="lg:col-span-1">
-            <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-5 sticky top-20 space-y-4">
+            <div class="bg-surface border border-[var(--color-border)] rounded-xl p-5 sticky top-20 space-y-4">
               <h2 class="font-display font-semibold text-base border-b border-[var(--color-border)] pb-3">Resumo do Pedido</h2>
 
               <div class="space-y-2">
@@ -82,7 +82,7 @@ export default function CartPage() {
                   .map(
                     (game) => `
                   <div class="flex justify-between text-sm">
-                    <span class="text-[var(--color-muted)] truncate pr-2">${game.title}</span>
+                    <span class="text-muted truncate pr-2">${game.title}</span>
                     <span class="shrink-0 font-medium">${formatPrice(game.price)}</span>
                   </div>
                 `

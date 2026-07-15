@@ -9,7 +9,7 @@ export function SidebarAccount() {
     return `
       <a href="${href}" data-link
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                ${isActive ? "bg-gradient-to-r from-[var(--color-brand-600)]/40 to-[var(--color-brand-500)]/10 text-white border border-[var(--color-brand-500)]/40" : "text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-ink)] border border-transparent"}">
+                ${isActive ? "bg-gradient-to-r from-[var(--color-brand-600)]/40 to-[var(--color-brand-500)]/10 text-white border border-[var(--color-brand-500)]/40" : "text-muted hover:bg-[var(--color-surface-2)] hover:text-[var(--color-ink)] border border-transparent"}">
         ${icon}
         ${label}
       </a>
@@ -17,7 +17,7 @@ export function SidebarAccount() {
   };
 
   return `
-    <aside class="bg-[var(--color-surface)] rounded-xl p-4 border border-[var(--color-border)] h-fit">
+    <aside class="bg-surface rounded-xl p-4 border border-[var(--color-border)] h-fit">
 
       <!-- Avatar e Info do Usuário -->
       <div class="flex flex-col items-center text-center pb-4 mb-4 border-b border-[var(--color-border)]">

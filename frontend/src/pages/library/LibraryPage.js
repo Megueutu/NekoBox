@@ -15,7 +15,7 @@ export default function LibraryPage() {
     <div class="space-y-6">
       <div>
         <h1 class="font-display text-2xl font-bold">Minha Biblioteca</h1>
-        <p class="text-[var(--color-muted)] text-sm mt-1">
+        <p class="text-muted text-sm mt-1">
           ${library.length > 0
             ? `${library.length} jogo${library.length !== 1 ? "s" : ""} adquirido${library.length !== 1 ? "s" : ""}`
             : "Sua coleção pessoal de jogos digitais."
@@ -26,7 +26,7 @@ export default function LibraryPage() {
       ${
         library.length === 0
           ? `
-        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-12 text-center">
+        <div class="bg-surface border border-[var(--color-border)] rounded-xl p-12 text-center">
           <svg class="w-12 h-12 text-[var(--color-muted-2)] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
           </svg>
@@ -42,7 +42,7 @@ export default function LibraryPage() {
           ${library
             .map(
               (game) => `
-            <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden card-hover-glow">
+            <div class="bg-surface border border-[var(--color-border)] rounded-xl overflow-hidden card-hover-glow">
               <a href="/game/${game.slug}" data-link class="block">
                 <div class="w-full aspect-[1/1] bg-cover bg-center bg-no-repeat bg-[var(--color-surface-2)]"
                      style="background-image: url('${getCoverUrl(game)}')"></div>

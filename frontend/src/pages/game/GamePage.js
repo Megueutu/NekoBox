@@ -21,7 +21,7 @@ export default async function GamePage({ slug }) {
     return PublicLayout(`
       <div class="max-w-7xl mx-auto px-4 py-24 text-center">
         <h1 class="font-display text-4xl font-bold mb-4">Jogo não encontrado</h1>
-        <p class="text-[var(--color-muted)] mb-6">Este título não existe ou foi removido do catálogo.</p>
+        <p class="text-muted mb-6">Este título não existe ou foi removido do catálogo.</p>
         <a href="/hub" data-link class="px-6 py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all glow-brand inline-block">
           Voltar ao Catálogo
         </a>
@@ -56,13 +56,13 @@ export default async function GamePage({ slug }) {
     ? `<button id="btn-wishlist" class="w-full py-2.5 border-2 border-red-400/70 text-red-400 font-semibold rounded-lg hover:bg-red-500/10 transition-colors text-sm">
          ♥ Na Lista de Desejos
        </button>`
-    : `<button id="btn-wishlist" class="w-full py-2.5 border-2 border-[var(--color-border)] text-[var(--color-muted)] font-semibold rounded-lg hover:border-[var(--color-accent-500)]/70 hover:text-[var(--color-accent-400)] transition-colors text-sm">
+    : `<button id="btn-wishlist" class="w-full py-2.5 border-2 border-[var(--color-border)] text-muted font-semibold rounded-lg hover:border-[var(--color-accent-500)]/70 hover:text-[var(--color-accent-400)] transition-colors text-sm">
          ♡ Adicionar à Lista de Desejos
        </button>`;
 
   const reqRow = (label, val) =>
     val
-      ? `<div class="flex gap-2 text-xs"><span class="text-[var(--color-muted-2)] shrink-0 w-20">${label}</span><span class="text-[var(--color-muted)]">${val}</span></div>`
+      ? `<div class="flex gap-2 text-xs"><span class="text-[var(--color-muted-2)] shrink-0 w-20">${label}</span><span class="text-muted">${val}</span></div>`
       : "";
 
   const content = `
@@ -91,7 +91,7 @@ export default async function GamePage({ slug }) {
         <!-- Descrição -->
         <section>
           <h2 class="font-display text-lg font-semibold mb-3 border-b border-[var(--color-border)] pb-2">Sobre o Jogo</h2>
-          <p class="text-[var(--color-muted)] text-sm leading-relaxed">${game.long_description}</p>
+          <p class="text-muted text-sm leading-relaxed">${game.long_description}</p>
         </section>
 
         <!-- Tags -->
@@ -99,7 +99,7 @@ export default async function GamePage({ slug }) {
           game.tags?.length
             ? `<section>
                 <div class="flex flex-wrap gap-2">
-                  ${game.tags.map((t) => `<span class="px-2.5 py-1 bg-[var(--color-surface)] text-[var(--color-muted)] text-xs rounded-full border border-[var(--color-border)]">${t}</span>`).join("")}
+                  ${game.tags.map((t) => `<span class="px-2.5 py-1 bg-surface text-muted text-xs rounded-full border border-[var(--color-border)]">${t}</span>`).join("")}
                 </div>
                </section>`
             : ""
@@ -136,7 +136,7 @@ export default async function GamePage({ slug }) {
               ${
                 minReq
                   ? `
-                <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
+                <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
                   <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-muted-2)] mb-3">Mínimo</p>
                   <div class="space-y-1.5">
                     ${reqRow("SO", minReq.os)}
@@ -152,7 +152,7 @@ export default async function GamePage({ slug }) {
               ${
                 recReq
                   ? `
-                <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
+                <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
                   <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-400)] mb-3">Recomendado</p>
                   <div class="space-y-1.5">
                     ${reqRow("SO", recReq.os)}
@@ -181,10 +181,10 @@ export default async function GamePage({ slug }) {
               <table class="w-full text-sm">
                 <thead>
                   <tr class="text-left border-b border-[var(--color-border)]">
-                    <th class="pb-2 font-semibold text-[var(--color-muted)] pr-4">Idioma</th>
-                    <th class="pb-2 font-semibold text-[var(--color-muted)] text-center">Interface</th>
-                    <th class="pb-2 font-semibold text-[var(--color-muted)] text-center">Legendas</th>
-                    <th class="pb-2 font-semibold text-[var(--color-muted)] text-center">Áudio</th>
+                    <th class="pb-2 font-semibold text-muted pr-4">Idioma</th>
+                    <th class="pb-2 font-semibold text-muted text-center">Interface</th>
+                    <th class="pb-2 font-semibold text-muted text-center">Legendas</th>
+                    <th class="pb-2 font-semibold text-muted text-center">Áudio</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -218,13 +218,13 @@ export default async function GamePage({ slug }) {
               ${game.updates
                 .map(
                   (u) => `
-                <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
+                <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
                   <div class="flex items-center gap-2 mb-1">
                     <span class="text-xs font-bold bg-[var(--color-brand-500)]/25 text-[var(--color-brand-100)] px-2 py-0.5 rounded-full">${u.version}</span>
                     <span class="font-semibold text-sm">${u.title}</span>
                     <span class="text-[var(--color-muted-2)] text-xs ml-auto">${formatDate(u.created_at)}</span>
                   </div>
-                  <p class="text-[var(--color-muted)] text-xs leading-relaxed">${u.content}</p>
+                  <p class="text-muted text-xs leading-relaxed">${u.content}</p>
                 </div>
               `
                 )
@@ -248,7 +248,7 @@ export default async function GamePage({ slug }) {
               ${game.reviews
                 .map(
                   (r) => `
-                <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
+                <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
                   <div class="flex items-center gap-2 mb-2">
                     <span class="text-xs font-bold px-2 py-0.5 rounded-full ${r.recommended ? "bg-[var(--color-accent-500)]/20 text-[var(--color-accent-400)]" : "bg-red-500/15 text-red-400"}">
                       ${r.recommended ? "✓ Recomenda" : "✗ Não Recomenda"}
@@ -256,7 +256,7 @@ export default async function GamePage({ slug }) {
                     <span class="font-semibold text-sm">${r.username}</span>
                     <span class="text-[var(--color-muted-2)] text-xs ml-auto">${formatDate(r.created_at)}</span>
                   </div>
-                  <p class="text-[var(--color-muted)] text-sm leading-relaxed">${r.review_text}</p>
+                  <p class="text-muted text-sm leading-relaxed">${r.review_text}</p>
                   <p class="text-[var(--color-muted-2)] text-xs mt-2">${r.votes} pessoas acharam útil</p>
                 </div>
               `
@@ -272,7 +272,7 @@ export default async function GamePage({ slug }) {
 
       <!-- Coluna Lateral: Checkout -->
       <div class="lg:col-span-1">
-        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-5 sticky top-20 space-y-4">
+        <div class="bg-surface border border-[var(--color-border)] rounded-xl p-5 sticky top-20 space-y-4">
 
           <!-- Capa pequena -->
           <div class="w-full aspect-[2/3] bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)]"
@@ -294,7 +294,7 @@ export default async function GamePage({ slug }) {
           ${
             game.publisher?.name
               ? `<p class="text-xs text-[var(--color-muted-2)] text-center border-t border-[var(--color-border)] pt-3">
-                   Publicado por <strong class="text-[var(--color-muted)]">${game.publisher.name}</strong>
+                   Publicado por <strong class="text-muted">${game.publisher.name}</strong>
                  </p>`
               : ""
           }

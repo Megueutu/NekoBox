@@ -11,11 +11,11 @@ export default function ProfilePage() {
     <div class="space-y-6">
       <div>
         <h1 class="font-display text-2xl font-bold">Meu Perfil</h1>
-        <p class="text-[var(--color-muted)] text-sm mt-1">Gerencie seus dados cadastrais e preferências de conta.</p>
+        <p class="text-muted text-sm mt-1">Gerencie seus dados cadastrais e preferências de conta.</p>
       </div>
 
       <!-- Formulário de Perfil -->
-      <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6">
+      <div class="bg-surface border border-[var(--color-border)] rounded-xl p-6">
         <h2 class="font-display font-semibold text-base mb-5 border-b border-[var(--color-border)] pb-3">Informações Pessoais</h2>
 
         <div class="flex flex-col sm:flex-row items-start gap-6 mb-6">
@@ -29,7 +29,7 @@ export default function ProfilePage() {
 
           <!-- Campo URL do Avatar -->
           <div class="flex-1 w-full">
-            <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">URL do Avatar</label>
+            <label class="block text-sm font-medium text-muted mb-1">URL do Avatar</label>
             <input id="input-avatar-url" type="url"
                    value="${user?.avatar_url || ""}"
                    placeholder="https://..."
@@ -40,14 +40,14 @@ export default function ProfilePage() {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
-            <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Nome de Usuário</label>
+            <label class="block text-sm font-medium text-muted mb-1">Nome de Usuário</label>
             <input id="input-username" type="text"
                    value="${user?.username || ""}"
                    placeholder="seu_usuario"
                    class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
           </div>
           <div>
-            <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail</label>
+            <label class="block text-sm font-medium text-muted mb-1">E-mail</label>
             <input type="email" value="${user?.email || ""}" disabled
                    class="w-full px-3 py-2.5 bg-[var(--color-surface-2)]/50 border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-muted-2)] cursor-not-allowed"/>
             <p class="text-xs text-[var(--color-muted-2)] mt-1">O e-mail não pode ser alterado.</p>
@@ -55,7 +55,7 @@ export default function ProfilePage() {
         </div>
 
         <div class="mb-5">
-          <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Bio</label>
+          <label class="block text-sm font-medium text-muted mb-1">Bio</label>
           <textarea id="input-bio" rows="3"
                     placeholder="Fale um pouco sobre você..."
                     class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] resize-none">${user?.bio || ""}</textarea>
@@ -71,9 +71,9 @@ export default function ProfilePage() {
       </div>
 
       <!-- Zona de Perigo -->
-      <div class="bg-[var(--color-surface)] border border-red-500/30 rounded-xl p-6">
+      <div class="bg-surface border border-red-500/30 rounded-xl p-6">
         <h2 class="font-display font-semibold text-base mb-1 text-red-400">Zona de Perigo</h2>
-        <p class="text-[var(--color-muted)] text-sm mb-4">Ações irreversíveis de conta.</p>
+        <p class="text-muted text-sm mb-4">Ações irreversíveis de conta.</p>
         <button id="btn-logout-profile"
                 class="px-5 py-2.5 border-2 border-red-400/60 text-red-400 font-bold text-sm rounded-lg hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors">
           Sair da Conta

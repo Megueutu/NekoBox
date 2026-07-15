@@ -7,12 +7,12 @@ export default function LoginPage() {
   const loginForm = `
     <div class="flex flex-col gap-4">
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail</label>
+        <label class="block text-sm font-medium text-muted mb-1">E-mail</label>
         <input id="input-email" type="email" placeholder="seu@email.com"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Senha</label>
+        <label class="block text-sm font-medium text-muted mb-1">Senha</label>
         <input id="input-password" type="password" placeholder="••••••••"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent"/>
       </div>
@@ -47,22 +47,22 @@ export default function LoginPage() {
   const registerForm = `
     <div class="flex flex-col gap-4">
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Nome de usuário</label>
+        <label class="block text-sm font-medium text-muted mb-1">Nome de usuário</label>
         <input id="input-reg-username" type="text" placeholder="jogador123"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail</label>
+        <label class="block text-sm font-medium text-muted mb-1">E-mail</label>
         <input id="input-reg-email" type="email" placeholder="seu@email.com"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Senha</label>
+        <label class="block text-sm font-medium text-muted mb-1">Senha</label>
         <input id="input-reg-password" type="password" placeholder="Mínimo 6 caracteres"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">Confirmar Senha</label>
+        <label class="block text-sm font-medium text-muted mb-1">Confirmar Senha</label>
         <input id="input-reg-confirm" type="password" placeholder="Repita a senha"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
@@ -76,11 +76,11 @@ export default function LoginPage() {
 
   const forgotForm = `
     <div class="flex flex-col gap-4">
-      <p class="text-sm text-[var(--color-muted)]">
+      <p class="text-sm text-muted">
         Digite seu e-mail e enviaremos um link para você redefinir sua senha.
       </p>
       <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-1">E-mail cadastrado</label>
+        <label class="block text-sm font-medium text-muted mb-1">E-mail cadastrado</label>
         <input id="input-forgot-email" type="email" placeholder="seu@email.com"
                class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
       </div>
@@ -111,7 +111,7 @@ export default function LoginPage() {
     <div class="grid grid-cols-1 md:grid-cols-2 min-h-[85vh]">
 
       <!-- Coluna Esquerda: Banner Institucional -->
-      <div class="bg-[var(--color-surface)] relative overflow-hidden hidden md:flex flex-col justify-center items-start p-12 gap-6 border-r border-[var(--color-border)]">
+      <div class="bg-surface relative overflow-hidden hidden md:flex flex-col justify-center items-start p-12 gap-6 border-r border-[var(--color-border)]">
         <div class="absolute inset-0 opacity-60" style="background-image: radial-gradient(ellipse 600px 400px at 20% 20%, rgba(147,51,234,0.35), transparent 60%), radial-gradient(ellipse 500px 400px at 90% 90%, rgba(251,146,60,0.2), transparent 60%);"></div>
         <div class="relative">
           <p class="font-display font-bold text-3xl mb-2 text-gradient-brand">NEXUSPLAY</p>
@@ -148,12 +148,12 @@ export default function LoginPage() {
       </div>
 
       <!-- Coluna Direita: Formulário -->
-      <div class="flex flex-col justify-center items-center p-8 md:p-12 bg-[var(--color-bg)]">
+      <div class="flex flex-col justify-center items-center p-8 md:p-12 bg-(--color-bg)">
         <div class="w-full max-w-sm">
 
           <!-- Título dinâmico da aba -->
           <h1 class="font-display text-2xl font-bold mb-1">${tabLabel[activeTab]}</h1>
-          <p class="text-[var(--color-muted)] text-sm mb-6">
+          <p class="text-muted text-sm mb-6">
             ${activeTab === "login" ? "Bem-vindo de volta." : activeTab === "register" ? "Crie sua conta gratuitamente." : "Recupere o acesso à sua conta."}
           </p>
 
@@ -161,15 +161,15 @@ export default function LoginPage() {
           ${
             activeTab !== "forgot"
               ? `
-            <div class="flex gap-1 mb-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-1">
+            <div class="flex gap-1 mb-6 bg-surface border border-[var(--color-border)] rounded-lg p-1">
               <button id="tab-login"
                       class="flex-1 py-2 text-sm font-semibold rounded-md transition-all
-                             ${activeTab === "login" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"}">
+                             ${activeTab === "login" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-muted hover:text-[var(--color-ink)]"}">
                 Login
               </button>
               <button id="tab-register"
                       class="flex-1 py-2 text-sm font-semibold rounded-md transition-all
-                             ${activeTab === "register" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"}">
+                             ${activeTab === "register" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-muted hover:text-[var(--color-ink)]"}">
                 Cadastro
               </button>
             </div>

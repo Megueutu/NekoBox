@@ -27,7 +27,7 @@ function formatPrice(price) {
 
 function renderGameCard(game) {
   return `
-    <article class="bg-[var(--color-surface)] rounded-xl overflow-hidden border border-[var(--color-border)] card-hover-glow cursor-pointer group"
+    <article class="bg-surface rounded-xl overflow-hidden border border-[var(--color-border)] card-hover-glow cursor-pointer group"
              data-link href="/game/${game.slug}">
       <div class="w-full aspect-[1/1] bg-cover bg-center bg-no-repeat bg-[var(--color-surface-3)] relative overflow-hidden"
            style="background-image: url('${getCoverUrl(game)}')">
@@ -46,7 +46,7 @@ function renderGameCard(game) {
 
 function renderSkeleton() {
   return Array(8).fill("").map(() => `
-    <div class="bg-[var(--color-surface)] rounded-xl overflow-hidden border border-[var(--color-border)] animate-pulse">
+    <div class="bg-surface rounded-xl overflow-hidden border border-[var(--color-border)] animate-pulse">
       <div class="w-full aspect-[2/3] bg-[var(--color-surface-2)]"></div>
       <div class="p-3 space-y-2">
         <div class="h-3 bg-[var(--color-surface-2)] rounded w-3/4"></div>
@@ -102,9 +102,9 @@ export default async function HubPage() {
           </svg>
           <input id="search-input" type="text" placeholder="Buscar jogos..."
                  value="${searchQuery}"
-                 class="w-full pl-9 pr-3 py-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent transition-all"/>
+                 class="w-full pl-9 pr-3 py-2.5 bg-surface border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent transition-all"/>
         </div>
-        <p class="text-[var(--color-muted)] text-sm shrink-0">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
+        <p class="text-muted text-sm shrink-0">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
       </div>
 
       <!-- Filtros por Categoria -->
@@ -115,7 +115,7 @@ export default async function HubPage() {
                   class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border
                          ${activeCategory === cat
                            ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white border-transparent glow-brand"
-                           : "bg-[var(--color-surface)] text-[var(--color-muted)] border-[var(--color-border)] hover:border-[var(--color-brand-500)]/50 hover:text-[var(--color-ink)]"}">
+                           : "bg-surface text-muted border-[var(--color-border)] hover:border-[var(--color-brand-500)]/50 hover:text-[var(--color-ink)]"}">
             ${cat}
           </button>
         `
@@ -128,7 +128,7 @@ export default async function HubPage() {
             ? filteredGames.map(renderGameCard).join("")
             : `
           <div class="col-span-full text-center py-16">
-            <p class="text-[var(--color-muted)] text-lg mb-2">Nenhum jogo encontrado</p>
+            <p class="text-muted text-lg mb-2">Nenhum jogo encontrado</p>
             <p class="text-[var(--color-muted-2)] text-sm">Tente outro filtro ou termo de busca.</p>
           </div>
         `
