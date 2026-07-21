@@ -37,6 +37,10 @@ O guard considera a existência de `localStorage.access_token`. Ele salva a rota
 
 Páginas exportam uma função que retorna uma string HTML e, opcionalmente, `afterRender()` para eventos. `PublicLayout` fornece Navbar, conteúdo e Footer. `PrivateLayout` adiciona a SidebarAccount e é usado por perfil, wishlist, carrinho e biblioteca.
 
+A rota pública `/acessibilidade` apresenta a premissa de inclusão do produto, as referências WCAG 2.2, WAI-ARIA, eMAG e ABNT NBR 17225:2025, os recursos disponíveis e as limitações conhecidas.
+
+A rota `/` renderiza a vitrine editorial da loja. O catálogo completo permanece em `/hub`; o logo e o item “Início” da navegação principal apontam para a landing page.
+
 ### Estado
 
 `src/store/store.js` mantém `user`, `cart`, `wishlist`, `library` e `loading`. O estado inteiro é persistido em `localStorage.marketplace_central_state`. `Actions` aplica as regras de mutação e dispara o evento global `rerender`.

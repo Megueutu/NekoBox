@@ -43,6 +43,8 @@ Sem essa variável, imagens com `public_id` não são transformadas e o frontend
 
 O alias `@` aponta para `src`. O Tailwind é integrado pelo plugin do Vite; estilos globais e tokens visuais ficam em `src/style.css`.
 
+Os ícones de interface usam `lucide` na versão fixada no manifesto e são expostos pelo componente `src/components/ui/Icon.js`. `react-icons` não deve ser usado porque esta aplicação não possui runtime React.
+
 ## Cuidados de configuração
 
 As variáveis `VITE_*` são incorporadas ao bundle e não são local apropriado para segredos. Chaves privadas do Firebase Admin, Cloudinary API Secret e credenciais de pagamento devem permanecer no backend.
