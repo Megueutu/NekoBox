@@ -1,9 +1,10 @@
 import { routes } from "./routes";
 import { matchRoute } from "./matchRoute";
 import { navigate } from "./navigate";
+import { setupKeyboardNavigation } from "../accessibility/keyboard";
 
 class RouterManager {
-  async renderizar() {
+  async renderizar({ focusTarget = null } = {}) {
     const pathname = window.location.pathname;
     const appContainer = document.getElementById("app");
     if (!appContainer) return;
@@ -47,6 +48,10 @@ class RouterManager {
         if (module.afterRender) {
           await module.afterRender(params);
         }
+
+        if (focusTarget) {
+          document.querySelector(focusTarget)?.focus();
+        }
         return;
       } catch (error) {
         console.error("Erro crítico de carregamento da View SPA:", error);
@@ -54,7 +59,7 @@ class RouterManager {
           <div class="p-12 text-center flex flex-col items-center justify-center min-h-[65vh]">
             <h1 class="font-display text-3xl font-bold mb-2 text-red-400">Erro ao Carregar</h1>
             <p class="text-muted mb-6">Houve um problema ao carregar esta página.</p>
-            <button data-link href="/hub" class="px-6 py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg cursor-pointer hover:brightness-110 transition-all glow-brand">
+            <button data-link href="/hub" class="button-primary px-6 py-3 cursor-pointer">
               Retornar ao Hub
             </button>
           </div>
@@ -69,7 +74,7 @@ class RouterManager {
         <h1 class="font-display text-7xl font-bold mb-4 text-gradient-brand">404</h1>
         <p class="text-xl font-bold mb-2 text-[var(--color-ink)]">CATALOG ERROR</p>
         <p class="text-muted mb-8 max-w-md">O título buscado não foi indexado ou foi movido do catálogo de lançamentos.</p>
-        <button data-link href="/hub" class="px-6 py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg cursor-pointer hover:brightness-110 transition-all glow-brand">
+        <button data-link href="/hub" class="button-primary px-6 py-3 cursor-pointer">
           Retornar ao Hub
         </button>
       </div>
@@ -77,8 +82,14 @@ class RouterManager {
   }
 
   inicializar() {
-    window.addEventListener("popstate", () => this.renderizar());
-    window.addEventListener("rerender", () => this.renderizar());
+    window.addEventListener("popstate", () =>
+      this.renderizar({ focusTarget: "#main-content" })
+    );
+    window.addEventListener("rerender", (event) =>
+      this.renderizar({ focusTarget: event.detail?.focusTarget })
+    );
+
+    setupKeyboardNavigation();
 
     // Interceptador global de cliques SPA — previne recarregamentos
     document.addEventListener("click", (e) => {
