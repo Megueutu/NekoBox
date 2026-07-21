@@ -1,5 +1,6 @@
-import "@/styles/style.css";
+import "@/style.css";
 import { Router } from "@/app/router/router";
+import { applyPreferences } from "@/app/preferences/preferences";
 
-// Inicializa o roteador — ponto de entrada da aplicação
+applyPreferences();
 Router.inicializar();

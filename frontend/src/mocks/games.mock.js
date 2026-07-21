@@ -184,7 +184,7 @@ export const mockGames = [
     release_date: "2017-02-24",
     status: "published",
     media: [
-      { id: "m24", type: "cover", url: "https://picsum.photos/seed/hollow/400/600", position: 1 },
+      { id: "m24", type: "cover", url: "https://res.cloudinary.com/m7bohjtg/image/upload/v1784025147/1425e65d043da63396a10ccf87d5e4af50175464e64cda30_pz3jdd.avif", position: 1 },
       { id: "m25", type: "banner", url: "https://picsum.photos/seed/hollowb/1920/1080", position: 1 },
       { id: "m26", type: "screenshot", url: "https://picsum.photos/seed/hollows1/800/450", position: 1 },
       { id: "m27", type: "screenshot", url: "https://picsum.photos/seed/hollows2/800/450", position: 2 },

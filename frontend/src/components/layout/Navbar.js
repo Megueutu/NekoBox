@@ -1,65 +1,88 @@
 import { Store } from "../../store/store";
+import { Icon, icons } from "../ui/Icon";
 
 export function Navbar() {
   const { cart, wishlist, user } = Store.getState();
+  const currentPath = window.location.pathname;
   const cartCount = cart.length;
   const wishlistCount = wishlist.length;
+  const navLink = (href, label) => {
+    const isCurrent = currentPath === href;
+    return `<a href="${href}" data-link ${isCurrent ? 'aria-current="page"' : ""}
+      class="site-nav__link ${isCurrent ? "site-nav__link--current" : ""}">${label}</a>`;
+  };
 
   return `
-    <nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <nav class="site-nav sticky top-0 z-50" aria-label="Navegação principal">
+      <div class="site-container site-nav__inner flex items-center justify-between">
 
-        <!-- Logo -->
-        <a href="/hub" data-link class="flex items-center gap-2 text-white font-black text-xl tracking-tight">
-          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-10 9H8v-2H6v-2h2V9h2v2h2v2h-1v1zm4.5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
-          </svg>
-          <span class="text-white">GameStore</span>
+        <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NexusPlay — Início">
+          <span class="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center">
+            ${Icon(icons.gamepad, { className: "w-4.5 h-4.5 text-white", strokeWidth: 2.25 })}
+          </span>
+          <span class="text-[var(--color-ink)]">NEXUS<span class="text-[var(--color-brand-400)]">PLAY</span></span>
         </a>
 
-        <!-- Links de Navegação (Desktop) -->
-        <div class="hidden md:flex items-center gap-6">
-          <a href="/hub" data-link class="text-zinc-300 hover:text-white text-sm font-medium transition-colors">Catálogo</a>
+        <div class="hidden lg:flex items-center gap-7">
+          ${navLink("/", "Início")}
+          ${navLink("/hub", "Catálogo")}
+          ${navLink("/acessibilidade", "Acessibilidade")}
         </div>
 
-        <!-- Ações Direita -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3 sm:gap-5">
 
-          <!-- Wishlist -->
-          <a href="/wishlist" data-link class="relative text-zinc-300 hover:text-white transition-colors" aria-label="Lista de desejos">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-            </svg>
+          <a href="/configuracoes" data-link
+             class="nav-icon-link ${currentPath === "/configuracoes" ? "nav-icon-link--current" : ""}"
+             ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""}
+             aria-label="Configurações">
+            ${Icon(icons.settings, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+          </a>
+
+          <details class="lg:hidden relative order-last">
+            <summary class="list-none [&::-webkit-details-marker]:hidden flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer" aria-label="Abrir menu de navegação">
+              ${Icon(icons.menu)}
+            </summary>
+            <nav class="absolute right-0 top-full mt-2 w-48 bg-surface rounded-xl shadow-xl py-2 z-50" aria-label="Navegação mobile">
+              <a href="/" data-link ${currentPath === "/" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Início</a>
+              <a href="/hub" data-link ${currentPath === "/hub" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Catálogo</a>
+              <a href="/acessibilidade" data-link ${currentPath === "/acessibilidade" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Acessibilidade</a>
+              <a href="/configuracoes" data-link ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
+              <a href="/library" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+              <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
+              <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
+              <a href="/profile" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
+            </nav>
+          </details>
+
+          <a href="/wishlist" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Lista de desejos">
+            ${Icon(icons.heart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
             ${
               wishlistCount > 0
-                ? `<span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>`
+                ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-accent-400)] text-[var(--color-bg)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>`
                 : ""
             }
           </a>
 
-          <!-- Carrinho -->
-          <a href="/cart" data-link class="relative text-zinc-300 hover:text-white transition-colors" aria-label="Carrinho de compras">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
+          <a href="/cart" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Carrinho de compras">
+            ${Icon(icons.shoppingCart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
             ${
               cartCount > 0
-                ? `<span class="absolute -top-1.5 -right-1.5 bg-blue-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>`
+                ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-500)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>`
                 : ""
             }
           </a>
 
-          <!-- Usuário Logado ou Botão de Login -->
           ${
             user
               ? `
-            <a href="/profile" data-link class="flex items-center gap-2" aria-label="Meu perfil">
-              <div class="w-8 h-8 rounded-full bg-cover bg-center bg-zinc-600 border-2 border-zinc-600 hover:border-zinc-400 transition-colors"
+            <a href="/profile" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
+              <div class="w-8 h-8 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] border-2 border-[var(--color-brand-500)]/60 hover:border-[var(--color-accent-400)] transition-colors"
+                   role="img" aria-label="Avatar de ${user.username || "usuário"}"
                    style="background-image: url('${user.avatar_url}')"></div>
             </a>
           `
               : `
-            <a href="/login" data-link class="px-4 py-1.5 bg-white text-zinc-900 text-sm font-bold rounded hover:bg-zinc-200 transition-colors">
+            <a href="/login" data-link class="button-primary hidden sm:inline-flex px-4 py-2 text-sm">
               Entrar
             </a>
           `
