@@ -3,15 +3,10 @@ import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
 import { navigate } from "../../app/router/navigate";
 import { AuthService } from "../../services/auth/auth.service";
-
-function getCoverUrl(game) {
-  const cover = game.media?.find((m) => m.type === "cover");
-  return cover?.url || "https://picsum.photos/seed/default/400/600";
-}
-
-function formatPrice(price) {
-  return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+import { EmptyState } from "../../components/ui/EmptyState";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { getCoverUrl } from "../../utils/media";
+import { formatPrice } from "../../utils/format";
 
 export default function CartPage() {
   const { cart } = Store.getState();
@@ -19,45 +14,41 @@ export default function CartPage() {
   const total = cart.reduce((acc, game) => acc + game.price, 0);
 
   const content = `
-    <div class="space-y-6">
-      <div>
-        <h1 class="font-display text-2xl font-bold">Carrinho</h1>
-        <p class="text-muted text-sm mt-1">${cart.length} item${cart.length !== 1 ? "s" : ""} na sacola</p>
-      </div>
+    <div class="space-y-8">
+      ${PageHeader({
+        title: "Carrinho",
+        subtitle: `${cart.length} item${cart.length !== 1 ? "s" : ""} na sacola`,
+      })}
 
       ${
         cart.length === 0
-          ? `
-        <div class="bg-surface border border-[var(--color-border)] rounded-xl p-12 text-center">
-          <svg class="w-12 h-12 text-[var(--color-muted-2)] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-          <p class="text-[var(--color-ink)] text-lg font-semibold mb-2">Seu carrinho está vazio</p>
-          <p class="text-[var(--color-muted-2)] text-sm mb-6">Adicione jogos ao carrinho para continuar.</p>
-          <a href="/hub" data-link class="px-5 py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold text-sm rounded-lg hover:brightness-110 transition-all glow-brand inline-block">
-            Explorar Catálogo
-          </a>
-        </div>
-      `
+          ? EmptyState({
+              icon: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z",
+              title: "Seu carrinho está vazio",
+              description: "Adicione jogos ao carrinho para continuar.",
+              ctaHref: "/hub",
+              ctaLabel: "Explorar Catálogo",
+            })
           : `
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           <!-- Lista de Itens -->
-          <div class="lg:col-span-2 space-y-3">
+          <div class="lg:col-span-2 space-y-4">
             ${cart
               .map(
                 (game) => `
-              <div class="bg-surface border border-[var(--color-border)] rounded-xl p-4 flex items-center gap-4">
+              <div class="panel p-3 sm:p-5 flex items-center gap-3 sm:gap-5">
                 <!-- Capa Compacta -->
                 <a href="/game/${game.slug}" data-link class="shrink-0">
                   <div class="w-14 h-20 bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)]"
+                       role="img" aria-label="Capa do jogo ${game.title}"
                        style="background-image: url('${getCoverUrl(game)}')"></div>
                 </a>
                 <!-- Infos -->
                 <div class="flex-1 min-w-0">
                   <a href="/game/${game.slug}" data-link class="font-semibold text-sm hover:text-[var(--color-brand-400)] truncate block transition-colors">${game.title}</a>
-                  <p class="text-xs text-[var(--color-muted-2)] mt-0.5">${game.categories?.[0] || ""} • ${game.publisher?.name || ""}</p>
-                  <p class="font-bold text-sm mt-1 text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
+                  <p class="text-xs text-[var(--color-muted-2)] mt-1">${game.categories?.[0] || ""} • ${game.publisher?.name || ""}</p>
+                  <p class="font-bold text-sm mt-1.5 text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
                 </div>
                 <!-- Remover -->
                 <button data-remove-cart="${game.id}"
@@ -74,10 +65,10 @@ export default function CartPage() {
 
           <!-- Resumo do Pedido -->
           <div class="lg:col-span-1">
-            <div class="bg-surface border border-[var(--color-border)] rounded-xl p-5 sticky top-20 space-y-4">
-              <h2 class="font-display font-semibold text-base border-b border-[var(--color-border)] pb-3">Resumo do Pedido</h2>
+            <div class="panel p-4 sm:p-6 lg:sticky lg:top-24 space-y-5">
+              <h2 class="font-display font-semibold text-base border-b border-[var(--color-border)] pb-4">Resumo do Pedido</h2>
 
-              <div class="space-y-2">
+              <div class="space-y-2.5">
                 ${cart
                   .map(
                     (game) => `
@@ -90,15 +81,16 @@ export default function CartPage() {
                   .join("")}
               </div>
 
-              <div class="border-t border-[var(--color-border)] pt-3 flex justify-between items-center">
+              <div class="border-t border-[var(--color-border)] pt-4 flex justify-between items-center">
                 <span class="font-bold">Total</span>
                 <span class="font-display font-bold text-xl text-gradient-brand">${formatPrice(total)}</span>
               </div>
 
               <button id="btn-checkout"
                       class="w-full py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
-                Finalizar Compra
+                Simular Compra
               </button>
+              <p class="text-[var(--color-muted-2)] text-xs text-center">Ambiente de demonstração: nenhum pagamento será processado.</p>
 
               <a href="/hub" data-link class="block text-center text-[var(--color-muted-2)] text-xs hover:text-[var(--color-ink)] transition-colors">
                 Continuar Comprando

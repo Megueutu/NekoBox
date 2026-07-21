@@ -1,21 +1,14 @@
 import { AuthService } from "../../services/auth/auth.service";
 import { navigate } from "../../app/router/navigate";
+import { FormField } from "../../components/ui/FormField";
 
 let activeTab = "login";
 
 export default function LoginPage() {
   const loginForm = `
-    <div class="flex flex-col gap-4">
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">E-mail</label>
-        <input id="input-email" type="email" placeholder="seu@email.com"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">Senha</label>
-        <input id="input-password" type="password" placeholder="••••••••"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent"/>
-      </div>
+    <div class="flex flex-col gap-5">
+      ${FormField({ id: "input-email", label: "E-mail", type: "email", placeholder: "seu@email.com" })}
+      ${FormField({ id: "input-password", label: "Senha", type: "password", placeholder: "••••••••" })}
       <div class="text-right">
         <button id="btn-forgot-tab" class="text-xs text-[var(--color-muted-2)] hover:text-[var(--color-accent-400)] transition-colors">
           Esqueci minha senha
@@ -46,26 +39,10 @@ export default function LoginPage() {
 
   const registerForm = `
     <div class="flex flex-col gap-4">
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">Nome de usuário</label>
-        <input id="input-reg-username" type="text" placeholder="jogador123"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">E-mail</label>
-        <input id="input-reg-email" type="email" placeholder="seu@email.com"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">Senha</label>
-        <input id="input-reg-password" type="password" placeholder="Mínimo 6 caracteres"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">Confirmar Senha</label>
-        <input id="input-reg-confirm" type="password" placeholder="Repita a senha"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
-      </div>
+      ${FormField({ id: "input-reg-username", label: "Nome de usuário", type: "text", placeholder: "jogador123" })}
+      ${FormField({ id: "input-reg-email", label: "E-mail", type: "email", placeholder: "seu@email.com" })}
+      ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "Mínimo 6 caracteres" })}
+      ${FormField({ id: "input-reg-confirm", label: "Confirmar Senha", type: "password", placeholder: "Repita a senha" })}
       <button id="btn-register"
               class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
         Criar Conta
@@ -79,11 +56,7 @@ export default function LoginPage() {
       <p class="text-sm text-muted">
         Digite seu e-mail e enviaremos um link para você redefinir sua senha.
       </p>
-      <div>
-        <label class="block text-sm font-medium text-muted mb-1">E-mail cadastrado</label>
-        <input id="input-forgot-email" type="email" placeholder="seu@email.com"
-               class="w-full px-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]"/>
-      </div>
+      ${FormField({ id: "input-forgot-email", label: "E-mail cadastrado", type: "email", placeholder: "seu@email.com" })}
       <button id="btn-send-reset"
               class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
         Enviar Link de Redefinição
@@ -108,10 +81,10 @@ export default function LoginPage() {
   };
 
   return `
-    <div class="grid grid-cols-1 md:grid-cols-2 min-h-[85vh]">
+    <div class="auth-shell">
 
       <!-- Coluna Esquerda: Banner Institucional -->
-      <div class="bg-surface relative overflow-hidden hidden md:flex flex-col justify-center items-start p-12 gap-6 border-r border-[var(--color-border)]">
+      <div class="auth-promo">
         <div class="absolute inset-0 opacity-60" style="background-image: radial-gradient(ellipse 600px 400px at 20% 20%, rgba(147,51,234,0.35), transparent 60%), radial-gradient(ellipse 500px 400px at 90% 90%, rgba(251,146,60,0.2), transparent 60%);"></div>
         <div class="relative">
           <p class="font-display font-bold text-3xl mb-2 text-gradient-brand">NEXUSPLAY</p>
@@ -148,8 +121,8 @@ export default function LoginPage() {
       </div>
 
       <!-- Coluna Direita: Formulário -->
-      <div class="flex flex-col justify-center items-center p-8 md:p-12 bg-(--color-bg)">
-        <div class="w-full max-w-sm">
+      <div class="auth-panel">
+        <div class="auth-card">
 
           <!-- Título dinâmico da aba -->
           <h1 class="font-display text-2xl font-bold mb-1">${tabLabel[activeTab]}</h1>
