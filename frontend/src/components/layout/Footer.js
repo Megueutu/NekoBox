@@ -1,6 +1,6 @@
 export function Footer() {
   return `
-    <footer class="site-footer border-t border-[var(--color-border)] mt-auto">
+    <footer class="site-footer mt-auto">
       <div class="site-container site-footer__grid">
 
         <div class="site-footer__brand">
@@ -27,13 +27,14 @@ export function Footer() {
             <li><a href="/profile" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Meu Perfil</a></li>
             <li><a href="/library" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Minha Biblioteca</a></li>
             <li><a href="/login" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Entrar / Cadastrar</a></li>
+            <li><a href="/configuracoes" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Configurações</a></li>
           </ul>
         </div>
 
         <div>
           <p class="text-[var(--color-ink)] font-semibold text-sm mb-4">Suporte</p>
           <ul class="space-y-2.5">
-            <li><span class="text-[var(--color-muted-2)] text-sm">Central de Ajuda · Em breve</span></li>
+            <li><a href="/acessibilidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Acessibilidade</a></li>
             <li><span class="text-[var(--color-muted-2)] text-sm">Termos de Uso · Em breve</span></li>
             <li><span class="text-[var(--color-muted-2)] text-sm">Privacidade · Em breve</span></li>
           </ul>
