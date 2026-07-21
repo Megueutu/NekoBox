@@ -5,6 +5,7 @@ import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { getBannerUrl } from "../../utils/media";
 import { formatPrice, getRecommendationRate } from "../../utils/format";
+import { Icon, icons } from "../../components/ui/Icon";
 
 const ALL_CATEGORIES = [
   "Todos", "RPG", "Ação", "Aventura", "Mundo Aberto",
@@ -61,16 +62,16 @@ export default async function HubPage() {
             <h1 class="font-display text-white text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 leading-[0.95] tracking-tight">${heroGame.title}</h1>
             <p class="text-zinc-200 text-sm sm:text-base leading-relaxed mb-5 max-w-xl line-clamp-2">${heroGame.short_description}</p>
             <div class="flex flex-wrap items-center gap-2 mb-6">
-              ${heroGame.categories.map((c) => `<span class="px-2.5 py-1 bg-[var(--color-brand-500)]/25 border border-[var(--color-brand-400)]/40 text-white text-xs font-medium rounded-full">${c}</span>`).join("")}
+              ${heroGame.categories.map((c) => `<span class="surface-chip px-2.5 py-1 text-xs font-medium rounded-md">${c}</span>`).join("")}
               ${
                 heroRecRate !== null
-                  ? `<span class="hero-recommendation inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-black/40 border border-white/10 ${heroRecRate >= 70 ? "text-[var(--color-accent-400)]" : "text-zinc-300"}">★ ${heroRecRate}% recomendado</span>`
+                  ? `<span class="hero-recommendation inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-black/55 ${heroRecRate >= 70 ? "text-[var(--color-accent-400)]" : "text-zinc-300"}">${Icon(icons.star, { className: "w-3.5 h-3.5", fill: "currentColor" })} ${heroRecRate}% recomendado</span>`
                   : ""
               }
             </div>
             <div class="flex flex-wrap items-center gap-4 sm:gap-6">
               <a href="/game/${heroGame.slug}" data-link
-                 class="inline-flex items-center gap-2 px-5 py-3 bg-[var(--color-brand-600)] text-white font-bold text-sm rounded-lg hover:bg-[var(--color-brand-500)] transition-colors">
+                 class="button-primary gap-2 px-5 py-3 text-sm">
                 Ver Detalhes
               </a>
               <span class="font-display text-2xl sm:text-3xl font-bold text-[var(--color-accent-300)]">${formatPrice(heroGame.price)}</span>
@@ -114,22 +115,23 @@ export default async function HubPage() {
         </div>
         <div class="catalog-toolbar">
           <div class="relative w-full sm:max-w-lg">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
+            ${Icon(icons.search, { className: "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted-2)]" })}
             <input id="search-input" type="text" placeholder="Buscar jogos..."
                    value="${searchQuery}"
                    class="w-full pl-9 pr-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent transition-all"/>
           </div>
 
-        <div class="flex gap-2 flex-nowrap overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div class="flex gap-2 flex-nowrap overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-label="Filtrar por categoria">
           ${ALL_CATEGORIES.map(
             (cat) => `
             <button data-category="${cat}"
-                    class="shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all border
+                    type="button" role="radio" aria-checked="${activeCategory === cat}" tabindex="${activeCategory === cat ? "0" : "-1"}"
+                    class="surface-chip shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-colors
+                           data-[active=true]:bg-[var(--color-brand-600)]
                            ${activeCategory === cat
-                             ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white border-transparent glow-brand"
-                             : "bg-surface text-muted border-[var(--color-border)] hover:border-[var(--color-brand-500)]/50 hover:text-[var(--color-ink)]"}">
+                             ? "bg-[var(--color-brand-600)] text-white"
+                             : "hover:bg-[var(--color-surface-3)] hover:text-[var(--color-ink)]"}"
+                    data-active="${activeCategory === cat}">
               ${cat}
             </button>
           `
@@ -150,7 +152,7 @@ export default async function HubPage() {
         ${
           filteredGames.length === 0
             ? EmptyState({
-                icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
+                icon: icons.search,
                 title: "Nenhum jogo encontrado",
                 description: "Tente outro filtro ou termo de busca.",
               })
@@ -169,7 +171,7 @@ export async function afterRender() {
     searchInput.addEventListener("input", (e) => {
       const cursorPosition = e.target.selectionStart;
       searchQuery = e.target.value;
-      navigate("/hub");
+      navigate("/hub", { focusTarget: null });
       requestAnimationFrame(() => {
         const nextInput = document.getElementById("search-input");
         if (!nextInput) return;
@@ -182,7 +184,7 @@ export async function afterRender() {
   document.querySelectorAll("[data-category]").forEach((btn) => {
     btn.addEventListener("click", () => {
       activeCategory = btn.getAttribute("data-category");
-      navigate("/hub");
+      navigate("/hub", { focusTarget: "[data-active='true']" });
     });
   });
 }

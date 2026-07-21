@@ -1,6 +1,7 @@
 import { AuthService } from "../../services/auth/auth.service";
 import { navigate } from "../../app/router/navigate";
 import { FormField } from "../../components/ui/FormField";
+import { Icon, icons } from "../../components/ui/Icon";
 
 let activeTab = "login";
 
@@ -15,7 +16,7 @@ export default function LoginPage() {
         </button>
       </div>
       <button id="btn-login-email"
-              class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
+              class="button-primary w-full py-2.5 text-sm">
         Entrar
       </button>
       <div class="relative flex items-center gap-3 my-1">
@@ -24,7 +25,7 @@ export default function LoginPage() {
         <div class="flex-1 h-px bg-[var(--color-border)]"></div>
       </div>
       <button id="btn-google-login"
-              class="w-full py-2.5 border-2 border-[var(--color-border)] text-[var(--color-ink)] font-bold rounded-lg hover:border-[var(--color-brand-500)] hover:bg-[var(--color-surface-2)] transition-colors text-sm flex items-center justify-center gap-2">
+              class="button-secondary w-full py-2.5 text-sm gap-2">
         <svg class="w-4 h-4" viewBox="0 0 24 24">
           <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -44,7 +45,7 @@ export default function LoginPage() {
       ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "Mínimo 6 caracteres" })}
       ${FormField({ id: "input-reg-confirm", label: "Confirmar Senha", type: "password", placeholder: "Repita a senha" })}
       <button id="btn-register"
-              class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
+              class="button-primary w-full py-2.5 text-sm">
         Criar Conta
       </button>
       <p id="register-error" class="text-red-400 text-xs text-center hidden"></p>
@@ -58,11 +59,11 @@ export default function LoginPage() {
       </p>
       ${FormField({ id: "input-forgot-email", label: "E-mail cadastrado", type: "email", placeholder: "seu@email.com" })}
       <button id="btn-send-reset"
-              class="w-full py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
+              class="button-primary w-full py-2.5 text-sm">
         Enviar Link de Redefinição
       </button>
       <button id="btn-back-login" class="text-xs text-[var(--color-muted-2)] hover:text-[var(--color-accent-400)] transition-colors text-center">
-        ← Voltar para o Login
+        ${Icon(icons.arrowLeft, { className: "inline-block w-3.5 h-3.5 mr-1" })} Voltar para o Login
       </button>
       <p id="forgot-msg" class="text-[var(--color-accent-400)] text-xs text-center hidden"></p>
     </div>
@@ -85,7 +86,7 @@ export default function LoginPage() {
 
       <!-- Coluna Esquerda: Banner Institucional -->
       <div class="auth-promo">
-        <div class="absolute inset-0 opacity-60" style="background-image: radial-gradient(ellipse 600px 400px at 20% 20%, rgba(147,51,234,0.35), transparent 60%), radial-gradient(ellipse 500px 400px at 90% 90%, rgba(251,146,60,0.2), transparent 60%);"></div>
+        <div class="absolute top-0 left-0 h-1 w-full bg-[var(--color-brand-600)]"></div>
         <div class="relative">
           <p class="font-display font-bold text-3xl mb-2 text-gradient-brand">NEXUSPLAY</p>
           <p class="text-zinc-300 text-lg font-light leading-relaxed">
@@ -94,26 +95,20 @@ export default function LoginPage() {
         </div>
         <div class="relative space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-[var(--color-brand-500)]/20 border border-[var(--color-brand-400)]/40 rounded-lg flex items-center justify-center">
-              <svg class="w-4 h-4 text-[var(--color-accent-400)]" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
+            <div class="w-8 h-8 bg-[var(--color-surface-3)] rounded-lg flex items-center justify-center">
+              ${Icon(icons.check, { className: "w-4 h-4 text-[var(--color-accent-400)]" })}
             </div>
             <p class="text-zinc-300 text-sm">Acesse centenas de títulos digitais</p>
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-[var(--color-brand-500)]/20 border border-[var(--color-brand-400)]/40 rounded-lg flex items-center justify-center">
-              <svg class="w-4 h-4 text-[var(--color-accent-400)]" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
+            <div class="w-8 h-8 bg-[var(--color-surface-3)] rounded-lg flex items-center justify-center">
+              ${Icon(icons.check, { className: "w-4 h-4 text-[var(--color-accent-400)]" })}
             </div>
             <p class="text-zinc-300 text-sm">Salve favoritos e gerencie sua biblioteca</p>
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-[var(--color-brand-500)]/20 border border-[var(--color-brand-400)]/40 rounded-lg flex items-center justify-center">
-              <svg class="w-4 h-4 text-[var(--color-accent-400)]" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
+            <div class="w-8 h-8 bg-[var(--color-surface-3)] rounded-lg flex items-center justify-center">
+              ${Icon(icons.check, { className: "w-4 h-4 text-[var(--color-accent-400)]" })}
             </div>
             <p class="text-zinc-300 text-sm">Compras seguras com checkout simplificado</p>
           </div>
@@ -134,15 +129,17 @@ export default function LoginPage() {
           ${
             activeTab !== "forgot"
               ? `
-            <div class="flex gap-1 mb-6 bg-surface border border-[var(--color-border)] rounded-lg p-1">
+            <div class="flex gap-1 mb-6 bg-[var(--color-surface-2)] rounded-lg p-1" role="tablist" aria-label="Acesso à conta">
               <button id="tab-login"
+                      type="button" role="tab" aria-selected="${activeTab === "login"}" aria-controls="form-content" tabindex="${activeTab === "login" ? "0" : "-1"}"
                       class="flex-1 py-2 text-sm font-semibold rounded-md transition-all
-                             ${activeTab === "login" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-muted hover:text-[var(--color-ink)]"}">
+                             ${activeTab === "login" ? "bg-[var(--color-surface-3)] text-white" : "text-muted hover:text-[var(--color-ink)]"}">
                 Login
               </button>
               <button id="tab-register"
+                      type="button" role="tab" aria-selected="${activeTab === "register"}" aria-controls="form-content" tabindex="${activeTab === "register" ? "0" : "-1"}"
                       class="flex-1 py-2 text-sm font-semibold rounded-md transition-all
-                             ${activeTab === "register" ? "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white" : "text-muted hover:text-[var(--color-ink)]"}">
+                             ${activeTab === "register" ? "bg-[var(--color-surface-3)] text-white" : "text-muted hover:text-[var(--color-ink)]"}">
                 Cadastro
               </button>
             </div>
@@ -151,7 +148,7 @@ export default function LoginPage() {
           }
 
           <!-- Conteúdo do Formulário Ativo -->
-          <div id="form-content">
+          <div id="form-content" role="tabpanel" ${activeTab !== "forgot" ? `aria-labelledby="tab-${activeTab}"` : ""}>
             ${tabContent[activeTab]}
           </div>
 
@@ -175,11 +172,11 @@ export async function afterRender() {
 
   document.getElementById("tab-login")?.addEventListener("click", () => {
     activeTab = "login";
-    navigate("/login");
+    navigate("/login", { focusTarget: "#tab-login" });
   });
   document.getElementById("tab-register")?.addEventListener("click", () => {
     activeTab = "register";
-    navigate("/login");
+    navigate("/login", { focusTarget: "#tab-register" });
   });
   document.getElementById("btn-forgot-tab")?.addEventListener("click", () => {
     activeTab = "forgot";
@@ -187,7 +184,7 @@ export async function afterRender() {
   });
   document.getElementById("btn-back-login")?.addEventListener("click", () => {
     activeTab = "login";
-    navigate("/login");
+    navigate("/login", { focusTarget: "#btn-forgot-tab" });
   });
 
   document.getElementById("btn-google-login")?.addEventListener("click", async () => {

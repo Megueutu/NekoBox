@@ -6,6 +6,7 @@ import { AuthService } from "../../services/auth/auth.service";
 import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { icons } from "../../components/ui/Icon";
 
 export default function WishlistPage() {
   const { wishlist } = Store.getState();
@@ -20,7 +21,7 @@ export default function WishlistPage() {
       ${
         wishlist.length === 0
           ? EmptyState({
-              icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z",
+              icon: icons.heart,
               title: "Sua lista de desejos está vazia",
               description: "Explore o catálogo e salve os jogos que te interessam.",
               ctaHref: "/hub",

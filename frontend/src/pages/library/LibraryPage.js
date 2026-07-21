@@ -5,6 +5,7 @@ import { AuthService } from "../../services/auth/auth.service";
 import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { icons } from "../../components/ui/Icon";
 
 export default function LibraryPage() {
   const { library } = Store.getState();
@@ -22,7 +23,7 @@ export default function LibraryPage() {
       ${
         library.length === 0
           ? EmptyState({
-              icon: "M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z",
+              icon: icons.library,
               title: "Sua biblioteca está vazia",
               description: "Compre jogos no catálogo para adicioná-los aqui.",
               ctaHref: "/hub",

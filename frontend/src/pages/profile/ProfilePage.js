@@ -4,6 +4,7 @@ import { Actions } from "../../store/actions";
 import { navigate } from "../../app/router/navigate";
 import { AuthService } from "../../services/auth/auth.service";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { Icon, icons } from "../../components/ui/Icon";
 
 export default function ProfilePage() {
   const { user } = Store.getState();
@@ -65,10 +66,10 @@ export default function ProfilePage() {
 
         <div class="flex items-center gap-3">
           <button id="btn-save-profile"
-                  class="px-5 py-2.5 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold text-sm rounded-lg hover:brightness-110 transition-all glow-brand">
+                  class="button-primary px-5 py-2.5 text-sm">
             Salvar Alterações
           </button>
-          <p id="profile-msg" class="text-[var(--color-accent-400)] text-sm hidden">✓ Perfil atualizado com sucesso!</p>
+          <p id="profile-msg" class="text-[var(--color-accent-400)] text-sm hidden items-center gap-1.5">${Icon(icons.circleCheck, { className: "w-4 h-4" })} Perfil atualizado com sucesso!</p>
         </div>
       </div>
 
@@ -107,7 +108,11 @@ export async function afterRender() {
     const msg = document.getElementById("profile-msg");
     if (msg) {
       msg.classList.remove("hidden");
-      setTimeout(() => msg.classList.add("hidden"), 3000);
+      msg.classList.add("flex");
+      setTimeout(() => {
+        msg.classList.add("hidden");
+        msg.classList.remove("flex");
+      }, 3000);
     }
   });
 

@@ -6,6 +6,7 @@ import { navigate } from "../../app/router/navigate";
 import { formatPrice, formatDate } from "../../utils/format";
 import { getCoverUrl, getBannerUrl, getScreenshotUrl } from "../../utils/media";
 import { Section } from "../../components/ui/Section";
+import { Icon, icons } from "../../components/ui/Icon";
 
 export default async function GamePage({ slug }) {
   const game = await GamesService.getBySlug(slug);
@@ -15,7 +16,7 @@ export default async function GamePage({ slug }) {
       <div class="max-w-7xl mx-auto px-4 py-24 text-center">
         <h1 class="font-display text-4xl font-bold mb-4">Jogo não encontrado</h1>
         <p class="text-muted mb-6">Este título não existe ou foi removido do catálogo.</p>
-        <a href="/hub" data-link class="px-6 py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all glow-brand inline-block">
+        <a href="/hub" data-link class="button-primary px-6 py-3">
           Voltar ao Catálogo
         </a>
       </div>
@@ -40,16 +41,16 @@ export default async function GamePage({ slug }) {
     ? `<a href="/cart" data-link class="block w-full py-3 bg-[var(--color-surface-3)] text-white font-bold rounded-lg text-center text-sm hover:bg-[var(--color-brand-700)]/50 transition-colors">
          Item no Carrinho — Ver Sacola
        </a>`
-    : `<button id="btn-add-cart" class="w-full py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
+    : `<button id="btn-add-cart" class="button-primary w-full py-3 text-sm">
          Adicionar ao Carrinho
        </button>`;
 
   const wishlistButton = inWishlist
-    ? `<button id="btn-wishlist" class="w-full py-2.5 border-2 border-red-400/70 text-red-400 font-semibold rounded-lg hover:bg-red-500/10 transition-colors text-sm">
-         ♥ Na Lista de Desejos
+    ? `<button id="btn-wishlist" class="w-full py-2.5 border-2 border-red-400/70 text-red-400 font-semibold rounded-lg hover:bg-red-500/10 transition-colors text-sm inline-flex items-center justify-center gap-2">
+         ${Icon(icons.heart, { className: "w-4 h-4", fill: "currentColor" })} Na Lista de Desejos
        </button>`
-    : `<button id="btn-wishlist" class="w-full py-2.5 border-2 border-[var(--color-border)] text-muted font-semibold rounded-lg hover:border-[var(--color-accent-500)]/70 hover:text-[var(--color-accent-400)] transition-colors text-sm">
-         ♡ Adicionar à Lista de Desejos
+    : `<button id="btn-wishlist" class="button-secondary w-full py-2.5 text-muted text-sm gap-2 hover:text-[var(--color-accent-400)]">
+         ${Icon(icons.heart, { className: "w-4 h-4" })} Adicionar à Lista de Desejos
        </button>`;
 
   const reqRow = (label, val) =>
@@ -68,7 +69,7 @@ export default async function GamePage({ slug }) {
           <p class="section-heading__eyebrow mb-2">${game.publisher?.name || ""}</p>
           <h1 class="font-display text-white text-4xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] mb-4 tracking-tight">${game.title}</h1>
           <div class="flex flex-wrap gap-2 items-center">
-            ${game.categories.map((c) => `<span class="px-2.5 py-1 bg-[var(--color-brand-500)]/25 border border-[var(--color-brand-400)]/40 text-white text-xs rounded-full">${c}</span>`).join("")}
+            ${game.categories.map((c) => `<span class="surface-chip px-2.5 py-1 text-white text-xs rounded-md">${c}</span>`).join("")}
             <span class="text-zinc-400 text-xs ml-1">${formatDate(game.release_date)}</span>
           </div>
         </div>
@@ -92,7 +93,7 @@ export default async function GamePage({ slug }) {
           game.tags?.length
             ? `<section class="game-section">
                 <div class="flex flex-wrap gap-2">
-                  ${game.tags.map((t) => `<span class="px-2.5 py-1 bg-surface text-muted text-xs rounded-full border border-[var(--color-border)]">${t}</span>`).join("")}
+                  ${game.tags.map((t) => `<span class="surface-chip px-2.5 py-1 text-xs rounded-md">${t}</span>`).join("")}
                 </div>
                </section>`
             : ""
@@ -108,7 +109,7 @@ export default async function GamePage({ slug }) {
                     ${screenshots
                       .map(
                         (s) => `
-                      <div class="w-full aspect-video bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] card-hover-glow"
+                      <div class="w-full aspect-video bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)] card-hover-glow"
                            role="img" aria-label="Captura de tela de ${game.title}"
                            style="background-image: url('${getScreenshotUrl(s)}')"></div>
                     `
@@ -130,7 +131,7 @@ export default async function GamePage({ slug }) {
                     ${
                       minReq
                         ? `
-                      <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
+                      <div class="bg-surface rounded-lg p-4">
                         <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-muted-2)] mb-3">Mínimo</p>
                         <div class="space-y-1.5">
                           ${reqRow("SO", minReq.os)}
@@ -146,7 +147,7 @@ export default async function GamePage({ slug }) {
                     ${
                       recReq
                         ? `
-                      <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
+                      <div class="bg-surface rounded-lg p-4">
                         <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-400)] mb-3">Recomendado</p>
                         <div class="space-y-1.5">
                           ${reqRow("SO", recReq.os)}
@@ -187,9 +188,9 @@ export default async function GamePage({ slug }) {
                             (lang) => `
                           <tr class="border-b border-[var(--color-border)]/60">
                             <td class="py-2 pr-4 text-[var(--color-ink)]">${lang.name}</td>
-                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Interface: ${lang.interface ? "disponível" : "não disponível"}">${lang.interface ? "✓" : "–"}</td>
-                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Legendas: ${lang.subtitles ? "disponível" : "não disponível"}">${lang.subtitles ? "✓" : "–"}</td>
-                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Áudio: ${lang.audio ? "disponível" : "não disponível"}">${lang.audio ? "✓" : "–"}</td>
+                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Interface: ${lang.interface ? "disponível" : "não disponível"}">${lang.interface ? Icon(icons.check, { className: "inline-block w-4 h-4" }) : "–"}</td>
+                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Legendas: ${lang.subtitles ? "disponível" : "não disponível"}">${lang.subtitles ? Icon(icons.check, { className: "inline-block w-4 h-4" }) : "–"}</td>
+                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Áudio: ${lang.audio ? "disponível" : "não disponível"}">${lang.audio ? Icon(icons.check, { className: "inline-block w-4 h-4" }) : "–"}</td>
                           </tr>
                         `
                           )
@@ -212,7 +213,7 @@ export default async function GamePage({ slug }) {
                     ${game.updates
                       .map(
                         (u) => `
-                      <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
+                      <div class="bg-surface rounded-lg p-4">
                         <div class="flex items-center gap-2 mb-1">
                           <span class="text-xs font-bold bg-[var(--color-brand-500)]/25 text-[var(--color-brand-100)] px-2 py-0.5 rounded-full">${u.version}</span>
                           <span class="font-semibold text-sm">${u.title}</span>
@@ -240,10 +241,10 @@ export default async function GamePage({ slug }) {
                     ${game.reviews
                       .map(
                         (r) => `
-                      <div class="bg-surface rounded-lg p-4 border border-[var(--color-border)]">
+                      <div class="bg-surface rounded-lg p-4">
                         <div class="flex items-center gap-2 mb-2">
-                          <span class="text-xs font-bold px-2 py-0.5 rounded-full ${r.recommended ? "bg-[var(--color-accent-500)]/20 text-[var(--color-accent-400)]" : "bg-red-500/15 text-red-400"}">
-                            ${r.recommended ? "✓ Recomenda" : "✗ Não Recomenda"}
+                          <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${r.recommended ? "bg-[var(--color-accent-500)]/20 text-[var(--color-accent-400)]" : "bg-red-500/15 text-red-400"}">
+                            ${Icon(r.recommended ? icons.check : icons.x, { className: "w-3 h-3" })} ${r.recommended ? "Recomenda" : "Não Recomenda"}
                           </span>
                           <span class="font-semibold text-sm">${r.username}</span>
                           <span class="text-[var(--color-muted-2)] text-xs ml-auto">${formatDate(r.created_at)}</span>

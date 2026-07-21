@@ -7,6 +7,7 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { getCoverUrl } from "../../utils/media";
 import { formatPrice } from "../../utils/format";
+import { Icon, icons } from "../../components/ui/Icon";
 
 export default function CartPage() {
   const { cart } = Store.getState();
@@ -23,7 +24,7 @@ export default function CartPage() {
       ${
         cart.length === 0
           ? EmptyState({
-              icon: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z",
+              icon: icons.shoppingCart,
               title: "Seu carrinho está vazio",
               description: "Adicione jogos ao carrinho para continuar.",
               ctaHref: "/hub",
@@ -53,9 +54,7 @@ export default function CartPage() {
                 <!-- Remover -->
                 <button data-remove-cart="${game.id}"
                         class="shrink-0 text-[var(--color-muted-2)] hover:text-red-400 transition-colors p-1" aria-label="Remover ${game.title}">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
+                  ${Icon(icons.trash)}
                 </button>
               </div>
             `
@@ -87,7 +86,7 @@ export default function CartPage() {
               </div>
 
               <button id="btn-checkout"
-                      class="w-full py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white font-bold rounded-lg hover:brightness-110 transition-all text-sm glow-brand">
+                      class="button-primary w-full py-3 text-sm">
                 Simular Compra
               </button>
               <p class="text-[var(--color-muted-2)] text-xs text-center">Ambiente de demonstração: nenhum pagamento será processado.</p>

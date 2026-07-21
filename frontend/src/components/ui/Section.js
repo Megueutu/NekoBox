@@ -6,7 +6,7 @@
 export function Section({ title, heading = "", body }) {
   return `
     <section class="game-section space-y-4">
-      <h2 class="font-display text-lg font-semibold border-b border-[var(--color-border)] pb-3">
+      <h2 class="font-display text-xl font-semibold">
         ${title}${heading}
       </h2>
       ${body}
