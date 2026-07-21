@@ -17,18 +17,19 @@ export function SidebarAccount() {
   };
 
   return `
-    <aside class="bg-surface rounded-xl p-4 border border-[var(--color-border)] h-fit">
+    <aside class="bg-surface rounded-xl p-5 border border-[var(--color-border)] h-fit">
 
       <!-- Avatar e Info do Usuário -->
-      <div class="flex flex-col items-center text-center pb-4 mb-4 border-b border-[var(--color-border)]">
+      <div class="flex flex-col items-center text-center pb-5 mb-5 border-b border-[var(--color-border)]">
         <div class="w-16 h-16 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] mb-3 border-2 border-transparent bg-origin-border p-0.5"
+             role="img" aria-label="Avatar de ${user?.username || "usuário"}"
              style="background-image: url('${user?.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}'); box-shadow: 0 0 0 2px var(--color-brand-500), 0 0 18px -2px rgba(147,51,234,0.65);"></div>
-        <p class="text-[var(--color-ink)] font-semibold text-sm">${user?.username || "Usuário"}</p>
-        <p class="text-[var(--color-muted-2)] text-xs mt-0.5 truncate max-w-full">${user?.email || ""}</p>
+        <p class="text-[var(--color-ink)] font-semibold text-sm mt-1">${user?.username || "Usuário"}</p>
+        <p class="text-[var(--color-muted-2)] text-xs mt-1 truncate max-w-full">${user?.email || ""}</p>
       </div>
 
       <!-- Links de Navegação -->
-      <nav class="flex flex-col gap-1">
+      <nav class="flex flex-col gap-1.5">
         ${navItem("/profile", "Meu Perfil", `
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>

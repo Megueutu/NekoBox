@@ -1,9 +1,9 @@
 export function Footer() {
   return `
-    <footer class="bg-surface border-t border-border mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+    <footer class="site-footer border-t border-[var(--color-border)] mt-auto">
+      <div class="site-container site-footer__grid">
 
-        <div class="col-span-2 md:col-span-1">
+        <div class="site-footer__brand">
           <p class="font-display font-bold text-lg mb-2 text-gradient-brand">NEXUSPLAY</p>
           <p class="text-muted text-sm leading-relaxed">
             Marketplace de jogos digitais.<br>
@@ -15,9 +15,9 @@ export function Footer() {
           <p class="text-ink font-semibold text-sm mb-3">Navegação</p>
           <ul class="space-y-2">
             <li><a href="/hub" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Catálogo</a></li>
-            <li><a href="/cart" data-link class="text-muted hover:text-color-accent-400 text-sm transition-colors">Carrinho</a></li>
+            <li><a href="/cart" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Carrinho</a></li>
             <li><a href="/wishlist" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Lista de Desejos</a></li>
-            <li><a href="/library" data-link class="text-muted hover:text-accent-400 text-sm transition-colors">Biblioteca</a></li>
+            <li><a href="/library" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Biblioteca</a></li>
           </ul>
         </div>
 
@@ -31,11 +31,11 @@ export function Footer() {
         </div>
 
         <div>
-          <p class="text-[var(--color-ink)] font-semibold text-sm mb-3">Suporte</p>
-          <ul class="space-y-2">
-            <li><span class="text-[var(--color-muted-2)] text-sm">Central de Ajuda</span></li>
-            <li><span class="text-[var(--color-muted-2)] text-sm">Termos de Uso</span></li>
-            <li><span class="text-[var(--color-muted-2)] text-sm">Privacidade</span></li>
+          <p class="text-[var(--color-ink)] font-semibold text-sm mb-4">Suporte</p>
+          <ul class="space-y-2.5">
+            <li><span class="text-[var(--color-muted-2)] text-sm">Central de Ajuda · Em breve</span></li>
+            <li><span class="text-[var(--color-muted-2)] text-sm">Termos de Uso · Em breve</span></li>
+            <li><span class="text-[var(--color-muted-2)] text-sm">Privacidade · Em breve</span></li>
           </ul>
         </div>
 

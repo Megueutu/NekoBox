@@ -29,6 +29,16 @@ class RouterManager {
       try {
         const module = await route.page();
 
+        // Estado de carregamento: evita tela em branco enquanto a página busca seus dados (ex.: HubPage, GamePage)
+        appContainer.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-10 h-10 border-4 border-[var(--color-border)] border-t-[var(--color-brand-500)] rounded-full animate-spin"></div>
+              <p class="text-muted text-sm">Carregando...</p>
+            </div>
+          </div>
+        `;
+
         // Renderiza o HTML bruto da página no container raiz
         const htmlGerado = await module.default(params);
         appContainer.innerHTML = htmlGerado;
