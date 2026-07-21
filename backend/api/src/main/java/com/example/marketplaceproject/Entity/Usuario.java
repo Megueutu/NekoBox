@@ -1,5 +1,7 @@
 package com.example.marketplaceproject.Entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,8 +13,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "usuarios")
@@ -39,10 +39,14 @@ public class Usuario {
     @Column(name = "url_avatar", columnDefinition = "TEXT")
     private String urlAvatar;
 
+    @Column(name = "avatar_public_id", columnDefinition = "TEXT")
+    private String avatarPublicId;
+
     @Column(columnDefinition = "TEXT")
     private String biografia;
 
     @Builder.Default
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal saldo = BigDecimal.ZERO;
+
 }

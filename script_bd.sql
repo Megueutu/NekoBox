@@ -8,6 +8,7 @@ CREATE TABLE usuarios (
     email VARCHAR(255) NOT NULL UNIQUE,
     senha TEXT NOT NULL,
     url_avatar TEXT,
+    avatar_public_id TEXT,
     biografia TEXT,
     saldo NUMERIC(12,2) NOT NULL DEFAULT 0.00 CHECK (saldo >= 0)
 );
@@ -29,7 +30,8 @@ CREATE TABLE fotos (
     id SERIAL PRIMARY KEY,
     produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
     url TEXT NOT NULL,
-    tipo VARCHAR(20) NOT NULL 
+    public_id TEXT,
+    tipo VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE categorias (
@@ -66,7 +68,7 @@ CREATE TABLE pagamento (
     usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE RESTRICT,
     produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE RESTRICT, 
     valor_pago NUMERIC(12,2) NOT NULL CHECK (valor_pago >= 0),
-    status VARCHAR(20) NOT NULL DEFAULT "pendente"
+    status VARCHAR(20) NOT NULL DEFAULT 'pendente'
 );
 
 -- ====================================================================
@@ -90,11 +92,4 @@ CREATE TABLE avaliacoes (
     texto_avaliacao TEXT,
     criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (usuario_id, produto_id)
-);
-
-CREATE TABLE buscas (
-    id SERIAL PRIMARY KEY,
-    usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    produto_id INT REFERENCES produtos(id) ON DELETE SET NULL,
-    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

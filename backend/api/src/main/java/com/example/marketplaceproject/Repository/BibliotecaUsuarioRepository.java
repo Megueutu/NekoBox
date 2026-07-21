@@ -12,5 +12,7 @@ public interface BibliotecaUsuarioRepository extends JpaRepository<BibliotecaUsu
 
     List<BibliotecaUsuario> findByUsuario_Id(Integer usuarioId);
 
-    List<BibliotecaUsuario> findByProduto_Id(Integer produtoId);
+    boolean existsByUsuario_IdAndProduto_Id(Integer usuarioId, Integer produtoId);
+
+    boolean existsByProduto_Id(Integer produtoId);
 }

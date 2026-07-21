@@ -1,6 +1,9 @@
 package com.example.marketplaceproject.Entity;
 
+import com.example.marketplaceproject.Entity.Enuns.TipoFoto;
+import com.example.marketplaceproject.Entity.Enuns.TipoFotoConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +38,10 @@ public class Foto {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String url;
 
+    @Column(name = "public_id", columnDefinition = "TEXT")
+    private String publicId;
+
+    @Convert(converter = TipoFotoConverter.class)
     @Column(nullable = false, length = 20)
-    private String tipo;
+    private TipoFoto tipo;
 }

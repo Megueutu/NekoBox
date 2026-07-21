@@ -1,7 +1,9 @@
 package com.example.marketplaceproject.Repository;
 
 import com.example.marketplaceproject.Entity.Pagamento;
+import com.example.marketplaceproject.Entity.Enuns.StatusPagamento;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,7 +13,9 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Integer> {
 
     List<Pagamento> findByUsuario_Id(Integer usuarioId);
 
-    List<Pagamento> findByProduto_Id(Integer produtoId);
+    boolean existsByUsuario_IdAndProduto_IdAndStatus(
+            Integer usuarioId, Integer produtoId, StatusPagamento status);
 
-    List<Pagamento> findByStatus(String status);
+    boolean existsByProduto_Id(Integer produtoId);
+
 }

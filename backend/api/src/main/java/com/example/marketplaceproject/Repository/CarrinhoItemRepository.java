@@ -13,4 +13,5 @@ public interface CarrinhoItemRepository extends JpaRepository<CarrinhoItem, Inte
     List<CarrinhoItem> findByCarrinho_Id(Integer carrinhoId);
 
     Optional<CarrinhoItem> findByCarrinho_IdAndProduto_Id(Integer carrinhoId, Integer produtoId);
+
 }

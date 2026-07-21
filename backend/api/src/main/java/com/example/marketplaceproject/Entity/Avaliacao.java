@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +19,10 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "avaliacoes")
+@Table(
+        name = "avaliacoes",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id", "produto_id"})
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,7 +43,7 @@ public class Avaliacao {
     private Produto produto;
 
     @Column(nullable = false)
-    private Short nota;
+    private double nota;
 
     @Column(nullable = false)
     private Boolean recomenda;

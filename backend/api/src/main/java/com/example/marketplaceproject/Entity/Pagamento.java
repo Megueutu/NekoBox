@@ -1,6 +1,9 @@
 package com.example.marketplaceproject.Entity;
 
+import com.example.marketplaceproject.Entity.Enuns.StatusPagamento;
+import com.example.marketplaceproject.Entity.Enuns.StatusPagamentoConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -42,6 +45,7 @@ public class Pagamento {
     private BigDecimal valorPago;
 
     @Builder.Default
+    @Convert(converter = StatusPagamentoConverter.class)
     @Column(nullable = false, length = 20)
-    private String status = "pendente";
+    private StatusPagamento status = StatusPagamento.PENDENTE;
 }
