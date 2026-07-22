@@ -5,6 +5,18 @@ import { auto as autoFormat } from "@cloudinary/url-gen/qualifiers/format";
 import { auto as autoQuality } from "@cloudinary/url-gen/qualifiers/quality";
 import { cld } from "../core/cloudinary/cloudinary";
 
+const MISSING_MEDIA_SVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+    <rect width="800" height="600" fill="#19171f"/>
+    <g fill="none" stroke="#8d829d" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M270 348h267a83 83 0 0 0 5-166 139 139 0 0 0-258-35 101 101 0 0 0-14 201Z"/>
+      <path d="m255 135 290 290" stroke="#a78bfa"/>
+    </g>
+    <text x="400" y="490" fill="#b7adc6" font-family="Arial, sans-serif" font-size="30" text-anchor="middle">Mídia indisponível</text>
+  </svg>`;
+
+export const MISSING_MEDIA_URL = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(MISSING_MEDIA_SVG)}`;
+
 /**
  * Gera uma URL otimizada do Cloudinary (crop "fill" + gravidade automática +
  * formato/qualidade automáticos) a partir de um public_id.
@@ -16,9 +28,13 @@ import { cld } from "../core/cloudinary/cloudinary";
 export function buildCloudinaryUrl(publicId, { width, height } = {}) {
   if (!cld || !publicId) return null;
 
-  return cld
-    .image(publicId)
-    .resize(fill().width(width).height(height).gravity(autoGravity()))
+  let image = cld.image(publicId);
+
+  if (width && height) {
+    image = image.resize(fill().width(width).height(height).gravity(autoGravity()));
+  }
+
+  return image
     .delivery(format(autoFormat()))
     .delivery(quality(autoQuality()))
     .toURL();
@@ -42,7 +58,7 @@ export function getCoverUrl(game) {
   return resolveMediaUrl(cover, {
     width: 400,
     height: 600,
-    fallback: "https://picsum.photos/seed/default/400/600",
+    fallback: MISSING_MEDIA_URL,
   });
 }
 
@@ -51,7 +67,7 @@ export function getBannerUrl(game) {
   return resolveMediaUrl(banner, {
     width: 1920,
     height: 1080,
-    fallback: "https://picsum.photos/seed/defaultbanner/1920/1080",
+    fallback: MISSING_MEDIA_URL,
   });
 }
 
@@ -59,6 +75,6 @@ export function getScreenshotUrl(mediaItem) {
   return resolveMediaUrl(mediaItem, {
     width: 800,
     height: 450,
-    fallback: "https://picsum.photos/seed/defaultscreenshot/800/450",
+    fallback: MISSING_MEDIA_URL,
   });
 }
