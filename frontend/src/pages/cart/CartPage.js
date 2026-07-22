@@ -8,9 +8,11 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { getCoverUrl } from "../../utils/media";
 import { formatPrice } from "../../utils/format";
 import { Icon, icons } from "../../components/ui/Icon";
+import { AccountService } from "../../services/account/account.service";
 
-export default function CartPage() {
-  const { cart } = Store.getState();
+export default async function CartPage() {
+  const cart = await AccountService.getCart();
+  Store.setState((state) => ({ ...state, cart }));
 
   const total = cart.reduce((acc, game) => acc + game.price, 0);
 
@@ -107,15 +109,15 @@ export default function CartPage() {
 
 export async function afterRender() {
   document.querySelectorAll("[data-remove-cart]").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const gameId = btn.getAttribute("data-remove-cart");
-      Actions.removerDoCarrinho(gameId);
+      await Actions.removerDoCarrinho(gameId);
       navigate("/cart");
     });
   });
 
-  document.getElementById("btn-checkout")?.addEventListener("click", () => {
-    Actions.finalizarCheckoutCarrinho();
+  document.getElementById("btn-checkout")?.addEventListener("click", async () => {
+    await Actions.finalizarCheckoutCarrinho();
     navigate("/library");
   });
 

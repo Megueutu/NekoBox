@@ -6,9 +6,11 @@ import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { icons } from "../../components/ui/Icon";
+import { AccountService } from "../../services/account/account.service";
 
-export default function LibraryPage() {
-  const { library } = Store.getState();
+export default async function LibraryPage() {
+  const library = await AccountService.getLibrary();
+  Store.setState((state) => ({ ...state, library }));
 
   const content = `
     <div class="space-y-6">

@@ -5,9 +5,11 @@ import { navigate } from "../../app/router/navigate";
 import { AuthService } from "../../services/auth/auth.service";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Icon, icons } from "../../components/ui/Icon";
+import { AccountService } from "../../services/account/account.service";
 
-export default function ProfilePage() {
-  const { user } = Store.getState();
+export default async function ProfilePage() {
+  const user = await AccountService.getProfile();
+  Store.setState((state) => ({ ...state, user }));
 
   const content = `
     <div class="space-y-8">
@@ -99,11 +101,11 @@ export async function afterRender() {
   });
 
   // Salvar perfil
-  document.getElementById("btn-save-profile")?.addEventListener("click", () => {
+  document.getElementById("btn-save-profile")?.addEventListener("click", async () => {
     const username = document.getElementById("input-username")?.value || "";
     const bio = document.getElementById("input-bio")?.value || "";
     const avatarUrl = document.getElementById("input-avatar-url")?.value || "";
-    Actions.atualizarDadosPerfil(username, bio, avatarUrl);
+    await Actions.atualizarDadosPerfil(username, bio, avatarUrl);
 
     const msg = document.getElementById("profile-msg");
     if (msg) {
