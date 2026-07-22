@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.marketplaceproject.Entity.Avaliacao;
 import com.example.marketplaceproject.Service.AvaliacaoService;
+import com.example.marketplaceproject.Service.SessaoService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AvaliacaoController {
 
     private final AvaliacaoService avaliacaoService;
+    private final SessaoService sessaoService;
 
     public record AvaliacaoRequest(double nota, Boolean recomenda, String textoAvaliacao) {
     }
@@ -44,9 +47,10 @@ public class AvaliacaoController {
 
     @PostMapping("/api/produtos/{produtoId}/avaliacoes")
     public ResponseEntity<AvaliacaoResponse> criar(
-            @RequestParam Integer usuarioId,
+            @RequestHeader("Authorization") String authorization,
             @PathVariable Integer produtoId,
             @RequestBody AvaliacaoRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         Avaliacao avaliacao = avaliacaoService.criarAvaliacao(
                 usuarioId, produtoId, request.nota(), request.recomenda(), request.textoAvaliacao());
         return ResponseEntity.status(HttpStatus.CREATED).body(paraResponse(avaliacao));
@@ -54,18 +58,19 @@ public class AvaliacaoController {
 
     @PutMapping("/api/avaliacoes/{id}")
     public ResponseEntity<AvaliacaoResponse> atualizar(
-            @RequestParam Integer usuarioId,
+            @RequestHeader("Authorization") String authorization,
             @PathVariable Integer id,
             @RequestBody AvaliacaoRequest request) {
-        verificarDono(usuarioId, avaliacaoService.buscarPorId(id));
+        verificarDono(sessaoService.autenticar(authorization).getId(), avaliacaoService.buscarPorId(id));
         Avaliacao avaliacao = avaliacaoService.atualizarAvaliacao(
                 id, request.nota(), request.recomenda(), request.textoAvaliacao());
         return ResponseEntity.ok(paraResponse(avaliacao));
     }
 
     @DeleteMapping("/api/avaliacoes/{id}")
-    public ResponseEntity<Void> excluir(@RequestParam Integer usuarioId, @PathVariable Integer id) {
-        verificarDono(usuarioId, avaliacaoService.buscarPorId(id));
+    public ResponseEntity<Void> excluir(
+            @RequestHeader("Authorization") String authorization, @PathVariable Integer id) {
+        verificarDono(sessaoService.autenticar(authorization).getId(), avaliacaoService.buscarPorId(id));
         avaliacaoService.excluirAvaliacao(id);
         return ResponseEntity.noContent().build();
     }

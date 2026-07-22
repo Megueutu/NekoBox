@@ -54,4 +54,8 @@ public class Avaliacao {
     @Builder.Default
     @Column(name = "criado_em", nullable = false)
     private LocalDateTime criadoEm = LocalDateTime.now();
+
+    @Builder.Default
+    @Column(name = "votos_uteis", nullable = false)
+    private Integer votosUteis = 0;
 }

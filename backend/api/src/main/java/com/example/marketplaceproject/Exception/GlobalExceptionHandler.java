@@ -8,6 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -34,6 +35,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResposta> tratarCredenciaisInvalidas(
             CredenciaisInvalidasException ex, HttpServletRequest request) {
         return construir(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErroResposta> tratarCabecalhoAusente(
+            MissingRequestHeaderException ex, HttpServletRequest request) {
+        if ("Authorization".equalsIgnoreCase(ex.getHeaderName())) {
+            return construir(HttpStatus.UNAUTHORIZED, "Autenticacao obrigatoria.", request);
+        }
+        return construir(HttpStatus.BAD_REQUEST, "Cabecalho obrigatorio ausente.", request);
     }
 
     @ExceptionHandler(SaldoInsuficienteException.class)

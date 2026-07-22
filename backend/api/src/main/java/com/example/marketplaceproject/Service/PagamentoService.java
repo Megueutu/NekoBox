@@ -34,7 +34,7 @@ public class PagamentoService {
 
     @Transactional
     public List<Pagamento> checkout(Integer usuarioId) {
-        Usuario comprador = usuarioService.buscarPorId(usuarioId);
+        Usuario comprador = usuarioService.buscarPorIdParaAtualizacao(usuarioId);
         Carrinho carrinho = carrinhoService.obterOuCriarCarrinho(usuarioId);
         List<CarrinhoItem> itens = carrinhoItemRepository.findByCarrinho_Id(carrinho.getId());
 
