@@ -16,7 +16,7 @@ export function Navbar() {
     <nav class="site-nav sticky top-0 z-50" aria-label="Navegação principal">
       <div class="site-container site-nav__inner flex items-center justify-between">
 
-        <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NexusPlay — Início">
+        <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NekoBox — Início">
           <span class="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center">
             ${Icon(icons.gamepad, { className: "w-4.5 h-4.5 text-white", strokeWidth: 2.25 })}
           </span>

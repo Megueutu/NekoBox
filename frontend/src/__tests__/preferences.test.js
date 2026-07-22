@@ -7,7 +7,7 @@ import {
   savePreferences,
 } from "../app/preferences/preferences";
 
-const PREFERENCES_KEY = "nexusplay_preferences";
+const PREFERENCES_KEY = "nekobox_preferences";
 
 beforeEach(() => {
   localStorage.clear();
@@ -56,7 +56,16 @@ describe("Visual preferences", () => {
     expect(preferences).toEqual(defaultPreferences);
   });
 
-  it("should restore the NexusPlay default appearance", () => {
+  it("should migrate legacy NexusPlay preferences", () => {
+    const legacyPreferences = { ...defaultPreferences, accent: "cyan" };
+    localStorage.setItem("nexusplay_preferences", JSON.stringify(legacyPreferences));
+
+    expect(getPreferences()).toEqual(legacyPreferences);
+    expect(localStorage.getItem(PREFERENCES_KEY)).toBe(JSON.stringify(legacyPreferences));
+    expect(localStorage.getItem("nexusplay_preferences")).toBeNull();
+  });
+
+  it("should restore the NekoBox default appearance", () => {
     savePreferences({ ...defaultPreferences, base: "graphite", accent: "pink" });
 
     const preferences = resetPreferences();

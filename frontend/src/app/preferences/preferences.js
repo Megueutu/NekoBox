@@ -1,4 +1,5 @@
-const PREFERENCES_KEY = "nexusplay_preferences";
+const PREFERENCES_KEY = "nekobox_preferences";
+const LEGACY_PREFERENCES_KEY = "nexusplay_preferences";
 
 export const defaultPreferences = Object.freeze({
   base: "obsidian",
@@ -27,7 +28,15 @@ function sanitizePreferences(value = {}) {
 
 export function getPreferences() {
   try {
-    const stored = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || "null");
+    const currentValue = localStorage.getItem(PREFERENCES_KEY);
+    const legacyValue = localStorage.getItem(LEGACY_PREFERENCES_KEY);
+    const stored = JSON.parse(currentValue || legacyValue || "null");
+
+    if (!currentValue && legacyValue) {
+      localStorage.setItem(PREFERENCES_KEY, legacyValue);
+      localStorage.removeItem(LEGACY_PREFERENCES_KEY);
+    }
+
     return sanitizePreferences(stored || defaultPreferences);
   } catch {
     return { ...defaultPreferences };

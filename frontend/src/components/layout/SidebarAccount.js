@@ -18,7 +18,7 @@ export function SidebarAccount() {
   };
 
   return `
-    <aside class="bg-surface rounded-xl p-5 h-fit">
+    <aside class="account-sidebar-panel bg-surface rounded-xl p-5 h-fit">
 
       <!-- Avatar e Info do Usuário -->
       <div class="flex flex-col items-center text-center pb-5 mb-5 border-b border-[var(--color-border)]">
