@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/biblioteca")
@@ -38,10 +40,17 @@ public class BibliotecaController {
     public ResponseEntity<List<java.util.Map<String, Object>>> listar(
             @RequestHeader("Authorization") String authorization) {
         Integer usuarioId = sessaoService.autenticar(authorization).getId();
-        List<java.util.Map<String, Object>> itens = bibliotecaUsuarioService.listarBiblioteca(usuarioId).stream()
-                .map(item -> gameMapper.toGame(item.getProduto()))
+        List<Map<String, Object>> itens = bibliotecaUsuarioService.listarBiblioteca(usuarioId).stream()
+                .map(this::paraJogoAdquirido)
                 .toList();
         return ResponseEntity.ok(itens);
+    }
+
+    private Map<String, Object> paraJogoAdquirido(BibliotecaUsuario item) {
+        Map<String, Object> jogo = new LinkedHashMap<>(gameMapper.toGame(item.getProduto()));
+        jogo.put("playtime_minutes", item.getTempoJogoMinutos());
+        jogo.put("acquired_at", item.getAdicionadoEm());
+        return jogo;
     }
 
     @PatchMapping("/{produtoId}/tempo-jogo")
