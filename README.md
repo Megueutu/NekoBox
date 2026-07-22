@@ -2,7 +2,7 @@
 
 O frontend usa Firebase Auth via variáveis de ambiente do Vite.
 
-Crie um arquivo `frontend/.env.local` com as chaves abaixo, copiando o modelo de `frontend/.env.example`:
+Copie o `.env.example` da raiz para `.env`. O Vite lê desse arquivo apenas as variáveis públicas com prefixo `VITE_`:
 
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`

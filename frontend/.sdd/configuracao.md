@@ -35,9 +35,12 @@ Cloudinary lê:
 
 ```text
 VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_MEDIA_AUDIT=true
 ```
 
 Sem essa variável, imagens com `public_id` não são transformadas e o frontend cai para `media.url` ou para o fallback `picsum.photos`.
+
+Em desenvolvimento, `VITE_CLOUDINARY_MEDIA_AUDIT=true` faz o catálogo e o detalhe do jogo solicitarem ao backend a verificação dos arquivos no Cloudinary e emitirem um `console.warn` com capas/banners ausentes, jogos sem screenshots e divergências de nome. `CLOUDINARY_MEDIA_ROOT` define a pasta e `CLOUDINARY_SCREENSHOT_COUNT` define o máximo de screenshots procurados por jogo; screenshots são opcionais. O padrão máximo é 10; a página usa grid para até 4 e carrossel horizontal de 5 a 10. A auditoria fica desligada no build de produção para não afetar o carregamento do catálogo.
 
 ## Alias e estilos
 

@@ -1,6 +1,6 @@
-# SDD do NexusPlay
+# SDD do NekoBox
 
-O NexusPlay é um marketplace de jogos digitais. A aplicação permite navegar pelo catálogo, consultar detalhes de um jogo, autenticar-se, salvar títulos na lista de desejos, montar um carrinho e visualizar uma biblioteca pessoal.
+O NekoBox é um marketplace de jogos digitais. A aplicação permite navegar pelo catálogo, consultar detalhes de um jogo, autenticar-se, salvar títulos na lista de desejos, montar um carrinho e visualizar uma biblioteca pessoal.
 
 Esta documentação descreve o comportamento observado no frontend atual. Quando algo ainda é apenas uma expectativa para uma API futura, isso é indicado explicitamente.
 
