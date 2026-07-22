@@ -39,7 +39,7 @@ Não existe mais `Util/`. O arquivo `Util/validacao.java` foi apagado; toda vali
 
 ## 4. Modelo de dados — alterações feitas no schema
 
-O `script_bd.sql` (raiz do projeto) e as entidades JPA foram atualizados. **Estas colunas são novas e precisam ser aplicadas manualmente no banco Aiven remoto** (não há `ddl-auto=update` configurado em produção, de propósito — ver seção 9):
+O `infra/database/postgres/script_bd.sql` e as entidades JPA foram atualizados. **Estas colunas são novas e precisam ser aplicadas manualmente no banco Aiven remoto** (não há `ddl-auto=update` configurado em produção, de propósito — ver seção 9):
 
 ```sql
 ALTER TABLE usuarios ADD COLUMN avatar_public_id TEXT;
@@ -83,7 +83,7 @@ Qualquer chamada pode se passar por qualquer usuário só trocando o `usuarioId`
 ### Segredos
 `application.properties` não tem mais nenhuma credencial hardcoded — só placeholders sem default: `spring.datasource.url=${BD_URL}`, `spring.datasource.username=${BD_ADMIN}`, `spring.datasource.password=${BD_SENHA}`, `cloudinary.url=${CLOUDINARY_URL}`. Sem essas variáveis definidas, a aplicação falha ao subir (fail-fast intencional).
 
-Essas variáveis vêm de um arquivo `.env` na raiz do módulo (`backend/api/.env`, mesmo nível do `pom.xml`), **gitignorado** (`backend/api/.gitignore`). O Spring Boot não lê `.env` nativamente — em vez de puxar uma lib de terceiros (tentei `me.paulschwarz:spring-dotenv`, mas não conseguiu registrar corretamente contra o Spring Boot 4.0.6 desta versão do projeto; os placeholders continuavam sem resolver), existe `Config/DotenvEnvironmentPostProcessor` (`EnvironmentPostProcessor` registrado via `src/main/resources/META-INF/spring.factories`): lê `.env` linha a linha (`CHAVE=valor`, ignora comentários `#` e linhas vazias, tira aspas) e injeta como `PropertySource` de prioridade baixa (`addLast` — uma variável de ambiente real ou `-D` sempre vence se existir). Testado de ponta a ponta: subindo a aplicação de verdade, o Hikari conectou no Postgres do Aiven e o `CloudinaryService` construiu o client a partir do `.env` sem erro.
+Essas variáveis vêm do `.env` central na raiz do projeto, que é gitignorado. O backend o importa por `spring.config.import=optional:file:../../.env[.properties]`; variáveis reais do processo continuam tendo precedência.
 
 ## 6. Regra de negócio do checkout (redesenhado)
 
@@ -127,8 +127,8 @@ Se alguma dessas capacidades for necessária no futuro (ex: usuário recarregar 
 
 ## 9. Pontos em aberto / riscos conhecidos
 
-- ~~Credenciais do banco em texto puro no `application.properties`~~ **Resolvido.** `application.properties` só tem `${BD_URL}`/`${BD_ADMIN}`/`${BD_SENHA}`/`${CLOUDINARY_URL}` (sem default), carregados de `backend/api/.env` (gitignorado) via `spring.config.import=optional:file:.env[.properties]`. A senha antiga que ficou exposta no histórico do git continua exposta nesse histórico — rotacionar no Aiven ainda é recomendado, mas não é mais urgente para o estado atual do arquivo.
-- **Migração de schema é manual.** `spring.jpa.hibernate.ddl-auto` não está setado para o datasource real (Postgres), então nada roda automaticamente contra o Aiven. Rode o `ALTER TABLE` da seção 4 (ou o `script_bd.sql` atualizado, se for banco novo) antes de subir esta versão.
+- ~~Credenciais do banco em texto puro no `application.properties`~~ **Resolvido.** `application.properties` usa placeholders carregados do `.env` central e gitignorado na raiz. O `.env.example` contém somente valores locais ou fictícios.
+- **Migração de schema é manual.** `spring.jpa.hibernate.ddl-auto` não está setado para o datasource real (Postgres), então nada roda automaticamente contra o Aiven. Rode o `ALTER TABLE` da seção 4 (ou o `infra/database/postgres/script_bd.sql` atualizado, se for banco novo) antes de subir esta versão.
 - **`spring.jpa.open-in-view=true` (padrão).** Convém para simplicidade agora, mas mascara N+1 queries. Se a listagem de produtos ficar lenta, é o primeiro lugar a olhar (trocar para DTO projection via JPQL).
 - **Sem paginação em avaliações, biblioteca, histórico de pagamentos.** O enunciado não pediu, não implementei — mas em produção essas listas crescem.
 - **Sem autenticação/autorização real.** Qualquer chamada informa `usuarioId` livremente, sem prova de identidade — ver seção 5. Decisão explícita para este MVP, não é descuido.
@@ -171,7 +171,7 @@ Fluxo Cloudinary (avatar e foto de produto) segue exatamente o descrito pelo usu
 - Projeto compila (`mvn compile`) e o contexto Spring sobe limpo em teste automatizado (`mvn test`, com H2).
 
 **Não feito / próximo passo lógico:**
-1. Rodar o `ALTER TABLE` da seção 4 contra o Postgres real do Aiven (ou recriar o schema com o `script_bd.sql` atualizado, se for ambiente novo).
+1. Rodar o `ALTER TABLE` da seção 4 contra o Postgres real do Aiven (ou recriar o schema com o `infra/database/postgres/script_bd.sql` atualizado, se for ambiente novo).
 2. Definir `CLOUDINARY_URL` real no ambiente (dev/prod) — sem isso a aplicação não sobe fora dos testes.
 3. Testar manualmente (ou escrever testes de integração `@SpringBootTest` + `MockMvc`) os fluxos ponta-a-ponta: cadastro → login → criar produto → upload de foto → adicionar ao carrinho → checkout → biblioteca → avaliação. Nada disso tem teste automatizado ainda além do `contextLoads()` que já existia.
 4. Decidir sobre os pontos da seção 9 (credenciais no git, paginação, ausência de autenticação real) — não bloqueiam o funcionamento, mas valem uma conversa antes de produção.
