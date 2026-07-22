@@ -26,4 +26,16 @@ describe("Game API normalization", () => {
     expect(game.title).toBe("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
     expect(game.reviews[0].review_text).toBe("&lt;script&gt;steal()&lt;/script&gt;");
   });
+
+  it("should preserve library ownership metadata", () => {
+    const game = normalizeGame({
+      id: 7,
+      title: "Quest",
+      playtime_minutes: 135,
+      acquired_at: "2026-07-20T17:17:49",
+    });
+
+    expect(game.playtime_minutes).toBe(135);
+    expect(game.acquired_at).toBe("2026-07-20T17:17:49");
+  });
 });

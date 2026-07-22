@@ -293,6 +293,100 @@ img {
   gap: clamp(1rem, 2vw, 1.5rem);
 }
 
+.library-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.library-overview > div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+  background: var(--color-surface);
+}
+
+.library-overview strong { font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.65rem); }
+.library-overview span { color: var(--color-muted-2); font-size: 0.75rem; }
+
+.collection-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.collection-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: 34rem;
+  color: var(--color-muted-2);
+}
+
+.collection-search input,
+.collection-sort select {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.7rem;
+  color: var(--color-ink);
+  background: var(--color-surface-2);
+}
+
+.collection-search input { padding: 0.65rem 0.85rem; }
+.collection-sort { display: grid; gap: 0.35rem; color: var(--color-muted-2); font-size: 0.72rem; }
+.collection-sort select { min-width: 13.5rem; padding: 0.65rem 2rem 0.65rem 0.75rem; font-size: 0.8rem; }
+.collection-grid { display: grid; gap: 1rem; }
+
+.library-card {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.library-card:hover { border-color: color-mix(in srgb, var(--color-brand-400) 50%, var(--color-border)); transform: translateY(-2px); }
+.library-card__cover { position: relative; min-height: 11.5rem; overflow: hidden; background: var(--color-surface-2); }
+.library-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
+.library-card:hover .library-card__cover img { transform: scale(1.035); }
+.library-card__owned { position: absolute; left: 0.6rem; bottom: 0.6rem; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.5rem; border-radius: 999px; color: white; background: rgba(13, 16, 24, 0.84); backdrop-filter: blur(10px); font-size: 0.65rem; font-weight: 700; }
+.library-card__content { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem 1.5rem; padding: 1.15rem 1.25rem; }
+.library-card__eyebrow { margin-bottom: 0.3rem; color: var(--color-brand-400); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.library-card h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 750; }
+.library-card h2 a:hover { color: var(--color-brand-400); }
+.library-card__publisher { margin-top: 0.25rem; color: var(--color-muted-2); font-size: 0.75rem; }
+.library-card__meta { display: flex; gap: clamp(1rem, 3vw, 2.25rem); }
+.library-card__meta div { display: grid; gap: 0.25rem; }
+.library-card__meta dt { color: var(--color-muted-2); font-size: 0.68rem; }
+.library-card__meta dd { font-size: 0.78rem; font-weight: 650; }
+.library-card__action { grid-column: 2; grid-row: 1 / span 2; min-width: 7.5rem; padding: 0.7rem 0.9rem; font-size: 0.75rem; }
+.collection-no-results { display: grid; min-height: 16rem; place-items: center; align-content: center; gap: 0.65rem; border: 1px dashed var(--color-border); border-radius: var(--radius-card); color: var(--color-muted-2); text-align: center; }
+.collection-no-results[hidden] { display: none; }
+.collection-no-results h2 { color: var(--color-ink); font-weight: 700; }
+.collection-no-results p { font-size: 0.8rem; }
+
+@media (max-width: 720px) {
+  .library-overview { grid-template-columns: 1fr; }
+  .collection-toolbar { align-items: stretch; flex-direction: column; }
+  .collection-search { max-width: none; }
+  .collection-sort select { min-width: 0; }
+  .library-card { grid-template-columns: 6.75rem minmax(0, 1fr); }
+  .library-card__content { grid-template-columns: minmax(0, 1fr); padding: 0.9rem; }
+  .library-card__meta { flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+  .library-card__action { grid-column: 1; grid-row: auto; width: 100%; }
+}
+
 .game-card {
   height: 100%;
   background: var(--color-surface);

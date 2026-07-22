@@ -8,6 +8,15 @@ export function formatDate(dateStr) {
   });
 }
 
+export function formatPlaytime(minutes = 0) {
+  const safeMinutes = Math.max(0, Number(minutes) || 0);
+  if (safeMinutes < 60) return `${safeMinutes} min`;
+
+  const hours = Math.floor(safeMinutes / 60);
+  const remainingMinutes = safeMinutes % 60;
+  return remainingMinutes > 0 ? `${hours} h ${remainingMinutes} min` : `${hours} h`;
+}
+
 /**
  * Calcula o percentual de avaliações positivas a partir das reviews reais do jogo.
  * Retorna null quando não há reviews (evita exibir selo com dado inexistente).
