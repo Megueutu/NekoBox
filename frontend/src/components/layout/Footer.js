@@ -35,8 +35,8 @@ export function Footer() {
           <p class="text-[var(--color-ink)] font-semibold text-sm mb-4">Suporte</p>
           <ul class="space-y-2.5">
             <li><a href="/acessibilidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Acessibilidade</a></li>
-            <li><span class="text-[var(--color-muted-2)] text-sm">Termos de Uso · Em breve</span></li>
-            <li><span class="text-[var(--color-muted-2)] text-sm">Privacidade · Em breve</span></li>
+            <li><a href="/termos-de-uso" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Termos de Uso</a></li>
+            <li><a href="/privacidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Privacidade</a></li>
           </ul>
         </div>
 
