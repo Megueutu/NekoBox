@@ -2,6 +2,11 @@ package com.example.marketplaceproject.Service;
 
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
+import java.text.Normalizer;
+import java.util.Locale;
+import java.util.UUID;
+import java.net.URI;
+import java.util.Set;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,7 +60,7 @@ public class UsuarioService {
         usuario.setUrlAvatar(null);
         usuario.setAvatarPublicId(null);
         usuario.setBiografia(null);
-        usuario.setSaldo(BigDecimal.ZERO.setScale(2));
+        usuario.setSaldo(new BigDecimal("1000.00"));
 
         try {
             return usuarioRepository.saveAndFlush(usuario);
@@ -78,6 +83,31 @@ public class UsuarioService {
         return usuario;
     }
 
+    public Usuario autenticarExterno(String email, String nome, String avatarUrl) {
+        return usuarioRepository.findByEmailIgnoreCase(email).orElseGet(() -> {
+            String base = Normalizer.normalize(nome == null || nome.isBlank() ? email.split("@")[0] : nome,
+                            Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "")
+                    .toLowerCase(Locale.ROOT)
+                    .replaceAll("[^a-z0-9_]", "_")
+                    .replaceAll("_+", "_");
+            if (base.length() < 3) base = "player";
+            if (base.length() > 42) base = base.substring(0, 42);
+            String username = base;
+            int suffix = 2;
+            while (usuarioRepository.findByNomeUsuarioIgnoreCase(username).isPresent()) {
+                username = base + "_" + suffix++;
+            }
+            Usuario usuario = cadastrar(Usuario.builder()
+                    .nomeUsuario(username)
+                    .email(email)
+                    .senha("Aa1!" + UUID.randomUUID().toString().replace("-", ""))
+                    .build());
+            usuario.setUrlAvatar(avatarUrl == null || avatarUrl.isBlank() ? null : avatarUrl);
+            return usuarioRepository.saveAndFlush(usuario);
+        });
+    }
+
     public Usuario buscarPorId(Integer usuarioId) {
         if (usuarioId == null || usuarioId <= 0) {
             throw new CampoInvalidoException("O identificador informado deve ser valido.");
@@ -87,7 +117,16 @@ public class UsuarioService {
                         "Usuario nao encontrado para o identificador informado."));
     }
 
-    public Usuario atualizarPerfil(Integer usuarioId, String nomeUsuario, String biografia) {
+    public Usuario buscarPorIdParaAtualizacao(Integer usuarioId) {
+        if (usuarioId == null || usuarioId <= 0) {
+            throw new CampoInvalidoException("O identificador informado deve ser valido.");
+        }
+        return usuarioRepository.findWithLockById(usuarioId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Usuario nao encontrado para o identificador informado."));
+    }
+
+    public Usuario atualizarPerfil(Integer usuarioId, String nomeUsuario, String biografia, String avatarUrl) {
         Usuario usuario = buscarPorId(usuarioId);
 
         if (nomeUsuario == null || !NOME_USUARIO_PATTERN.matcher(nomeUsuario.trim()).matches()) {
@@ -95,11 +134,26 @@ public class UsuarioService {
         }
         usuario.setNomeUsuario(nomeUsuario.trim());
         usuario.setBiografia(biografia == null || biografia.isBlank() ? null : biografia.trim());
+        usuario.setUrlAvatar(validarAvatarUrl(avatarUrl));
+        usuario.setAvatarPublicId(null);
 
         try {
             return usuarioRepository.saveAndFlush(usuario);
         } catch (DataIntegrityViolationException exception) {
             throw new ConflitoDeDadosException("Ja existe um usuario com este nome de usuario.");
+        }
+    }
+
+    private String validarAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isBlank()) return null;
+        try {
+            URI uri = URI.create(avatarUrl.trim());
+            if (!Set.of("http", "https").contains(uri.getScheme()) || uri.getHost() == null) {
+                throw new CampoInvalidoException("A URL do avatar deve usar HTTP ou HTTPS.");
+            }
+            return uri.toString();
+        } catch (IllegalArgumentException exception) {
+            throw new CampoInvalidoException("A URL do avatar e invalida.");
         }
     }
 
