@@ -44,4 +44,8 @@ public class Foto {
     @Convert(converter = TipoFotoConverter.class)
     @Column(nullable = false, length = 20)
     private TipoFoto tipo;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer posicao = 1;
 }

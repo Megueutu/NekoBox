@@ -6,6 +6,7 @@ import com.example.marketplaceproject.Entity.Produto;
 import com.example.marketplaceproject.Service.CloudinaryService;
 import com.example.marketplaceproject.Service.FotoService;
 import com.example.marketplaceproject.Service.ProdutoService;
+import com.example.marketplaceproject.Service.SessaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,17 +29,18 @@ public class FotoController {
     private final FotoService fotoService;
     private final ProdutoService produtoService;
     private final CloudinaryService cloudinaryService;
+    private final SessaoService sessaoService;
 
     public record FotoResponse(Integer id, String url, String tipo) {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FotoResponse> upload(
-            @RequestParam Integer usuarioId,
+            @RequestHeader("Authorization") String authorization,
             @PathVariable Integer produtoId,
             @RequestParam("arquivo") MultipartFile arquivo,
             @RequestParam("tipo") String tipo) {
-        verificarDono(usuarioId, produtoService.buscarPorId(produtoId));
+        verificarDono(sessaoService.autenticar(authorization).getId(), produtoService.buscarPorId(produtoId));
 
         CloudinaryService.ResultadoUpload resultado = cloudinaryService.upload(arquivo, "produtos/" + produtoId);
         Foto foto = fotoService.adicionarFoto(
@@ -47,8 +50,9 @@ public class FotoController {
 
     @DeleteMapping("/{fotoId}")
     public ResponseEntity<Void> remover(
-            @RequestParam Integer usuarioId, @PathVariable Integer produtoId, @PathVariable Integer fotoId) {
-        verificarDono(usuarioId, produtoService.buscarPorId(produtoId));
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer produtoId, @PathVariable Integer fotoId) {
+        verificarDono(sessaoService.autenticar(authorization).getId(), produtoService.buscarPorId(produtoId));
 
         Foto foto = fotoService.buscarPorId(produtoId, fotoId);
         cloudinaryService.remover(foto.getPublicId());

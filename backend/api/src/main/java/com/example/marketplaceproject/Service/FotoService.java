@@ -64,13 +64,13 @@ public class FotoService {
     public Map<String, Object> obterFotosParaFrontend(Integer produtoId) {
         Map<String, Object> fotos = new LinkedHashMap<>();
         fotos.put(TipoFoto.BANNER.getValor(), null);
-        fotos.put(TipoFoto.POSTER.getValor(), null);
-        fotos.put(TipoFoto.DEMO.getValor(), new ArrayList<String>());
+        fotos.put(TipoFoto.COVER.getValor(), null);
+        fotos.put(TipoFoto.SCREENSHOT.getValor(), new ArrayList<String>());
 
         for (Foto foto : listarFotosDoProduto(produtoId)) {
             if (foto.getTipo().permiteMultiplas()) {
                 @SuppressWarnings("unchecked")
-                List<String> demos = (List<String>) fotos.get(TipoFoto.DEMO.getValor());
+                List<String> demos = (List<String>) fotos.get(TipoFoto.SCREENSHOT.getValor());
                 demos.add(foto.getUrl());
             } else {
                 fotos.put(foto.getTipo().getValor(), foto.getUrl());
