@@ -55,6 +55,11 @@ class RouterManager {
         return;
       } catch (error) {
         console.error("Erro crítico de carregamento da View SPA:", error);
+        if (error.status === 401) {
+          localStorage.setItem("redirect_target", pathname);
+          navigate("/login");
+          return;
+        }
         appContainer.innerHTML = `
           <div class="p-12 text-center flex flex-col items-center justify-center min-h-[65vh]">
             <h1 class="font-display text-3xl font-bold mb-2 text-red-400">Erro ao Carregar</h1>

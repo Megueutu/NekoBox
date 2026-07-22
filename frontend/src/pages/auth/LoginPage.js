@@ -42,7 +42,7 @@ export default function LoginPage() {
     <div class="flex flex-col gap-4">
       ${FormField({ id: "input-reg-username", label: "Nome de usuário", type: "text", placeholder: "jogador123" })}
       ${FormField({ id: "input-reg-email", label: "E-mail", type: "email", placeholder: "seu@email.com" })}
-      ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "Mínimo 6 caracteres" })}
+      ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "8+ caracteres, maiúscula, número e símbolo" })}
       ${FormField({ id: "input-reg-confirm", label: "Confirmar Senha", type: "password", placeholder: "Repita a senha" })}
       <button id="btn-register"
               class="button-primary w-full py-2.5 text-sm">
@@ -82,13 +82,18 @@ export default function LoginPage() {
   };
 
   return `
-    <div class="auth-shell">
+    <div class="auth-shell app-shell app-shell--auth">
+      <div class="app-ambient" aria-hidden="true">
+        <span class="app-ambient__blob app-ambient__blob--one"></span>
+        <span class="app-ambient__blob app-ambient__blob--two"></span>
+        <span class="app-ambient__grid"></span>
+      </div>
 
       <!-- Coluna Esquerda: Banner Institucional -->
       <div class="auth-promo">
         <div class="absolute top-0 left-0 h-1 w-full bg-[var(--color-brand-600)]"></div>
         <div class="relative">
-          <p class="font-display font-bold text-3xl mb-2 text-gradient-brand">NEXUSPLAY</p>
+          <p class="font-display font-bold text-3xl mb-2 text-gradient-brand">NEKOBOX</p>
           <p class="text-zinc-300 text-lg font-light leading-relaxed">
             Seu marketplace de<br>jogos digitais.
           </p>
@@ -251,10 +256,13 @@ export async function afterRender() {
     const email = document.getElementById("input-forgot-email")?.value;
     const msgEl = document.getElementById("forgot-msg");
     if (!email) return;
-    await AuthService.enviarRedefinicaoSenha(email);
-    if (msgEl) {
-      msgEl.textContent = `Link enviado para ${email}. Verifique sua caixa de entrada.`;
-      msgEl.classList.remove("hidden");
+    try {
+      await AuthService.enviarRedefinicaoSenha(email);
+    } catch (error) {
+      if (msgEl) {
+        msgEl.textContent = error.message;
+        msgEl.classList.remove("hidden");
+      }
     }
   });
 }
