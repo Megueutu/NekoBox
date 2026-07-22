@@ -3,6 +3,7 @@ package com.example.marketplaceproject.Controller;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +26,8 @@ import com.example.marketplaceproject.Entity.Produto;
 import com.example.marketplaceproject.Service.AvaliacaoService;
 import com.example.marketplaceproject.Service.FotoService;
 import com.example.marketplaceproject.Service.ProdutoService;
+import com.example.marketplaceproject.Service.SessaoService;
+import tools.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,10 +39,15 @@ public class ProdutoController {
     private final ProdutoService produtoService;
     private final FotoService fotoService;
     private final AvaliacaoService avaliacaoService;
+    private final SessaoService sessaoService;
+    private final ObjectMapper objectMapper;
 
     public record ProdutoRequest(
             String titulo, String descricaoCurta, String descricaoLonga,
-            BigDecimal preco, List<Integer> categoriaIds) {
+            BigDecimal preco, LocalDate releaseDate, String status,
+            List<String> tags, List<Map<String, Object>> systemRequirements,
+            List<Map<String, Object>> languages, List<Map<String, Object>> updates,
+            List<Integer> categoriaIds) {
     }
 
     public record VendedorResumo(Integer id, String nomeUsuario) {
@@ -75,21 +84,26 @@ public class ProdutoController {
 
     @PostMapping
     public ResponseEntity<ProdutoDetalheResponse> criar(
-            @RequestParam Integer usuarioId, @RequestBody ProdutoRequest request) {
+            @RequestHeader("Authorization") String authorization, @RequestBody ProdutoRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         Produto produto = produtoService.criarProduto(usuarioId, paraEntidade(request), request.categoriaIds());
         return ResponseEntity.status(HttpStatus.CREATED).body(paraDetalhe(produto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProdutoDetalheResponse> atualizar(
-            @RequestParam Integer usuarioId, @PathVariable Integer id, @RequestBody ProdutoRequest request) {
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer id, @RequestBody ProdutoRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         verificarDono(usuarioId, produtoService.buscarPorId(id));
         Produto produto = produtoService.atualizarProduto(id, paraEntidade(request), request.categoriaIds());
         return ResponseEntity.ok(paraDetalhe(produto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@RequestParam Integer usuarioId, @PathVariable Integer id) {
+    public ResponseEntity<Void> excluir(
+            @RequestHeader("Authorization") String authorization, @PathVariable Integer id) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         verificarDono(usuarioId, produtoService.buscarPorId(id));
         produtoService.excluirProduto(id);
         return ResponseEntity.noContent().build();
@@ -97,7 +111,9 @@ public class ProdutoController {
 
     @PostMapping("/{id}/categorias/{categoriaId}")
     public ResponseEntity<Void> vincularCategoria(
-            @RequestParam Integer usuarioId, @PathVariable Integer id, @PathVariable Integer categoriaId) {
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer id, @PathVariable Integer categoriaId) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         verificarDono(usuarioId, produtoService.buscarPorId(id));
         produtoService.vincularCategoria(id, categoriaId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -105,7 +121,9 @@ public class ProdutoController {
 
     @DeleteMapping("/{id}/categorias/{categoriaId}")
     public ResponseEntity<Void> desvincularCategoria(
-            @RequestParam Integer usuarioId, @PathVariable Integer id, @PathVariable Integer categoriaId) {
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer id, @PathVariable Integer categoriaId) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         verificarDono(usuarioId, produtoService.buscarPorId(id));
         produtoService.desvincularCategoria(id, categoriaId);
         return ResponseEntity.noContent().build();
@@ -123,7 +141,21 @@ public class ProdutoController {
                 .descricaoCurta(request.descricaoCurta())
                 .descricaoLonga(request.descricaoLonga())
                 .preco(request.preco())
+                .dataLancamento(request.releaseDate())
+                .status(request.status())
+                .tagsJson(toJson(request.tags()))
+                .requisitosJson(toJson(request.systemRequirements()))
+                .idiomasJson(toJson(request.languages()))
+                .atualizacoesJson(toJson(request.updates()))
                 .build();
+    }
+
+    private String toJson(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value == null ? List.of() : value);
+        } catch (Exception exception) {
+            throw new IllegalArgumentException("Os dados estruturados do jogo sao invalidos.");
+        }
     }
 
     private ProdutoResumoResponse paraResumo(Produto produto) {

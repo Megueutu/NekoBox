@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.text.Normalizer;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +57,12 @@ public class ProdutoService {
         produto.setDescricaoCurta(normalizarTextoOpcional(produto.getDescricaoCurta()));
         produto.setDescricaoLonga(normalizarTextoOpcional(produto.getDescricaoLonga()));
         produto.setPreco(preco);
+        produto.setSlug(gerarSlugUnico(titulo));
+        produto.setStatus(validarStatus(produto.getStatus()));
+        produto.setTagsJson(produto.getTagsJson() == null ? "[]" : produto.getTagsJson());
+        produto.setRequisitosJson(produto.getRequisitosJson() == null ? "[]" : produto.getRequisitosJson());
+        produto.setIdiomasJson(produto.getIdiomasJson() == null ? "[]" : produto.getIdiomasJson());
+        produto.setAtualizacoesJson(produto.getAtualizacoesJson() == null ? "[]" : produto.getAtualizacoesJson());
 
         Produto produtoSalvo = produtoRepository.save(produto);
         sincronizarCategorias(produtoSalvo, categorias);
@@ -75,6 +83,12 @@ public class ProdutoService {
         produto.setDescricaoCurta(normalizarTextoOpcional(novosDados.getDescricaoCurta()));
         produto.setDescricaoLonga(normalizarTextoOpcional(novosDados.getDescricaoLonga()));
         produto.setPreco(preco);
+        produto.setDataLancamento(novosDados.getDataLancamento());
+        produto.setStatus(validarStatus(novosDados.getStatus()));
+        produto.setTagsJson(jsonOuVazio(novosDados.getTagsJson()));
+        produto.setRequisitosJson(jsonOuVazio(novosDados.getRequisitosJson()));
+        produto.setIdiomasJson(jsonOuVazio(novosDados.getIdiomasJson()));
+        produto.setAtualizacoesJson(jsonOuVazio(novosDados.getAtualizacoesJson()));
 
         sincronizarCategorias(produto, categorias);
         return produtoRepository.save(produto);
@@ -210,5 +224,34 @@ public class ProdutoService {
 
     private String normalizarTextoOpcional(String texto) {
         return texto == null || texto.isBlank() ? null : texto.trim();
+    }
+
+    private String validarStatus(String status) {
+        String valor = status == null || status.isBlank() ? "draft" : status.trim().toLowerCase(Locale.ROOT);
+        if (!Set.of("draft", "published", "archived").contains(valor)) {
+            throw new CampoInvalidoException("Status de produto invalido.");
+        }
+        return valor;
+    }
+
+    private String jsonOuVazio(String json) {
+        return json == null || json.isBlank() ? "[]" : json;
+    }
+
+    private String gerarSlugUnico(String titulo) {
+        String base = Normalizer.normalize(titulo, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        if (base.isBlank()) {
+            base = "game";
+        }
+        String slug = base;
+        int sufixo = 2;
+        while (produtoRepository.existsBySlug(slug)) {
+            slug = base + "-" + sufixo++;
+        }
+        return slug;
     }
 }

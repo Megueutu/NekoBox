@@ -9,14 +9,23 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
 
+    Optional<Produto> findBySlugAndStatus(String slug, String status);
+
+    boolean existsBySlug(String slug);
+
+    List<Produto> findByStatusOrderByIdAsc(String status);
+
     @Query("""
             SELECT DISTINCT p FROM Produto p
             LEFT JOIN ProdutoCategoria pc ON pc.produto = p
-            WHERE (:titulo IS NULL OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', CAST(:titulo AS string), '%')))
+            WHERE p.status = 'published'
+              AND (:titulo IS NULL OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', CAST(:titulo AS string), '%')))
               AND (:categoriaId IS NULL OR pc.categoria.id = :categoriaId)
               AND (:precoMinimo IS NULL OR p.preco >= :precoMinimo)
               AND (:precoMaximo IS NULL OR p.preco <= :precoMaximo)

@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "produtos")
@@ -45,4 +46,30 @@ public class Produto {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal preco;
+
+    @Column(nullable = false, length = 255, unique = true)
+    private String slug;
+
+    @Column(name = "data_lancamento")
+    private LocalDate dataLancamento;
+
+    @Builder.Default
+    @Column(nullable = false, length = 20)
+    private String status = "draft";
+
+    @Column(name = "tags_json", nullable = false, columnDefinition = "TEXT")
+    @Builder.Default
+    private String tagsJson = "[]";
+
+    @Column(name = "requisitos_json", nullable = false, columnDefinition = "TEXT")
+    @Builder.Default
+    private String requisitosJson = "[]";
+
+    @Column(name = "idiomas_json", nullable = false, columnDefinition = "TEXT")
+    @Builder.Default
+    private String idiomasJson = "[]";
+
+    @Column(name = "atualizacoes_json", nullable = false, columnDefinition = "TEXT")
+    @Builder.Default
+    private String atualizacoesJson = "[]";
 }
