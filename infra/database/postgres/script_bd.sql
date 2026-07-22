@@ -129,6 +129,15 @@ ON CONFLICT (email) DO UPDATE SET
     saldo = EXCLUDED.saldo,
     biografia = EXCLUDED.biografia;
 
+INSERT INTO usuarios (nome_usuario, email, senha, saldo, biografia)
+VALUES ('usert', 'usert@nekobox.local', '$2a$10$8dEs/3fiXxxXeuZaGjQsj.UwAafS5dLc7hD6wKS9bfKQ6ACMUkdjW', 1000.00, 'Usuário root local para testes do NekoBox.')
+ON CONFLICT (email) DO UPDATE SET
+    nome_usuario = EXCLUDED.nome_usuario,
+    senha = EXCLUDED.senha,
+    saldo = EXCLUDED.saldo,
+    biografia = EXCLUDED.biografia,
+    atualizado_em = CURRENT_TIMESTAMP;
+
 INSERT INTO categorias (nome) VALUES
 ('RPG'), ('Ação'), ('Aventura'), ('Mundo Aberto'), ('Fantasia'), ('Ficção Científica'),
 ('Roguelike'), ('Sandbox'), ('Simulação'), ('Metroidvania'), ('Plataforma')
