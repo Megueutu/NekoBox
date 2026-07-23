@@ -9,9 +9,19 @@ CREATE TABLE IF NOT EXISTS usuarios (
     avatar_public_id TEXT,
     biografia TEXT,
     saldo NUMERIC(12,2) NOT NULL DEFAULT 1000.00 CHECK (saldo >= 0),
+    papel VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (papel IN ('USER', 'ADMIN')),
     criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS papel VARCHAR(20) NOT NULL DEFAULT 'USER';
+ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_papel_check;
+ALTER TABLE usuarios ADD CONSTRAINT usuarios_papel_check CHECK (papel IN ('USER', 'ADMIN'));
+UPDATE usuarios SET papel = 'USER'
+WHERE papel = 'ADMIN' AND email <> 'admin@nekobox.local';
+CREATE UNIQUE INDEX IF NOT EXISTS uk_usuarios_unico_admin
+    ON usuarios (papel)
+    WHERE papel = 'ADMIN';
 
 CREATE TABLE IF NOT EXISTS produtos (
     id SERIAL PRIMARY KEY,
@@ -153,6 +163,16 @@ ON CONFLICT (email) DO UPDATE SET
     senha = EXCLUDED.senha,
     saldo = EXCLUDED.saldo,
     biografia = EXCLUDED.biografia,
+    atualizado_em = CURRENT_TIMESTAMP;
+
+INSERT INTO usuarios (nome_usuario, email, senha, saldo, biografia, papel)
+VALUES ('admin', 'admin@nekobox.local', '$2y$10$cwUtHF0/aFE5nYgzqxs/t.mCRZMgjnPk2TKA/KH/cW600/kdiUhru', 0.00, 'Administrador único do NexusPlay.', 'ADMIN')
+ON CONFLICT (email) DO UPDATE SET
+    nome_usuario = EXCLUDED.nome_usuario,
+    senha = EXCLUDED.senha,
+    saldo = EXCLUDED.saldo,
+    biografia = EXCLUDED.biografia,
+    papel = 'ADMIN',
     atualizado_em = CURRENT_TIMESTAMP;
 
 INSERT INTO gift_cards (codigo_hash, valor) VALUES

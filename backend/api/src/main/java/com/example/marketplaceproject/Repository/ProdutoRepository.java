@@ -21,6 +21,10 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
 
     List<Produto> findByStatusOrderByIdAsc(String status);
 
+    List<Produto> findAllByOrderByIdAsc();
+
+    long countByStatus(String status);
+
     @Query("""
             SELECT DISTINCT p FROM Produto p
             LEFT JOIN ProdutoCategoria pc ON pc.produto = p

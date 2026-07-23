@@ -11,4 +11,5 @@ export const routes = [
   { path: "/wishlist", private: true, page: () => import("../../pages/wishlist/WishlistPage") },
   { path: "/cart", private: true, page: () => import("../../pages/cart/CartPage") },
   { path: "/library", private: true, page: () => import("../../pages/library/LibraryPage") },
+  { path: "/admin", private: true, admin: true, page: () => import("../../pages/admin/AdminPage") },
 ];

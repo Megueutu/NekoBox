@@ -7,12 +7,14 @@ import java.util.Locale;
 import java.util.UUID;
 import java.net.URI;
 import java.util.Set;
+import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.marketplaceproject.Entity.Usuario;
+import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Exception.CampoInvalidoException;
 import com.example.marketplaceproject.Exception.ConflitoDeDadosException;
 import com.example.marketplaceproject.Exception.CredenciaisInvalidasException;
@@ -61,6 +63,7 @@ public class UsuarioService {
         usuario.setAvatarPublicId(null);
         usuario.setBiografia(null);
         usuario.setSaldo(new BigDecimal("1000.00"));
+        usuario.setPapel(PapelUsuario.USER);
 
         try {
             return usuarioRepository.saveAndFlush(usuario);
@@ -84,7 +87,13 @@ public class UsuarioService {
     }
 
     public Usuario autenticarExterno(String email, String nome, String avatarUrl) {
-        return usuarioRepository.findByEmailIgnoreCase(email).orElseGet(() -> {
+        return usuarioRepository.findByEmailIgnoreCase(email).map(usuario -> {
+            if (usuario.getPapel() == PapelUsuario.ADMIN) {
+                throw new CredenciaisInvalidasException(
+                        "A conta administrativa exige autenticacao com email e senha.");
+            }
+            return usuario;
+        }).orElseGet(() -> {
             String base = Normalizer.normalize(nome == null || nome.isBlank() ? email.split("@")[0] : nome,
                             Normalizer.Form.NFD)
                     .replaceAll("\\p{M}", "")
@@ -188,5 +197,53 @@ public class UsuarioService {
 
     public Usuario salvar(Usuario usuario) {
         return usuarioRepository.saveAndFlush(usuario);
+    }
+
+    public List<Usuario> listarTodos() {
+        return usuarioRepository.findAllByOrderByIdAsc();
+    }
+
+    public Usuario atualizarPeloAdmin(
+            Integer usuarioId, String nomeUsuario, String email, String senha, BigDecimal saldo) {
+        Usuario usuario = buscarPorId(usuarioId);
+        if (nomeUsuario == null || !NOME_USUARIO_PATTERN.matcher(nomeUsuario.trim()).matches()) {
+            throw new CampoInvalidoException("Nome de usuario invalido. Use de 3 a 50 caracteres alfanumericos.");
+        }
+        if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
+            throw new CampoInvalidoException("Formato de email invalido.");
+        }
+        if (saldo == null || saldo.signum() < 0) {
+            throw new CampoInvalidoException("O saldo deve ser maior ou igual a zero.");
+        }
+        if (senha != null && !senha.isBlank()) {
+            if (!SENHA_PATTERN.matcher(senha.trim()).matches()) {
+                throw new CampoInvalidoException(
+                        "A senha deve ter no minimo 8 caracteres, com maiuscula, minuscula, numero e simbolo.");
+            }
+            usuario.setSenha(passwordEncoder.encode(senha.trim()));
+        }
+
+        usuario.setNomeUsuario(nomeUsuario.trim());
+        usuario.setEmail(email.trim());
+        usuario.setSaldo(saldo);
+        try {
+            return usuarioRepository.saveAndFlush(usuario);
+        } catch (DataIntegrityViolationException exception) {
+            throw new ConflitoDeDadosException("Ja existe um usuario com este email ou nome de usuario.");
+        }
+    }
+
+    public void excluirPeloAdmin(Integer usuarioId) {
+        Usuario usuario = buscarPorId(usuarioId);
+        if (usuario.getPapel() == PapelUsuario.ADMIN) {
+            throw new ConflitoDeDadosException("O administrador unico nao pode ser excluido.");
+        }
+        try {
+            usuarioRepository.delete(usuario);
+            usuarioRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new ConflitoDeDadosException(
+                    "Usuario nao pode ser excluido porque possui compras ou jogos vinculados.");
+        }
     }
 }

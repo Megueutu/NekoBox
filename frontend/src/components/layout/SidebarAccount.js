@@ -36,6 +36,7 @@ export function SidebarAccount() {
         ${navItem("/wishlist", "Lista de Desejos", Icon(icons.heart, { className: "w-4 h-4 shrink-0" }))}
         ${navItem("/cart", "Carrinho", Icon(icons.shoppingCart, { className: "w-4 h-4 shrink-0" }))}
         ${navItem("/configuracoes", "Configurações", Icon(icons.settings, { className: "w-4 h-4 shrink-0" }))}
+        ${user?.role === "ADMIN" ? navItem("/admin", "Administração", Icon(icons.shieldCheck, { className: "w-4 h-4 shrink-0" })) : ""}
 
         <!-- Botão de Logout -->
         <button id="btn-sidebar-logout"

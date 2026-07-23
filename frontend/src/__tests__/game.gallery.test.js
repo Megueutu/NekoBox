@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderScreenshotGallery } from "../pages/game/GamePage";
+import { MISSING_MEDIA_URL, setupMediaFallbacks } from "../utils/media-fallback";
 
 const screenshots = (count) =>
   Array.from({ length: count }, (_, index) => ({
@@ -9,6 +10,26 @@ const screenshots = (count) =>
   }));
 
 describe("Game screenshot gallery", () => {
+  it("should render the missing media fallback with a Lucide icon and no text", () => {
+    const fallback = decodeURIComponent(MISSING_MEDIA_URL);
+
+    expect(fallback).toContain('data-lucide="cloud-off"');
+    expect(fallback).not.toContain("<text");
+  });
+
+  it("should replace images that fail to load with the media fallback", () => {
+    const image = document.createElement("img");
+    image.src = "https://example.com/missing-cover.jpg";
+    document.body.append(image);
+    const cleanup = setupMediaFallbacks();
+
+    image.dispatchEvent(new Event("error"));
+
+    expect(image.src).toBe(MISSING_MEDIA_URL);
+    cleanup();
+    image.remove();
+  });
+
   it("should render an empty state when screenshots are unavailable", () => {
     const container = document.createElement("div");
 

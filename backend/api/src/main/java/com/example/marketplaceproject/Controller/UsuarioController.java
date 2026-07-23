@@ -1,6 +1,7 @@
 package com.example.marketplaceproject.Controller;
 
 import com.example.marketplaceproject.Entity.Usuario;
+import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Service.CloudinaryService;
 import com.example.marketplaceproject.Service.UsuarioService;
 import com.example.marketplaceproject.Service.SessaoService;
@@ -46,7 +47,7 @@ public class UsuarioController {
 
     public record PerfilResponse(
             String id, String username, String email, String avatarUrl,
-            String bio, BigDecimal balance) {
+            String bio, BigDecimal balance, PapelUsuario role) {
     }
 
     public record AvatarResponse(String urlAvatar) {
@@ -118,6 +119,6 @@ public class UsuarioController {
     private PerfilResponse paraPerfilResponse(Usuario usuario) {
         return new PerfilResponse(
                 usuario.getId().toString(), usuario.getNomeUsuario(), usuario.getEmail(), usuario.getUrlAvatar(),
-                usuario.getBiografia(), usuario.getSaldo());
+                usuario.getBiografia(), usuario.getSaldo(), usuario.getPapel());
     }
 }

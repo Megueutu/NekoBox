@@ -18,4 +18,6 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Integer> {
 
     boolean existsByProduto_Id(Integer produtoId);
 
+    List<Pagamento> findByStatusOrderByCriadoEmAsc(StatusPagamento status);
+
 }

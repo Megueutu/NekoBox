@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.marketplaceproject.Entity.Usuario;
+import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Service.UsuarioService;
 import com.example.marketplaceproject.Service.SessaoService;
 import com.example.marketplaceproject.Service.FirebaseTokenService;
@@ -30,7 +31,8 @@ public class AuthController {
     }
 
     public record UserResponse(
-            String id, String username, String email, String avatarUrl, String bio, java.math.BigDecimal balance) {
+            String id, String username, String email, String avatarUrl, String bio,
+            java.math.BigDecimal balance, PapelUsuario role) {
     }
 
     public record LoginResponse(String accessToken, String tokenType, long expiresIn, UserResponse user) {
@@ -60,6 +62,6 @@ public class AuthController {
 
     private UserResponse toUser(Usuario usuario) {
         return new UserResponse(usuario.getId().toString(), usuario.getNomeUsuario(), usuario.getEmail(),
-                usuario.getUrlAvatar(), usuario.getBiografia(), usuario.getSaldo());
+                usuario.getUrlAvatar(), usuario.getBiografia(), usuario.getSaldo(), usuario.getPapel());
     }
 }

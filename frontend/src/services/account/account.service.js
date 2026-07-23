@@ -10,6 +10,7 @@ const normalizeUser = (user) => ({
   email: escapeHtml(user.email),
   avatar_url: user.avatar_url || "",
   bio: escapeHtml(user.bio),
+  role: user.role || "USER",
 });
 
 export const AccountService = {

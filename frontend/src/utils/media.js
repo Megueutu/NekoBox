@@ -4,18 +4,9 @@ import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 import { auto as autoFormat } from "@cloudinary/url-gen/qualifiers/format";
 import { auto as autoQuality } from "@cloudinary/url-gen/qualifiers/quality";
 import { cld } from "../core/cloudinary/cloudinary";
+import { MISSING_MEDIA_URL } from "./media-fallback";
 
-const MISSING_MEDIA_SVG = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-    <rect width="800" height="600" fill="#19171f"/>
-    <g fill="none" stroke="#8d829d" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M270 348h267a83 83 0 0 0 5-166 139 139 0 0 0-258-35 101 101 0 0 0-14 201Z"/>
-      <path d="m255 135 290 290" stroke="#a78bfa"/>
-    </g>
-    <text x="400" y="490" fill="#b7adc6" font-family="Arial, sans-serif" font-size="30" text-anchor="middle">Mídia indisponível</text>
-  </svg>`;
-
-export const MISSING_MEDIA_URL = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(MISSING_MEDIA_SVG)}`;
+export { MISSING_MEDIA_URL } from "./media-fallback";
 
 /**
  * Gera uma URL otimizada do Cloudinary (crop "fill" + gravidade automática +
