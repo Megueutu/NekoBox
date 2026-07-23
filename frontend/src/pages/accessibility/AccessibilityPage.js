@@ -75,7 +75,7 @@ export default function AccessibilityPage() {
       <header class="accessibility-hero" aria-labelledby="accessibility-title">
         <div class="site-container accessibility-hero__layout">
           <div>
-            <p class="section-heading__eyebrow mb-3">Acessibilidade na NexusPlay</p>
+            <p class="section-heading__eyebrow mb-3">Acessibilidade no NekoBox</p>
             <h1 id="accessibility-title">Jogar e descobrir devem ser experiências para todos.</h1>
             <p class="accessibility-hero__lead">
               Acessibilidade não é uma etapa final do produto. É uma premissa de projeto que orienta conteúdo,
@@ -190,7 +190,7 @@ export default function AccessibilityPage() {
               corrigir regressões.
             </p>
             <p>
-              A NexusPlay ainda não passou por uma auditoria externa de conformidade. Nosso objetivo é evoluir a
+              O NekoBox ainda não passou por uma auditoria externa de conformidade. Nosso objetivo é evoluir a
               cobertura com testes em leitores de tela, zoom ampliado, alto contraste e diferentes dispositivos de entrada.
             </p>
             <a href="/" data-link class="button-primary px-5 py-3">Voltar para a loja</a>

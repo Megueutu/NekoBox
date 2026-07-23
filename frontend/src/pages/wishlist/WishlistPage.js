@@ -7,9 +7,11 @@ import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { icons } from "../../components/ui/Icon";
+import { AccountService } from "../../services/account/account.service";
 
-export default function WishlistPage() {
-  const { wishlist } = Store.getState();
+export default async function WishlistPage() {
+  const wishlist = await AccountService.getWishlist();
+  Store.setState((state) => ({ ...state, wishlist }));
 
   const content = `
     <div class="space-y-8">
@@ -42,12 +44,12 @@ export default function WishlistPage() {
 export async function afterRender() {
   // Remover item da wishlist
   document.querySelectorAll("[data-remove-wishlist]").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const gameId = btn.getAttribute("data-remove-wishlist");
       const { wishlist } = Store.getState();
       const game = wishlist.find((g) => g.id === gameId);
       if (game) {
-        Actions.alternarListaDesejos(game);
+        await Actions.alternarListaDesejos(game);
         navigate("/wishlist");
       }
     });
@@ -55,12 +57,12 @@ export async function afterRender() {
 
   // Adicionar ao carrinho a partir da wishlist
   document.querySelectorAll("[data-add-cart]").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const gameId = btn.getAttribute("data-add-cart");
       const { wishlist } = Store.getState();
       const game = wishlist.find((g) => g.id === gameId);
       if (game) {
-        Actions.adicionarAoCarrinho(game);
+        await Actions.adicionarAoCarrinho(game);
         navigate("/cart");
       }
     });

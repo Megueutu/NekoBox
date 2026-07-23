@@ -1,5 +1,6 @@
 import { Store } from "../../store/store";
 import { Icon, icons } from "../ui/Icon";
+import { WalletDialog } from "../wallet/WalletDialog";
 
 export function Navbar() {
   const { cart, wishlist, user } = Store.getState();
@@ -16,7 +17,7 @@ export function Navbar() {
     <nav class="site-nav sticky top-0 z-50" aria-label="Navegação principal">
       <div class="site-container site-nav__inner flex items-center justify-between">
 
-        <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NexusPlay — Início">
+        <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NekoBox — Início">
           <span class="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center">
             ${Icon(icons.gamepad, { className: "w-4.5 h-4.5 text-white", strokeWidth: 2.25 })}
           </span>
@@ -26,6 +27,8 @@ export function Navbar() {
         <div class="hidden lg:flex items-center gap-7">
           ${navLink("/", "Início")}
           ${navLink("/hub", "Catálogo")}
+          ${navLink("/library", "Biblioteca")}
+          ${user?.role === "ADMIN" ? navLink("/admin", "Admin") : ""}
           ${navLink("/acessibilidade", "Acessibilidade")}
         </div>
 
@@ -47,9 +50,11 @@ export function Navbar() {
               <a href="/hub" data-link ${currentPath === "/hub" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Catálogo</a>
               <a href="/acessibilidade" data-link ${currentPath === "/acessibilidade" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Acessibilidade</a>
               <a href="/configuracoes" data-link ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
-              <a href="/library" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+              <a href="/library" data-link ${currentPath === "/library" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+              ${user?.role === "ADMIN" ? '<a href="/admin" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Administração</a>' : ""}
               <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
               <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
+              ${user ? '<button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>' : ""}
               <a href="/profile" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
             </nav>
           </details>
@@ -74,6 +79,14 @@ export function Navbar() {
 
           ${
             user
+              ? `<button type="button" data-wallet-trigger class="nav-icon-link hidden sm:flex" aria-haspopup="dialog" aria-controls="wallet-dialog" aria-label="Abrir carteira">
+                  ${Icon(icons.wallet, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                </button>`
+              : ""
+          }
+
+          ${
+            user
               ? `
             <a href="/profile" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
               <div class="w-8 h-8 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] border-2 border-[var(--color-brand-500)]/60 hover:border-[var(--color-accent-400)] transition-colors"
@@ -91,5 +104,6 @@ export function Navbar() {
 
       </div>
     </nav>
+    ${user ? WalletDialog() : ""}
   `;
 }

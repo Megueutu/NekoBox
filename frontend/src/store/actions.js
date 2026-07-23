@@ -1,9 +1,14 @@
 import { Store } from "./store";
+import { AccountService } from "../services/account/account.service";
 
 export const Actions = {
   setUser(user) {
     Store.setState((state) => ({ ...state, user }));
     window.dispatchEvent(new CustomEvent("rerender"));
+  },
+
+  hydrateAccount({ user, cart, wishlist, library }) {
+    Store.setState((state) => ({ ...state, user, cart, wishlist, library, loading: false }));
   },
 
   logout() {
@@ -17,55 +22,35 @@ export const Actions = {
     window.dispatchEvent(new CustomEvent("rerender"));
   },
 
-  adicionarAoCarrinho(game) {
-    Store.setState((state) => {
-      if (state.cart.some((item) => item.id === game.id)) return state;
-      return { ...state, cart: [...state.cart, game] };
-    });
-    window.dispatchEvent(new CustomEvent("rerender"));
+  async adicionarAoCarrinho(game) {
+    const cart = await AccountService.addToCart(game.id);
+    Store.setState((state) => ({ ...state, cart }));
   },
 
-  removerDoCarrinho(gameId) {
-    Store.setState((state) => ({
-      ...state,
-      cart: state.cart.filter((item) => item.id !== gameId),
-    }));
-    window.dispatchEvent(new CustomEvent("rerender"));
+  async removerDoCarrinho(gameId) {
+    const cart = await AccountService.removeFromCart(gameId);
+    Store.setState((state) => ({ ...state, cart }));
   },
 
-  alternarListaDesejos(game) {
-    Store.setState((state) => {
-      const existe = state.wishlist.some((item) => item.id === game.id);
-      const novaLista = existe
-        ? state.wishlist.filter((item) => item.id !== game.id)
-        : [...state.wishlist, game];
-      return { ...state, wishlist: novaLista };
-    });
-    window.dispatchEvent(new CustomEvent("rerender"));
+  async alternarListaDesejos(game) {
+    const { wishlist } = Store.getState();
+    const existe = wishlist.some((item) => String(item.id) === String(game.id));
+    if (existe) {
+      await AccountService.removeFromWishlist(game.id);
+    } else {
+      await AccountService.addToWishlist(game.id);
+    }
+    const novaLista = await AccountService.getWishlist();
+    Store.setState((state) => ({ ...state, wishlist: novaLista }));
   },
 
-  finalizarCheckoutCarrinho() {
-    Store.setState((state) => {
-      const novosItens = state.cart.filter(
-        (cartItem) => !state.library.some((libItem) => libItem.id === cartItem.id)
-      );
-      return {
-        ...state,
-        library: [...state.library, ...novosItens],
-        cart: [],
-      };
-    });
-    window.dispatchEvent(new CustomEvent("rerender"));
+  async finalizarCheckoutCarrinho() {
+    const library = await AccountService.checkout();
+    Store.setState((state) => ({ ...state, library, cart: [] }));
   },
 
-  atualizarDadosPerfil(username, bio, avatarUrl) {
-    Store.setState((state) => {
-      if (!state.user) return state;
-      return {
-        ...state,
-        user: { ...state.user, username, bio, avatar_url: avatarUrl },
-      };
-    });
-    window.dispatchEvent(new CustomEvent("rerender"));
+  async atualizarDadosPerfil(username, bio, avatarUrl) {
+    const user = await AccountService.updateProfile(username, bio, avatarUrl);
+    Store.setState((state) => ({ ...state, user }));
   },
 };

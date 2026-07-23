@@ -8,6 +8,58 @@ import { getCoverUrl, getBannerUrl, getScreenshotUrl } from "../../utils/media";
 import { Section } from "../../components/ui/Section";
 import { Icon, icons } from "../../components/ui/Icon";
 
+const SCREENSHOT_LIMIT = 10;
+const SCREENSHOT_GRID_LIMIT = 4;
+
+function screenshotCard(gameTitle, screenshot, index, total) {
+  return `
+    <figure class="screenshot-card">
+      <img src="${getScreenshotUrl(screenshot)}"
+           alt="Captura de tela ${index + 1} de ${total} de ${gameTitle}"
+           width="800" height="450" loading="lazy" />
+    </figure>
+  `;
+}
+
+export function renderScreenshotGallery(gameTitle, screenshots = []) {
+  const visibleScreenshots = [...screenshots]
+    .sort((first, second) => Number(first.position || 1) - Number(second.position || 1))
+    .slice(0, SCREENSHOT_LIMIT);
+
+  if (!visibleScreenshots.length) {
+    return `
+      <div class="screenshot-empty" role="status">
+        <img src="${getScreenshotUrl(null)}" alt="" width="800" height="450" />
+        <p>Sem imagens disponíveis deste jogo.</p>
+      </div>
+    `;
+  }
+
+  const cards = visibleScreenshots
+    .map((screenshot, index) => screenshotCard(gameTitle, screenshot, index, visibleScreenshots.length))
+    .join("");
+
+  if (visibleScreenshots.length <= SCREENSHOT_GRID_LIMIT) {
+    return `<div class="screenshot-grid">${cards}</div>`;
+  }
+
+  return `
+    <div class="screenshot-carousel" data-screenshot-carousel>
+      <div class="screenshot-carousel__controls" aria-label="Controles das capturas de tela">
+        <button type="button" data-carousel-direction="-1" aria-label="Mostrar capturas anteriores">
+          ${Icon(icons.arrowLeft, { className: "w-4 h-4" })}
+        </button>
+        <button type="button" data-carousel-direction="1" aria-label="Mostrar próximas capturas">
+          ${Icon(icons.arrowLeft, { className: "w-4 h-4 rotate-180" })}
+        </button>
+      </div>
+      <div class="screenshot-carousel__rail" tabindex="0" aria-label="Capturas de tela de ${gameTitle}">
+        ${cards}
+      </div>
+    </div>
+  `;
+}
+
 export default async function GamePage({ slug }) {
   const game = await GamesService.getBySlug(slug);
 
@@ -100,26 +152,10 @@ export default async function GamePage({ slug }) {
         }
 
         <!-- Screenshots -->
-        ${
-          screenshots.length
-            ? Section({
-                title: "Capturas de Tela",
-                body: `
-                  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-                    ${screenshots
-                      .map(
-                        (s) => `
-                      <div class="w-full aspect-video bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)] card-hover-glow"
-                           role="img" aria-label="Captura de tela de ${game.title}"
-                           style="background-image: url('${getScreenshotUrl(s)}')"></div>
-                    `
-                      )
-                      .join("")}
-                  </div>
-                `,
-              })
-            : ""
-        }
+        ${Section({
+          title: "Capturas de Tela",
+          body: renderScreenshotGallery(game.title, screenshots),
+        })}
 
         <!-- Requisitos de Sistema -->
         ${
@@ -307,14 +343,28 @@ export async function afterRender({ slug }) {
   if (!game) return;
 
   // Adicionar ao Carrinho
-  document.getElementById("btn-add-cart")?.addEventListener("click", () => {
-    Actions.adicionarAoCarrinho(game);
+  document.getElementById("btn-add-cart")?.addEventListener("click", async () => {
+    await Actions.adicionarAoCarrinho(game);
     navigate("/cart");
   });
 
   // Alternar Lista de Desejos
-  document.getElementById("btn-wishlist")?.addEventListener("click", () => {
-    Actions.alternarListaDesejos(game);
+  document.getElementById("btn-wishlist")?.addEventListener("click", async () => {
+    await Actions.alternarListaDesejos(game);
     navigate(`/game/${slug}`);
+  });
+
+  document.querySelectorAll("[data-screenshot-carousel]").forEach((carousel) => {
+    const rail = carousel.querySelector(".screenshot-carousel__rail");
+    if (!rail) return;
+
+    carousel.querySelectorAll("[data-carousel-direction]").forEach((button) => {
+      button.addEventListener("click", () => {
+        rail.scrollBy({
+          left: Number(button.dataset.carouselDirection) * rail.clientWidth * 0.85,
+          behavior: "smooth",
+        });
+      });
+    });
   });
 }

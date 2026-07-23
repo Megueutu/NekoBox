@@ -4,6 +4,9 @@ import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 import { auto as autoFormat } from "@cloudinary/url-gen/qualifiers/format";
 import { auto as autoQuality } from "@cloudinary/url-gen/qualifiers/quality";
 import { cld } from "../core/cloudinary/cloudinary";
+import { MISSING_MEDIA_URL } from "./media-fallback";
+
+export { MISSING_MEDIA_URL } from "./media-fallback";
 
 /**
  * Gera uma URL otimizada do Cloudinary (crop "fill" + gravidade automática +
@@ -16,9 +19,13 @@ import { cld } from "../core/cloudinary/cloudinary";
 export function buildCloudinaryUrl(publicId, { width, height } = {}) {
   if (!cld || !publicId) return null;
 
-  return cld
-    .image(publicId)
-    .resize(fill().width(width).height(height).gravity(autoGravity()))
+  let image = cld.image(publicId);
+
+  if (width && height) {
+    image = image.resize(fill().width(width).height(height).gravity(autoGravity()));
+  }
+
+  return image
     .delivery(format(autoFormat()))
     .delivery(quality(autoQuality()))
     .toURL();
@@ -42,7 +49,7 @@ export function getCoverUrl(game) {
   return resolveMediaUrl(cover, {
     width: 400,
     height: 600,
-    fallback: "https://picsum.photos/seed/default/400/600",
+    fallback: MISSING_MEDIA_URL,
   });
 }
 
@@ -51,7 +58,7 @@ export function getBannerUrl(game) {
   return resolveMediaUrl(banner, {
     width: 1920,
     height: 1080,
-    fallback: "https://picsum.photos/seed/defaultbanner/1920/1080",
+    fallback: MISSING_MEDIA_URL,
   });
 }
 
@@ -59,6 +66,6 @@ export function getScreenshotUrl(mediaItem) {
   return resolveMediaUrl(mediaItem, {
     width: 800,
     height: 450,
-    fallback: "https://picsum.photos/seed/defaultscreenshot/800/450",
+    fallback: MISSING_MEDIA_URL,
   });
 }

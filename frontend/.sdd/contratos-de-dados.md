@@ -34,13 +34,28 @@ Os exemplos abaixo representam o formato consumido pelas telas. Uma API futura d
 {
   "id": "media-id",
   "type": "cover",
-  "public_id": "nexusplay/games/cyberpunk-cover",
+  "public_id": "nekobox/games/cyberpunk-2077/cover",
   "url": "https://example.com/fallback.webp",
   "position": 1
 }
 ```
 
 Tipos reconhecidos: `cover`, `banner` e `screenshot`. `public_id` é preferível para Cloudinary; `url` é o fallback. `position` ordena mídias do mesmo tipo.
+
+Para arquivos inseridos manualmente no Cloudinary, o catálogo local reconhece esta convenção de `public_id`:
+
+```text
+nekobox/games/{slug}/cover
+nekobox/games/{slug}/banner
+nekobox/games/{slug}/screenshot-1
+nekobox/games/{slug}/screenshot-2
+...
+nekobox/games/{slug}/screenshot-10
+```
+
+Cada jogo aceita de 0 a 10 screenshots. Sem screenshots, a página mantém a seção e exibe o estado “Sem imagens disponíveis deste jogo”. A galeria mantém o grid com até 4 imagens e usa um carrossel horizontal quando houver entre 5 e 10. Capas e banners ausentes usam um fallback local de mídia indisponível.
+
+A extensão original (`.png`, `.jpg`, `.avif`) não faz parte do `public_id`. Assim, um PNG enviado como `nekobox/games/hades/cover` é resolvido pelo mesmo identificador.
 
 ## Avaliação e dados auxiliares
 

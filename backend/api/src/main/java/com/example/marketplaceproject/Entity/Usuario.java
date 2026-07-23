@@ -1,13 +1,19 @@
 package com.example.marketplaceproject.Entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
+import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,5 +54,18 @@ public class Usuario {
     @Builder.Default
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal saldo = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PapelUsuario papel = PapelUsuario.USER;
+
+    @CreationTimestamp
+    @Column(name = "criado_em", nullable = false, updatable = false)
+    private LocalDateTime criadoEm;
+
+    @UpdateTimestamp
+    @Column(name = "atualizado_em", nullable = false)
+    private LocalDateTime atualizadoEm;
 
 }

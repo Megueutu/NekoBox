@@ -1,6 +1,6 @@
 # Design system visual
 
-O NexusPlay usa uma interface escura e editorial, com roxo como marca e âmbar reservado a preço e qualidade. A hierarquia vem de tipografia, fotografia, espaçamento e contraste entre superfícies — não da repetição de bordas e gradientes.
+O NekoBox usa uma interface escura e editorial, com roxo como marca e âmbar reservado a preço e qualidade. A hierarquia vem de tipografia, fotografia, espaçamento e contraste entre superfícies — não da repetição de bordas e gradientes.
 
 ## Tokens
 

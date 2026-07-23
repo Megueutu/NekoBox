@@ -1,112 +1,60 @@
 import { auth, googleProvider } from "../../core/firebase/firebase";
 import { signInWithPopup, signOut as fbSignOut } from "firebase/auth";
+import { ApiClient } from "../api/api.client";
+import { AccountService } from "../account/account.service";
 import { Actions } from "../../store/actions";
+
+async function persistSession(session) {
+  localStorage.setItem("access_token", session.access_token);
+
+  const [user, cart, wishlist, library] = await Promise.all([
+    AccountService.getProfile(),
+    AccountService.getCart(),
+    AccountService.getWishlist(),
+    AccountService.getLibrary(),
+  ]);
+  Actions.hydrateAccount({ user, cart, wishlist, library });
+  return user;
+}
 
 export const AuthService = {
   async loginComGoogle() {
-    if (auth && googleProvider) {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const fbUser = result.user;
-        const mappedUser = {
-          id: fbUser.uid,
-          username: fbUser.email.split("@")[0],
-          email: fbUser.email,
-          avatar_url:
-            fbUser.photoURL || "https://picsum.photos/seed/avatar/150/150",
-          bio: "Autenticado via Google Auth Provider.",
-          is_developer: false,
-        };
-        localStorage.setItem("access_token", fbUser.accessToken);
-        Actions.setUser(mappedUser);
-        return mappedUser;
-      } catch (err) {
-        console.error("Falha no login via Firebase:", err);
-        throw err;
-      }
+    if (!auth || !googleProvider) {
+      throw new Error("Login com Google não está configurado neste ambiente.");
     }
-
-    return new Promise((resolve) => {
-      const mockUser = {
-        id: "usr_mock_sandbox_99",
-        username: "jogador_sandbox",
-        email: "sandbox@gamestore.com",
-        avatar_url: "https://picsum.photos/seed/avatar99/150/150",
-        bio: "Perfil de teste — ambiente de desenvolvimento local.",
-        is_developer: false,
-      };
-      localStorage.setItem(
-        "access_token",
-        "eyJhbGciOiJIUzI1NiIs.mockTokenActive.dev"
-      );
-      Actions.setUser(mockUser);
-      setTimeout(() => resolve(mockUser), 150);
-    });
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+    const session = await ApiClient.post("/api/auth/firebase", { id_token: idToken });
+    return persistSession(session);
   },
 
   async loginComEmail(email, password) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (!email || !password) {
-          reject(new Error("E-mail e senha são obrigatórios."));
-          return;
-        }
-        const mockUser = {
-          id: `usr_email_${Date.now()}`,
-          username: email.split("@")[0],
-          email,
-          avatar_url: "https://picsum.photos/seed/emailuser/150/150",
-          bio: "Usuário autenticado via e-mail.",
-          is_developer: false,
-        };
-        localStorage.setItem("access_token", `mock_email_token_${Date.now()}`);
-        Actions.setUser(mockUser);
-        resolve(mockUser);
-      }, 200);
-    });
+    if (!email || !password) throw new Error("E-mail e senha são obrigatórios.");
+    const session = await ApiClient.post("/api/auth/login", { email, senha: password });
+    return persistSession(session);
   },
 
   async registrar(username, email, password) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (!username || !email || !password) {
-          reject(new Error("Todos os campos são obrigatórios."));
-          return;
-        }
-        if (password.length < 6) {
-          reject(new Error("Senha deve ter ao menos 6 caracteres."));
-          return;
-        }
-        const newUser = {
-          id: `usr_new_${Date.now()}`,
-          username,
-          email,
-          avatar_url: "https://picsum.photos/seed/newuser/150/150",
-          bio: "Novo usuário cadastrado.",
-          is_developer: false,
-        };
-        localStorage.setItem("access_token", `mock_register_token_${Date.now()}`);
-        Actions.setUser(newUser);
-        resolve(newUser);
-      }, 250);
-    });
+    if (!username || !email || !password) throw new Error("Todos os campos são obrigatórios.");
+    await ApiClient.post("/api/usuarios", { nome_usuario: username, email, senha: password });
+    return this.loginComEmail(email, password);
   },
 
-  async enviarRedefinicaoSenha(email) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`[Mock] E-mail de redefinição enviado para: ${email}`);
-        resolve({ success: true });
-      }, 200);
-    });
+  async enviarRedefinicaoSenha() {
+    throw new Error("A recuperação de senha ainda não está disponível.");
   },
 
   async logout() {
+    try {
+      await ApiClient.post("/api/auth/logout");
+    } catch {
+      // A sessão local também precisa ser encerrada quando o token já expirou.
+    }
     if (auth) {
       try {
         await fbSignOut(auth);
-      } catch (err) {
-        console.warn("Erro ao deslogar do Firebase:", err);
+      } catch {
+        // O logout da aplicação não depende da sessão opcional do Firebase.
       }
     }
     localStorage.removeItem("access_token");

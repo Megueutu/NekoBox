@@ -4,7 +4,7 @@ export function Footer() {
       <div class="site-container site-footer__grid">
 
         <div class="site-footer__brand">
-          <p class="font-display font-bold text-lg mb-2 text-gradient-brand">NEXUSPLAY</p>
+          <p class="font-display font-bold text-lg mb-2 text-gradient-brand">NEKOBOX</p>
           <p class="text-muted text-sm leading-relaxed">
             Marketplace de jogos digitais.<br>
             Compre, jogue e gerencie sua biblioteca.
@@ -35,8 +35,8 @@ export function Footer() {
           <p class="text-[var(--color-ink)] font-semibold text-sm mb-4">Suporte</p>
           <ul class="space-y-2.5">
             <li><a href="/acessibilidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Acessibilidade</a></li>
-            <li><span class="text-[var(--color-muted-2)] text-sm">Termos de Uso · Em breve</span></li>
-            <li><span class="text-[var(--color-muted-2)] text-sm">Privacidade · Em breve</span></li>
+            <li><a href="/termos-de-uso" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Termos de Uso</a></li>
+            <li><a href="/privacidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Privacidade</a></li>
           </ul>
         </div>
 
@@ -44,7 +44,7 @@ export function Footer() {
 
       <div class="border-t border-[var(--color-border)] px-4 py-4">
         <p class="text-[var(--color-muted-2)] text-xs text-center">
-          © ${new Date().getFullYear()} NEXUSPLAY — Marketplace de Jogos Digitais. Todos os direitos reservados.
+          © ${new Date().getFullYear()} NEKOBOX — Marketplace de Jogos Digitais. Todos os direitos reservados.
         </p>
       </div>
     </footer>

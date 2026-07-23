@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 public enum TipoFoto {
     BANNER("banner", false),
-    POSTER("poster", false),
-    DEMO("demo", true);
+    COVER("cover", false),
+    SCREENSHOT("screenshot", true);
 
     private final String valor;
     private final boolean permiteMultiplas;

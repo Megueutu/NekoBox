@@ -40,11 +40,11 @@ export default function SettingsPage() {
         <div>
           <p class="section-heading__eyebrow mb-2">Seu espaço, suas regras</p>
           <h1>Configurações</h1>
-          <p>Personalize a aparência e o ritmo da NexusPlay. As escolhas ficam salvas neste dispositivo.</p>
+          <p>Personalize a aparência e o ritmo do NekoBox. As escolhas ficam salvas neste dispositivo.</p>
         </div>
         <div class="settings-preview" aria-hidden="true">
           <span></span><span></span><span></span>
-          <strong>NEXUSPLAY</strong>
+          <strong>NEKOBOX</strong>
           <small>Prévia ao vivo</small>
         </div>
       </header>

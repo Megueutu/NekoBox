@@ -1,8 +1,10 @@
 package com.example.marketplaceproject.Controller;
 
 import com.example.marketplaceproject.Entity.Usuario;
+import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Service.CloudinaryService;
 import com.example.marketplaceproject.Service.UsuarioService;
+import com.example.marketplaceproject.Service.SessaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,11 +31,12 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final CloudinaryService cloudinaryService;
+    private final SessaoService sessaoService;
 
     public record CadastroRequest(String nomeUsuario, String email, String senha) {
     }
 
-    public record AtualizarPerfilRequest(String nomeUsuario, String biografia) {
+    public record AtualizarPerfilRequest(String username, String bio, String avatarUrl) {
     }
 
     public record AlterarSenhaRequest(String senhaAtual, String novaSenha) {
@@ -42,8 +46,8 @@ public class UsuarioController {
     }
 
     public record PerfilResponse(
-            Integer id, String nomeUsuario, String email, String urlAvatar,
-            String biografia, BigDecimal saldo) {
+            String id, String username, String email, String avatarUrl,
+            String bio, BigDecimal balance, PapelUsuario role) {
     }
 
     public record AvatarResponse(String urlAvatar) {
@@ -67,27 +71,32 @@ public class UsuarioController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<PerfilResponse> buscarMeuPerfil(@RequestParam Integer usuarioId) {
+    public ResponseEntity<PerfilResponse> buscarMeuPerfil(@RequestHeader("Authorization") String authorization) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         return ResponseEntity.ok(paraPerfilResponse(usuarioService.buscarPorId(usuarioId)));
     }
 
     @PutMapping("/me")
     public ResponseEntity<PerfilResponse> atualizarPerfil(
-            @RequestParam Integer usuarioId, @RequestBody AtualizarPerfilRequest request) {
-        Usuario usuario = usuarioService.atualizarPerfil(usuarioId, request.nomeUsuario(), request.biografia());
+            @RequestHeader("Authorization") String authorization, @RequestBody AtualizarPerfilRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
+        Usuario usuario = usuarioService.atualizarPerfil(
+                usuarioId, request.username(), request.bio(), request.avatarUrl());
         return ResponseEntity.ok(paraPerfilResponse(usuario));
     }
 
     @PatchMapping("/me/senha")
     public ResponseEntity<Void> alterarSenha(
-            @RequestParam Integer usuarioId, @RequestBody AlterarSenhaRequest request) {
+            @RequestHeader("Authorization") String authorization, @RequestBody AlterarSenhaRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         usuarioService.alterarSenha(usuarioId, request.senhaAtual(), request.novaSenha());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AvatarResponse> enviarAvatar(
-            @RequestParam Integer usuarioId, @RequestParam("arquivo") MultipartFile arquivo) {
+            @RequestHeader("Authorization") String authorization, @RequestParam("arquivo") MultipartFile arquivo) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         Usuario usuarioAtual = usuarioService.buscarPorId(usuarioId);
         if (usuarioAtual.getAvatarPublicId() != null) {
             cloudinaryService.remover(usuarioAtual.getAvatarPublicId());
@@ -99,7 +108,8 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/me/avatar")
-    public ResponseEntity<Void> removerAvatar(@RequestParam Integer usuarioId) {
+    public ResponseEntity<Void> removerAvatar(@RequestHeader("Authorization") String authorization) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
         Usuario usuarioAtual = usuarioService.buscarPorId(usuarioId);
         cloudinaryService.remover(usuarioAtual.getAvatarPublicId());
         usuarioService.removerAvatar(usuarioId);
@@ -108,7 +118,7 @@ public class UsuarioController {
 
     private PerfilResponse paraPerfilResponse(Usuario usuario) {
         return new PerfilResponse(
-                usuario.getId(), usuario.getNomeUsuario(), usuario.getEmail(), usuario.getUrlAvatar(),
-                usuario.getBiografia(), usuario.getSaldo());
+                usuario.getId().toString(), usuario.getNomeUsuario(), usuario.getEmail(), usuario.getUrlAvatar(),
+                usuario.getBiografia(), usuario.getSaldo(), usuario.getPapel());
     }
 }

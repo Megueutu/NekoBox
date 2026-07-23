@@ -1,0 +1,29 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: infra/database/postgres/Dockerfile
+    container_name: nekobox-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nekobox}
+      POSTGRES_USER: ${POSTGRES_USER:-nekobox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nekobox_local}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - nekobox-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          psql --username=$${POSTGRES_USER} --dbname=$${POSTGRES_DB}
+          --tuples-only --command="SELECT COUNT(*) FROM produtos WHERE status = 'published'"
+          | grep -q '6'
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  nekobox-postgres-data:
