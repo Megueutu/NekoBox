@@ -22,7 +22,6 @@
     "dotenv": "^17.4.2",
     "firebase": "^12.14.0",
     "lucide": "1.24.0",
-    "next-cloudinary": "^6.17.5",
     "tailwindcss": "^4.3.0"
   }
 }
