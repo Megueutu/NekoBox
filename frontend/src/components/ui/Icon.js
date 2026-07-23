@@ -15,6 +15,7 @@ import {
   Star,
   Trash2,
   User,
+  Wallet,
   X,
   createElement,
 } from "lucide";
@@ -36,6 +37,7 @@ export const icons = Object.freeze({
   star: Star,
   trash: Trash2,
   user: User,
+  wallet: Wallet,
   x: X,
 });
 

@@ -17,6 +17,19 @@ export const AccountService = {
     return normalizeUser(await ApiClient.get("/api/usuarios/me"));
   },
 
+  async getWallet() {
+    const wallet = await ApiClient.get("/api/carteira");
+    return { saldo: Number(wallet.saldo) };
+  },
+
+  async redeemGiftCard(codigo) {
+    const result = await ApiClient.post("/api/carteira/gift-cards/resgates", { codigo });
+    return {
+      valor_creditado: Number(result.valor_creditado),
+      saldo: Number(result.saldo),
+    };
+  },
+
   async updateProfile(username, bio, avatarUrl) {
     return normalizeUser(await ApiClient.put("/api/usuarios/me", { username, bio, avatar_url: avatarUrl }));
   },

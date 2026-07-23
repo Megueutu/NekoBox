@@ -121,6 +121,23 @@ CREATE TABLE IF NOT EXISTS sessoes (
 CREATE INDEX IF NOT EXISTS idx_sessoes_usuario ON sessoes(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_sessoes_expira_em ON sessoes(expira_em);
 
+CREATE TABLE IF NOT EXISTS gift_cards (
+    id BIGSERIAL PRIMARY KEY,
+    codigo_hash VARCHAR(64) NOT NULL UNIQUE,
+    valor NUMERIC(12,2) NOT NULL CHECK (valor > 0),
+    resgatado_por_usuario_id INT REFERENCES usuarios(id) ON DELETE RESTRICT,
+    resgatado_em TIMESTAMP,
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+        (resgatado_por_usuario_id IS NULL AND resgatado_em IS NULL) OR
+        (resgatado_por_usuario_id IS NOT NULL AND resgatado_em IS NOT NULL)
+    )
+);
+
+CREATE INDEX IF NOT EXISTS idx_gift_cards_resgatado_por
+    ON gift_cards(resgatado_por_usuario_id)
+    WHERE resgatado_por_usuario_id IS NOT NULL;
+
 INSERT INTO usuarios (nome_usuario, email, senha, saldo, biografia)
 VALUES ('NekoBox Studios', 'catalog@nekobox.local', '$2a$10$catalogUserCannotAuthenticate000000000000000000000', 0.00, 'Publicadora do catálogo de demonstração do NekoBox.')
 ON CONFLICT (email) DO UPDATE SET
@@ -137,6 +154,12 @@ ON CONFLICT (email) DO UPDATE SET
     saldo = EXCLUDED.saldo,
     biografia = EXCLUDED.biografia,
     atualizado_em = CURRENT_TIMESTAMP;
+
+INSERT INTO gift_cards (codigo_hash, valor) VALUES
+('42bf332b84b2ad22d565e4e7dda570ba9cf60d329e33bd3bd3786d3f8bb29e31', 25.00),
+('f4fe29a26149fb23426bfebc9d427e2b5bac90b59fd6eaaa8bbcb02df10fe76b', 50.00),
+('52e4992ae188ea6a2a64a6b9f4b526a3bd146b86e3426ea2bca2e1b70ddd76a6', 100.00)
+ON CONFLICT (codigo_hash) DO NOTHING;
 
 INSERT INTO categorias (nome) VALUES
 ('RPG'), ('Ação'), ('Aventura'), ('Mundo Aberto'), ('Fantasia'), ('Ficção Científica'),

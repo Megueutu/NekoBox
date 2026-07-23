@@ -1,5 +1,6 @@
 import { Store } from "../../store/store";
 import { Icon, icons } from "../ui/Icon";
+import { WalletDialog } from "../wallet/WalletDialog";
 
 export function Navbar() {
   const { cart, wishlist, user } = Store.getState();
@@ -51,6 +52,7 @@ export function Navbar() {
               <a href="/library" data-link ${currentPath === "/library" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
               <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
               <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
+              ${user ? '<button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>' : ""}
               <a href="/profile" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
             </nav>
           </details>
@@ -75,6 +77,14 @@ export function Navbar() {
 
           ${
             user
+              ? `<button type="button" data-wallet-trigger class="nav-icon-link hidden sm:flex" aria-haspopup="dialog" aria-controls="wallet-dialog" aria-label="Abrir carteira">
+                  ${Icon(icons.wallet, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                </button>`
+              : ""
+          }
+
+          ${
+            user
               ? `
             <a href="/profile" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
               <div class="w-8 h-8 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] border-2 border-[var(--color-brand-500)]/60 hover:border-[var(--color-accent-400)] transition-colors"
@@ -92,5 +102,6 @@ export function Navbar() {
 
       </div>
     </nav>
+    ${user ? WalletDialog() : ""}
   `;
 }
