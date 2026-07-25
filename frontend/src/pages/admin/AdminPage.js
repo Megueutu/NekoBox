@@ -181,7 +181,7 @@ function gamesSection(games) {
 
 function adminDialog() {
   return `
-    <dialog id="admin-dialog" class="admin-dialog">
+    <dialog id="admin-dialog" class="admin-dialog" aria-labelledby="admin-dialog-title">
       <div class="admin-dialog__frame">
         <button type="button" class="admin-dialog__close" data-admin-dialog-close aria-label="Fechar">${Icon(icons.x, { className: "w-5 h-5" })}</button>
         <div id="admin-dialog-content"></div>
@@ -234,16 +234,17 @@ function showToast(message, error = false) {
 function openUserDialog(user = null) {
   const dialog = document.getElementById("admin-dialog");
   const content = document.getElementById("admin-dialog-content");
+  dialog.dataset.variant = "user";
   content.innerHTML = `
-    <header><p>${user ? "Editar conta" : "Nova conta"}</p><h2>${user ? escapeHtml(user.nome_usuario) : "Criar usuário"}</h2></header>
+    <header><p>${user ? "Editar conta" : "Nova conta"}</p><h2 id="admin-dialog-title">${user ? escapeHtml(user.nome_usuario) : "Criar usuário"}</h2></header>
     <form id="admin-resource-form" data-kind="user" data-resource-id="${user?.id || ""}" class="admin-resource-form">
       <label>Nome de usuário<input name="nome_usuario" minlength="3" maxlength="50" value="${escapeHtml(user?.nome_usuario || "")}" required></label>
       <label>E-mail<input name="email" type="email" value="${escapeHtml(user?.email || "")}" required></label>
       <label>${user ? "Nova senha (opcional)" : "Senha"}<input name="senha" type="password" ${user ? "" : "required"} autocomplete="new-password"></label>
       <label>Saldo<input name="saldo" type="number" min="0" step="0.01" value="${user?.saldo ?? "1000.00"}" required></label>
       <p class="admin-form-hint">Senha: 8+ caracteres, maiúscula, minúscula, número e símbolo.</p>
-      <button class="button-primary" type="submit">${user ? "Salvar alterações" : "Criar usuário"}</button>
-      <p class="admin-form-error hidden" role="alert"></p>
+      <button class="button-primary admin-form-wide" type="submit">${user ? "Salvar alterações" : "Criar usuário"}</button>
+      <p class="admin-form-error admin-form-wide hidden" role="alert"></p>
     </form>`;
   dialog.showModal();
   content.querySelector("input")?.focus();
@@ -252,8 +253,9 @@ function openUserDialog(user = null) {
 function openGameDialog(game = null) {
   const dialog = document.getElementById("admin-dialog");
   const content = document.getElementById("admin-dialog-content");
+  dialog.dataset.variant = "game";
   content.innerHTML = `
-    <header><p>${game ? "Editar catálogo" : "Novo catálogo"}</p><h2>${game ? escapeHtml(game.titulo) : "Cadastrar jogo"}</h2></header>
+    <header><p>${game ? "Editar catálogo" : "Novo catálogo"}</p><h2 id="admin-dialog-title">${game ? escapeHtml(game.titulo) : "Cadastrar jogo"}</h2></header>
     <form id="admin-resource-form" data-kind="game" data-resource-id="${game?.id || ""}" class="admin-resource-form">
       <label>Título<input name="titulo" maxlength="255" value="${escapeHtml(game?.titulo || "")}" required></label>
       <label>Descrição curta<input name="descricao_curta" maxlength="300" value="${escapeHtml(game?.descricao_curta || "")}"></label>
@@ -262,6 +264,25 @@ function openGameDialog(game = null) {
       <label>Data de lançamento<input name="data_lancamento" type="date" value="${game?.data_lancamento || ""}"></label>
       <label>Status<select name="status"><option value="draft" ${game?.status === "draft" ? "selected" : ""}>Rascunho</option><option value="published" ${game?.status === "published" ? "selected" : ""}>Publicado</option><option value="archived" ${game?.status === "archived" ? "selected" : ""}>Arquivado</option></select></label>
       <label>Tags<input name="tags" value="${escapeHtml((game?.tags || []).join(", "))}" placeholder="RPG, Ação, Indie"></label>
+      <fieldset class="admin-media-fields admin-form-wide">
+        <legend>Mídias do jogo</legend>
+        <p>JPEG, PNG ou GIF de até 10 MB. Capa e banner substituem a imagem atual.</p>
+        <div class="admin-media-inputs">
+          <label>Capa<input name="cover" type="file" accept="image/jpeg,image/png,image/gif"></label>
+          <label>Banner<input name="banner" type="file" accept="image/jpeg,image/png,image/gif"></label>
+          <label>Capturas de tela<input name="screenshots" type="file" accept="image/jpeg,image/png,image/gif" multiple></label>
+        </div>
+        <div class="admin-media-preview" data-media-preview aria-live="polite">
+          ${(game?.midias || []).map((media) => `
+            <figure class="admin-media-item" data-existing-media="${media.id}">
+              <img src="${escapeHtml(media.url)}" alt="">
+              <figcaption><span>${media.tipo === "screenshot" ? `Screenshot ${media.posicao}` : media.tipo}</span>
+                <button type="button" data-admin-delete-media="${media.id}" data-game-id="${game.id}" aria-label="Remover ${media.tipo}">${Icon(icons.trash, { className: "w-4 h-4" })}</button>
+              </figcaption>
+            </figure>
+          `).join("")}
+        </div>
+      </fieldset>
       <button class="button-primary admin-form-wide" type="submit">${game ? "Salvar alterações" : "Cadastrar jogo"}</button>
       <p class="admin-form-error admin-form-wide hidden" role="alert"></p>
     </form>`;
@@ -298,8 +319,17 @@ async function submitResourceForm(form) {
         tags: String(data.get("tags") || "").split(",").map((tag) => tag.trim()).filter(Boolean),
         categoria_ids: current?.categoria_ids || [],
       };
-      if (id) await AdminService.updateGame(id, payload);
-      else await AdminService.createGame(payload);
+      const savedGame = id
+        ? await AdminService.updateGame(id, payload)
+        : await AdminService.createGame(payload);
+      const uploads = [
+        ...filesToUpload(data.get("cover"), "cover"),
+        ...filesToUpload(data.get("banner"), "banner"),
+        ...Array.from(data.getAll("screenshots")).flatMap((file) => filesToUpload(file, "screenshot")),
+      ];
+      for (const upload of uploads) {
+        await AdminService.uploadGameMedia(savedGame.id, upload.type, upload.file);
+      }
     }
     document.getElementById("admin-dialog").close();
     window.dispatchEvent(new CustomEvent("rerender"));
@@ -308,6 +338,37 @@ async function submitResourceForm(form) {
     error.classList.remove("hidden");
     submit.disabled = false;
   }
+}
+
+function filesToUpload(file, type) {
+  return file instanceof File && file.size > 0 ? [{ file, type }] : [];
+}
+
+function renderSelectedMedia(form) {
+  const preview = form.querySelector("[data-media-preview]");
+  preview.querySelectorAll("[data-selected-media]").forEach((item) => {
+    URL.revokeObjectURL(item.querySelector("img").src);
+    item.remove();
+  });
+  const data = new FormData(form);
+  const selections = [
+    ...filesToUpload(data.get("cover"), "cover"),
+    ...filesToUpload(data.get("banner"), "banner"),
+    ...Array.from(data.getAll("screenshots"))
+      .flatMap((file) => filesToUpload(file, "screenshot")),
+  ];
+  selections.forEach(({ file, type }) => {
+    const figure = document.createElement("figure");
+    figure.className = "admin-media-item admin-media-item--selected";
+    figure.dataset.selectedMedia = "";
+    const image = document.createElement("img");
+    image.src = URL.createObjectURL(file);
+    image.alt = "";
+    const caption = document.createElement("figcaption");
+    caption.textContent = `${type === "screenshot" ? "Screenshot" : type} — ${file.name}`;
+    figure.append(image, caption);
+    preview.append(figure);
+  });
 }
 
 export function afterRender() {
@@ -395,5 +456,23 @@ export function afterRender() {
     if (event.target.id !== "admin-resource-form") return;
     event.preventDefault();
     submitResourceForm(event.target);
+  });
+
+  document.getElementById("admin-dialog")?.addEventListener("change", (event) => {
+    if (event.target.type === "file") renderSelectedMedia(event.target.form);
+  });
+
+  document.getElementById("admin-dialog")?.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-admin-delete-media]");
+    if (!button) return;
+    button.disabled = true;
+    try {
+      await AdminService.deleteGameMedia(button.dataset.gameId, button.dataset.adminDeleteMedia);
+      button.closest("[data-existing-media]")?.remove();
+      showToast("Mídia removida.");
+    } catch (error) {
+      button.disabled = false;
+      showToast(error.message, true);
+    }
   });
 }

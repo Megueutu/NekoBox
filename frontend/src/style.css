@@ -1753,7 +1753,7 @@ sub {
 
 .admin-nav__item--active svg { color: var(--color-brand-400); }
 
-.admin-sidebar__footer {
+.admin-sidebar__actions {
   display: grid;
   gap: 0.25rem;
   margin-top: auto;
@@ -1761,8 +1761,7 @@ sub {
   border-top: 1px solid var(--color-border);
 }
 
-.admin-sidebar__footer a,
-.admin-sidebar__footer button {
+.admin-sidebar__actions button {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -1774,8 +1773,7 @@ sub {
   font-weight: 650;
 }
 
-.admin-sidebar__footer a:hover,
-.admin-sidebar__footer button:hover {
+.admin-sidebar__actions button:hover {
   color: var(--color-ink);
   background: color-mix(in srgb, white 4%, transparent);
 }
@@ -2113,9 +2111,11 @@ sub {
 
 .admin-dialog {
   width: min(calc(100% - 2rem), 40rem);
-  max-height: min(90svh, 48rem);
+  max-width: none;
+  max-height: min(calc(100dvh - 2rem), 48rem);
+  margin: auto;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
   border: 1px solid color-mix(in srgb, white 12%, transparent);
   border-radius: 1rem;
   color: var(--color-ink);
@@ -2123,19 +2123,29 @@ sub {
   box-shadow: 0 36px 100px -30px black;
 }
 
+.admin-dialog[data-variant="game"] {
+  width: min(calc(100% - 2rem), 54rem);
+}
+
 .admin-dialog::backdrop { background: rgba(3, 3, 7, 0.76); backdrop-filter: blur(5px); }
 
 .admin-dialog__frame {
   position: relative;
-  max-height: min(90svh, 48rem);
-  padding: clamp(1.25rem, 4vw, 2rem);
-  overflow-y: auto;
+  max-height: min(calc(100dvh - 2rem), 48rem);
+  overflow: hidden;
+}
+
+#admin-dialog-content {
+  display: grid;
+  max-height: inherit;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .admin-dialog__close {
   position: absolute;
-  top: 0.85rem;
-  right: 0.85rem;
+  top: 1.15rem;
+  right: 1.25rem;
+  z-index: 2;
   display: grid;
   width: 2.2rem;
   height: 2.2rem;
@@ -2145,14 +2155,22 @@ sub {
 }
 
 .admin-dialog__close:hover { color: var(--color-ink); background: var(--color-surface-2); }
-.admin-dialog header { padding-right: 2.5rem; }
+.admin-dialog header {
+  padding: 1.5rem 4.25rem 1.15rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 96%, black);
+}
 .admin-dialog header h2 { margin-top: 0.25rem; font-size: 1.45rem; }
 
 .admin-resource-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
-  margin-top: 1.5rem;
+  min-height: 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .admin-resource-form label { display: grid; gap: 0.4rem; }
@@ -2177,6 +2195,34 @@ sub {
 .admin-resource-form .button-primary { min-height: 2.8rem; margin-top: 0.2rem; }
 .admin-form-hint { grid-column: 1 / -1; color: var(--color-muted-2); font-size: 0.62rem; }
 .admin-form-error { color: #fb7185; font-size: 0.68rem; text-align: center; }
+
+.admin-media-fields {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+}
+
+.admin-media-fields legend { padding-inline: 0.35rem; color: var(--color-ink); font-size: 0.75rem; font-weight: 800; }
+.admin-media-fields > p { margin-bottom: 0.85rem; color: var(--color-muted-2); font-size: 0.62rem; line-height: 1.5; }
+.admin-media-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
+.admin-media-inputs input[type="file"] { min-height: auto; padding: 0.55rem; font-size: 0.62rem; }
+.admin-media-inputs input[type="file"]::file-selector-button { margin-right: 0.5rem; border: 0; border-radius: 0.45rem; padding: 0.45rem 0.6rem; color: var(--color-ink); background: var(--color-surface-3); font-weight: 700; cursor: pointer; }
+
+.admin-media-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.admin-media-preview:empty { display: none; }
+.admin-media-item { min-width: 0; overflow: hidden; border: 1px solid var(--color-border); border-radius: 0.65rem; background: var(--color-surface-2); }
+.admin-media-item img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.admin-media-item figcaption { display: flex; min-height: 2.25rem; align-items: center; justify-content: space-between; gap: 0.35rem; padding: 0.45rem; color: var(--color-muted); font-size: 0.58rem; overflow-wrap: anywhere; }
+.admin-media-item figcaption button { display: grid; flex: 0 0 auto; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 0.45rem; color: #fb7185; }
+.admin-media-item figcaption button:hover { background: color-mix(in srgb, #fb7185 12%, transparent); }
+.admin-media-item--selected { border-color: color-mix(in srgb, var(--color-brand-400) 55%, var(--color-border)); }
 
 .admin-toast {
   position: fixed;
@@ -2210,7 +2256,7 @@ sub {
     border-top: 1px solid var(--color-border);
     border-right: 0;
   }
-  .admin-brand, .admin-sidebar__footer { display: none; }
+  .admin-brand, .admin-sidebar__actions { display: none; }
   .admin-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.25rem; margin: 0; }
   .admin-nav__item { min-height: 3rem; padding: 0.35rem; flex-direction: column; justify-content: center; gap: 0.2rem; font-size: 0.55rem; }
   .admin-main { width: 100%; margin-left: 0; padding: 1.25rem 1rem; }
@@ -2223,7 +2269,15 @@ sub {
   .admin-gift-grid { grid-template-columns: 1fr; }
   .admin-resource-form { grid-template-columns: 1fr; }
   .admin-form-wide, .admin-form-hint { grid-column: auto; }
-  .admin-dialog__frame { padding: 1.25rem; }
+  .admin-dialog {
+    width: min(calc(100% - 1rem), 40rem);
+    max-height: calc(100dvh - 1rem);
+  }
+  .admin-dialog[data-variant="game"] { width: min(calc(100% - 1rem), 54rem); }
+  .admin-dialog__frame { max-height: calc(100dvh - 1rem); }
+  .admin-dialog header { padding: 1.25rem 3.75rem 1rem 1.25rem; }
+  .admin-dialog__close { top: 0.9rem; right: 1rem; }
+  .admin-resource-form { padding: 1rem 1.25rem 1.25rem; }
 }
 
 @media (max-width: 420px) {
@@ -2864,6 +2918,8 @@ select:focus-visible,
   :root {
     --spacing-page: 1rem;
   }
+
+  .admin-media-inputs { grid-template-columns: 1fr; }
 
   .site-container {
     width: min(calc(100% - 1.25rem), 86rem);

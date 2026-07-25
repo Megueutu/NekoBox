@@ -9,7 +9,7 @@ vi.mock("../services/admin/admin.service", () => ({
   },
 }));
 
-import AdminPage from "../pages/admin/AdminPage";
+import AdminPage, { afterRender } from "../pages/admin/AdminPage";
 import { AdminService } from "../services/admin/admin.service";
 
 describe("Admin page", () => {
@@ -48,6 +48,9 @@ describe("Admin page", () => {
     expect(container.querySelector('[data-admin-panel="gift-cards"]')).not.toBeNull();
     expect(container.querySelector('[data-admin-panel="users"]')).not.toBeNull();
     expect(container.querySelector('[data-admin-panel="games"]')).not.toBeNull();
+    expect(container.querySelector("footer")).toBeNull();
+    expect(container.querySelector('a[href="/hub"]')).toBeNull();
+    expect(container.querySelector("#admin-logout")).not.toBeNull();
   });
 
   it("should protect the single admin from a delete action in the interface", async () => {
@@ -56,5 +59,41 @@ describe("Admin page", () => {
 
     expect(container.querySelector('[data-admin-delete-user="1"]')).toBeNull();
     expect(container.textContent).toContain("ADMIN");
+  });
+
+  it("should render the uploaded cover returned by the backend", async () => {
+    AdminService.getGames.mockResolvedValue([{
+      id: 10,
+      titulo: "Cyberpunk 2077",
+      slug: "cyberpunk-2077",
+      preco: 199.9,
+      status: "published",
+      midias: [{
+        id: 21,
+        tipo: "cover",
+        posicao: 1,
+        url: "https://res.cloudinary.com/demo/image/upload/cover.jpg",
+      }],
+      capa_url: "https://res.cloudinary.com/demo/image/upload/cover.jpg",
+    }]);
+    const container = document.createElement("div");
+
+    container.innerHTML = await AdminPage();
+
+    expect(container.querySelector(".admin-game-cover")?.getAttribute("style")).toContain("res.cloudinary.com");
+  });
+
+  it("should open the user editor with the normalized dialog structure", async () => {
+    document.body.innerHTML = await AdminPage();
+    const dialog = document.getElementById("admin-dialog");
+    dialog.showModal = vi.fn(() => dialog.setAttribute("open", ""));
+    afterRender();
+
+    document.querySelector('[data-admin-edit-user="1"]').click();
+
+    expect(dialog.dataset.variant).toBe("user");
+    expect(dialog.getAttribute("aria-labelledby")).toBe("admin-dialog-title");
+    expect(dialog.querySelector("#admin-dialog-title")?.textContent).toBe("admin");
+    expect(dialog.querySelector('button[type="submit"]')?.classList).toContain("admin-form-wide");
   });
 });

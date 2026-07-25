@@ -25,7 +25,7 @@ describe("Catalog Cloudinary media audit", () => {
     });
   });
 
-  it("should keep only media confirmed by the Cloudinary audit", async () => {
+  it("should replace seeded placeholders while preserving unmatched fallbacks", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const gameWithFallbacks = {
       ...game,
@@ -47,7 +47,30 @@ describe("Catalog Cloudinary media audit", () => {
       }),
     });
 
-    expect(games[0].media).toHaveLength(1);
+    expect(games[0].media).toHaveLength(2);
+    expect(games[0].media[0].public_id).toBe("nekobox/games/hades/cover");
+  });
+
+  it("should preserve media persisted from an admin upload", async () => {
+    const uploadedCover = {
+      type: "cover",
+      url: "https://res.cloudinary.com/demo/upload/generated.jpg",
+      public_id: "generated-public-id",
+      position: 1,
+    };
+
+    const games = await auditCatalogMedia([{ ...game, media: [uploadedCover] }], {
+      enabled: true,
+      loadReport: async () => ({
+        disponiveis: [
+          { slug: "hades", tipo: "cover", posicao: 1, public_id: "nekobox/games/hades/cover" },
+        ],
+        ausentes: [],
+        nomes_divergentes: [],
+      }),
+    });
+
+    expect(games[0].media[0]).toEqual(uploadedCover);
   });
 
   it("should warn with every missing expected public id", async () => {

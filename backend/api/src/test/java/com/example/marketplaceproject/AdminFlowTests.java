@@ -1,8 +1,11 @@
 package com.example.marketplaceproject;
 
 import com.example.marketplaceproject.Entity.Usuario;
+import com.example.marketplaceproject.Entity.Enuns.TipoFoto;
+import com.example.marketplaceproject.Repository.FotoRepository;
 import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Repository.UsuarioRepository;
+import com.example.marketplaceproject.Service.CloudinaryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,17 +14,24 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,6 +53,12 @@ class AdminFlowTests {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private FotoRepository fotoRepository;
+
+    @MockitoBean
+    private CloudinaryService cloudinaryService;
 
     private Integer adminId;
 
@@ -121,6 +137,34 @@ class AdminFlowTests {
                 .andExpect(jsonPath("$.mensagem").value("O administrador unico nao pode ser excluido."));
     }
 
+    @Test
+    void shouldUploadAndPersistAdminGameMedia() throws Exception {
+        String adminToken = login(ADMIN_EMAIL, ADMIN_PASSWORD);
+        Integer gameId = createGame(adminToken);
+        when(cloudinaryService.upload(any(), anyString()))
+                .thenReturn(new CloudinaryService.ResultadoUpload(
+                        "https://res.cloudinary.com/demo/image/upload/generated.jpg",
+                        "generated-public-id"));
+        MockMultipartFile image = new MockMultipartFile(
+                "arquivo", "cover.png", MediaType.IMAGE_PNG_VALUE, new byte[] { 1, 2, 3 });
+
+        mockMvc.perform(multipart("/api/admin/jogos/" + gameId + "/midias")
+                        .file(image)
+                        .param("tipo", "cover")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.public_id").value("generated-public-id"))
+                .andExpect(jsonPath("$.tipo").value("cover"));
+
+        org.junit.jupiter.api.Assertions.assertEquals(
+                1, fotoRepository.findByProduto_IdAndTipo(gameId, TipoFoto.COVER).size());
+
+        when(cloudinaryService.existe(anyString())).thenReturn(CompletableFuture.completedFuture(true));
+        mockMvc.perform(get("/api/games/media-audit"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.disponiveis[0].public_id").value("generated-public-id"));
+    }
+
     private String registerAndLogin() throws Exception {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
         String email = "admin_test_" + suffix + "@nekobox.local";
@@ -131,6 +175,33 @@ class AdminFlowTests {
                                 """.formatted(suffix, email)))
                 .andExpect(status().isCreated());
         return login(email, "Secure1!Pass");
+    }
+
+    private Integer createGame(String adminToken) throws Exception {
+        usuarioRepository.findByEmailIgnoreCase("catalog@nekobox.local").orElseGet(() ->
+                usuarioRepository.saveAndFlush(Usuario.builder()
+                        .nomeUsuario("catalog")
+                        .email("catalog@nekobox.local")
+                        .senha(passwordEncoder.encode("Catalog1!Local"))
+                        .saldo(BigDecimal.ZERO)
+                        .papel(PapelUsuario.USER)
+                        .build()));
+        String body = mockMvc.perform(post("/api/admin/jogos")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "titulo":"Media Test Game",
+                                  "descricao_curta":"Test",
+                                  "preco":10.00,
+                                  "status":"published",
+                                  "tags":[],
+                                  "categoria_ids":[]
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(body).get("id").asInt();
     }
 
     private String login(String email, String password) throws Exception {

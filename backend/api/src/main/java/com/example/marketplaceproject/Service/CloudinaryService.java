@@ -3,6 +3,8 @@ package com.example.marketplaceproject.Service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.marketplaceproject.Exception.RegraNegocioException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +24,7 @@ import javax.imageio.ImageIO;
 @Service
 public class CloudinaryService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudinaryService.class);
     private static final long TAMANHO_MAXIMO = 10L * 1024L * 1024L;
     private static final Set<String> TIPOS_PERMITIDOS = Set.of("image/jpeg", "image/png", "image/gif");
 
@@ -69,6 +72,7 @@ public class CloudinaryService {
                     (String) resultado.get("secure_url"),
                     (String) resultado.get("public_id"));
         } catch (IOException exception) {
+            registrarFalha("upload", exception);
             throw new RegraNegocioException("Falha ao enviar o arquivo.");
         }
     }
@@ -80,8 +84,18 @@ public class CloudinaryService {
         try {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
         } catch (IOException exception) {
+            registrarFalha("remocao", exception);
             throw new RegraNegocioException("Falha ao remover o arquivo.");
         }
+    }
+
+    private static void registrarFalha(String operacao, IOException exception) {
+        Throwable causa = exception.getCause();
+        LOGGER.error(
+                "Falha na {} de midia no Cloudinary: excecao={}, causa={}.",
+                operacao,
+                exception.getClass().getSimpleName(),
+                causa == null ? "indisponivel" : causa.getClass().getSimpleName());
     }
 
 }

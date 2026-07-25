@@ -31,15 +31,17 @@ const loadAuditReport = () => {
 };
 
 function hydrateAvailableMedia(game, availableMedia) {
-  const managedTypes = new Set(["cover", "banner", "screenshot"]);
-  const cleanGame = {
-    ...game,
-    media: (game.media || []).filter((item) => !managedTypes.has(item.type)),
-  };
-
   return availableMedia
     .filter((media) => media.slug === game.slug)
-    .reduce(applyAvailableMedia, cleanGame);
+    .reduce((currentGame, media) => {
+      const persistedMedia = currentGame.media?.find(
+        (item) =>
+          item.type === media.tipo &&
+          Number(item.position || 1) === media.posicao &&
+          item.public_id
+      );
+      return persistedMedia ? currentGame : applyAvailableMedia(currentGame, media);
+    }, game);
 }
 
 export async function auditCatalogMedia(

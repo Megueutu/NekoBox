@@ -5,6 +5,7 @@ import com.example.marketplaceproject.Entity.Usuario;
 import com.example.marketplaceproject.Service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
@@ -123,6 +126,25 @@ public class AdminController {
     public ResponseEntity<Void> excluirJogo(
             @RequestHeader("Authorization") String authorization, @PathVariable Integer id) {
         adminService.excluirJogo(authorization, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/jogos/{id}/midias", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AdminService.MidiaResumo> enviarMidia(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer id,
+            @RequestParam("arquivo") MultipartFile arquivo,
+            @RequestParam("tipo") String tipo) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(adminService.enviarMidia(authorization, id, arquivo, tipo));
+    }
+
+    @DeleteMapping("/jogos/{id}/midias/{fotoId}")
+    public ResponseEntity<Void> removerMidia(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer id,
+            @PathVariable Integer fotoId) {
+        adminService.removerMidia(authorization, id, fotoId);
         return ResponseEntity.noContent().build();
     }
 

@@ -13,4 +13,10 @@ public interface FotoRepository extends JpaRepository<Foto, Integer> {
     List<Foto> findByProduto_Id(Integer produtoId);
 
     boolean existsByProduto_IdAndTipo(Integer produtoId, TipoFoto tipo);
+
+    List<Foto> findByProduto_IdAndTipo(Integer produtoId, TipoFoto tipo);
+
+    List<Foto> findByProduto_IdAndTipoOrderByPosicaoAsc(Integer produtoId, TipoFoto tipo);
+
+    List<Foto> findByProduto_IdOrderByTipoAscPosicaoAsc(Integer produtoId);
 }

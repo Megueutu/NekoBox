@@ -23,8 +23,7 @@ export function AdminLayout(content, activeSection = "dashboard") {
           ${item("users", "Usuários", icons.users)}
           ${item("games", "Jogos", icons.gamepad)}
         </nav>
-        <div class="admin-sidebar__footer">
-          <a href="/hub" data-link>${Icon(icons.arrowLeft, { className: "w-4 h-4" })} Voltar à loja</a>
+        <div class="admin-sidebar__actions">
           <button id="admin-logout" type="button">${Icon(icons.logOut, { className: "w-4 h-4" })} Sair</button>
         </div>
       </aside>

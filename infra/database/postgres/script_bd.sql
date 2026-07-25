@@ -235,18 +235,25 @@ ON CONFLICT (slug) DO UPDATE SET
     idiomas_json = EXCLUDED.idiomas_json,
     atualizacoes_json = EXCLUDED.atualizacoes_json;
 
-DELETE FROM fotos
-WHERE produto_id IN (
-    SELECT id FROM produtos
-    WHERE slug IN ('cyberpunk-2077', 'the-witcher-3', 'red-dead-redemption-2', 'elden-ring', 'hollow-knight', 'hades')
+INSERT INTO fotos (produto_id, url, tipo, posicao)
+SELECT p.id, 'https://picsum.photos/seed/' || p.slug || '/400/600', 'cover', 1
+FROM produtos p
+WHERE NOT EXISTS (
+    SELECT 1 FROM fotos f WHERE f.produto_id = p.id AND f.tipo = 'cover'
 );
-
 INSERT INTO fotos (produto_id, url, tipo, posicao)
-SELECT id, 'https://picsum.photos/seed/' || slug || '/400/600', 'cover', 1 FROM produtos;
+SELECT p.id, 'https://picsum.photos/seed/' || p.slug || '-banner/1920/1080', 'banner', 1
+FROM produtos p
+WHERE NOT EXISTS (
+    SELECT 1 FROM fotos f WHERE f.produto_id = p.id AND f.tipo = 'banner'
+);
 INSERT INTO fotos (produto_id, url, tipo, posicao)
-SELECT id, 'https://picsum.photos/seed/' || slug || '-banner/1920/1080', 'banner', 1 FROM produtos;
-INSERT INTO fotos (produto_id, url, tipo, posicao)
-SELECT id, 'https://picsum.photos/seed/' || slug || '-shot/800/450', 'screenshot', 1 FROM produtos;
+SELECT p.id, 'https://picsum.photos/seed/' || p.slug || '-shot/800/450', 'screenshot', 1
+FROM produtos p
+WHERE NOT EXISTS (
+    SELECT 1 FROM fotos f
+    WHERE f.produto_id = p.id AND f.tipo = 'screenshot' AND f.posicao = 1
+);
 
 DELETE FROM produtos_categorias
 WHERE produto_id IN (

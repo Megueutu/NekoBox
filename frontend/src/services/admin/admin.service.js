@@ -14,4 +14,12 @@ export const AdminService = {
   createGame: (game) => ApiClient.post("/api/admin/jogos", game),
   updateGame: (id, game) => ApiClient.put(`/api/admin/jogos/${resourceId(id)}`, game),
   deleteGame: (id) => ApiClient.delete(`/api/admin/jogos/${resourceId(id)}`),
+  uploadGameMedia(id, type, file) {
+    const body = new FormData();
+    body.append("tipo", type);
+    body.append("arquivo", file);
+    return ApiClient.postForm(`/api/admin/jogos/${resourceId(id)}/midias`, body);
+  },
+  deleteGameMedia: (gameId, mediaId) =>
+    ApiClient.delete(`/api/admin/jogos/${resourceId(gameId)}/midias/${resourceId(mediaId)}`),
 };

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -50,6 +51,8 @@ public class AdminService {
     private final ProdutoService produtoService;
     private final ProdutoRepository produtoRepository;
     private final FotoRepository fotoRepository;
+    private final FotoService fotoService;
+    private final CloudinaryService cloudinaryService;
     private final PagamentoRepository pagamentoRepository;
     private final CartaoPresenteRepository cartaoPresenteRepository;
     private final ObjectMapper objectMapper;
@@ -87,7 +90,11 @@ public class AdminService {
     public record JogoResumo(
             Integer id, String titulo, String slug, String descricaoCurta, String descricaoLonga,
             BigDecimal preco, LocalDate dataLancamento, String status, List<String> tags,
-            List<Integer> categoriaIds, String capaUrl) {
+            List<Integer> categoriaIds, String capaUrl, List<MidiaResumo> midias) {
+    }
+
+    public record MidiaResumo(
+            Integer id, String url, String publicId, String tipo, Integer posicao) {
     }
 
     public Usuario exigirAdmin(String authorization) {
@@ -244,7 +251,46 @@ public class AdminService {
     @Transactional
     public void excluirJogo(String authorization, Integer id) {
         exigirAdmin(authorization);
+        fotoRepository.findByProduto_Id(id).forEach(foto -> cloudinaryService.remover(foto.getPublicId()));
         produtoService.excluirProduto(id);
+    }
+
+    @Transactional
+    public MidiaResumo enviarMidia(
+            String authorization, Integer jogoId, MultipartFile arquivo, String tipoInformado) {
+        exigirAdmin(authorization);
+        produtoService.buscarPorId(jogoId);
+        TipoFoto tipo = TipoFoto.deValor(tipoInformado);
+        CloudinaryService.ResultadoUpload upload = cloudinaryService.upload(
+                arquivo, "nekobox/admin/games/" + jogoId);
+
+        if (!tipo.permiteMultiplas()) {
+            fotoRepository.findByProduto_IdAndTipo(jogoId, tipo).forEach(foto -> {
+                cloudinaryService.remover(foto.getPublicId());
+                fotoRepository.delete(foto);
+            });
+        }
+
+        int proximaPosicao = tipo.permiteMultiplas()
+                ? fotoRepository.findByProduto_IdAndTipoOrderByPosicaoAsc(jogoId, tipo).stream()
+                        .map(Foto::getPosicao)
+                        .max(Integer::compareTo)
+                        .orElse(0) + 1
+                : 1;
+        Foto foto = fotoService.adicionarFoto(jogoId, upload.url(), upload.publicId(), tipo);
+        if (tipo.permiteMultiplas()) {
+            foto.setPosicao(proximaPosicao);
+            foto = fotoRepository.save(foto);
+        }
+        return toMidiaResumo(foto);
+    }
+
+    @Transactional
+    public void removerMidia(String authorization, Integer jogoId, Integer fotoId) {
+        exigirAdmin(authorization);
+        Foto foto = fotoService.buscarPorId(jogoId, fotoId);
+        cloudinaryService.remover(foto.getPublicId());
+        fotoService.removerFoto(fotoId);
     }
 
     private UsuarioResumo toUsuarioResumo(Usuario usuario) {
@@ -254,7 +300,8 @@ public class AdminService {
     }
 
     private JogoResumo toJogoResumo(Produto produto) {
-        String capa = fotoRepository.findByProduto_Id(produto.getId()).stream()
+        List<Foto> fotos = fotoRepository.findByProduto_IdOrderByTipoAscPosicaoAsc(produto.getId());
+        String capa = fotos.stream()
                 .filter(foto -> foto.getTipo() == TipoFoto.COVER)
                 .map(Foto::getUrl)
                 .findFirst()
@@ -266,7 +313,13 @@ public class AdminService {
                 produto.getId(), produto.getTitulo(), produto.getSlug(),
                 produto.getDescricaoCurta(), produto.getDescricaoLonga(), produto.getPreco(),
                 produto.getDataLancamento(), produto.getStatus(), parseTags(produto.getTagsJson()),
-                categorias, capa);
+                categorias, capa, fotos.stream().map(this::toMidiaResumo).toList());
+    }
+
+    private MidiaResumo toMidiaResumo(Foto foto) {
+        return new MidiaResumo(
+                foto.getId(), foto.getUrl(), foto.getPublicId(),
+                foto.getTipo().getValor(), foto.getPosicao());
     }
 
     private List<String> parseTags(String json) {

@@ -58,17 +58,16 @@ public class CatalogMediaAuditService {
         for (Produto produto : produtos) {
             List<Foto> fotos = fotoService.listarFotosDoProduto(produto.getId());
             for (MediaEsperada esperada : mediasEsperadas(produto.getSlug())) {
-                fotos.stream()
+                String publicId = fotos.stream()
                         .filter(foto -> foto.getTipo().getValor().equals(esperada.tipo()))
                         .filter(foto -> foto.getPosicao().equals(esperada.posicao()))
                         .findFirst()
                         .map(Foto::getPublicId)
-                        .filter(publicId -> publicId != null && !publicId.isBlank())
-                        .filter(publicId -> !publicId.equals(esperada.publicId()))
-                        .ifPresent(publicId -> divergentes.add(new MidiaDivergente(
-                                produto.getTitulo(), produto.getSlug(), esperada.tipo(), esperada.posicao(),
-                                publicId, esperada.publicId())));
-                verificacoes.add(new Verificacao(esperada, cloudinaryService.existe(esperada.publicId())));
+                        .filter(idPersistido -> idPersistido != null && !idPersistido.isBlank())
+                        .orElse(esperada.publicId());
+                MediaEsperada media = new MediaEsperada(
+                        esperada.slug(), esperada.tipo(), esperada.posicao(), publicId);
+                verificacoes.add(new Verificacao(media, cloudinaryService.existe(publicId)));
             }
         }
 
