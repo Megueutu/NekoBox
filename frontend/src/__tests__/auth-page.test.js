@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderAuthPage } from "../pages/auth/LoginPage";
+import { renderAuthPage, resolvePostLoginTarget } from "../pages/auth/LoginPage";
 
 describe("Authentication page", () => {
   it("should render login as a centered semantic form", () => {
@@ -36,5 +36,13 @@ describe("Authentication page", () => {
     container.innerHTML = renderAuthPage("forgot");
 
     expect(container.querySelector('#forgot-form input[type="email"]')).not.toBeNull();
+  });
+
+  it("should always send admins to the admin dashboard", () => {
+    expect(resolvePostLoginTarget({ role: "ADMIN" }, "/profile")).toBe("/admin");
+  });
+
+  it("should preserve a valid redirect target for regular users", () => {
+    expect(resolvePostLoginTarget({ role: "USER" }, "/library")).toBe("/library");
   });
 });

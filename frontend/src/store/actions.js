@@ -1,4 +1,4 @@
-import { Store } from "./store";
+import { clearSessionState, Store } from "./store";
 import { AccountService } from "../services/account/account.service";
 
 export const Actions = {
@@ -12,13 +12,7 @@ export const Actions = {
   },
 
   logout() {
-    Store.setState(() => ({
-      user: null,
-      cart: [],
-      wishlist: [],
-      library: [],
-      loading: false,
-    }));
+    clearSessionState();
     window.dispatchEvent(new CustomEvent("rerender"));
   },
 

@@ -5,6 +5,10 @@ import { setupKeyboardNavigation } from "../accessibility/keyboard";
 import { Store } from "../../store/store";
 import { Icon, icons } from "../../components/ui/Icon";
 
+export function shouldRedirectAdmin(pathname, token, role) {
+  return Boolean(token) && role === "ADMIN" && pathname !== "/admin";
+}
+
 export function renderLoadError() {
   return `
     <main class="error-page" aria-labelledby="error-page-title">
@@ -37,6 +41,13 @@ class RouterManager {
     const pathname = window.location.pathname;
     const appContainer = document.getElementById("app");
     if (!appContainer) return;
+    const tokenAtivo = localStorage.getItem("access_token");
+    const userRole = Store.getState().user?.role;
+
+    if (shouldRedirectAdmin(pathname, tokenAtivo, userRole)) {
+      navigate("/admin");
+      return;
+    }
 
     for (const route of routes) {
       // Redireciona rotas que possuem alias (ex: "/" → "/hub")
@@ -49,13 +60,12 @@ class RouterManager {
       if (params === null) continue;
 
       // Route Guard: rota privada sem token → salva destino e manda pro login
-      const tokenAtivo = localStorage.getItem("access_token");
       if (route.private && !tokenAtivo) {
         localStorage.setItem("redirect_target", pathname);
         navigate("/login");
         return;
       }
-      if (route.admin && Store.getState().user?.role !== "ADMIN") {
+      if (route.admin && userRole !== "ADMIN") {
         navigate("/hub");
         return;
       }

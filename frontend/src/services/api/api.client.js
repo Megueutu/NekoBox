@@ -1,3 +1,5 @@
+import { clearSessionState } from "../../store/store";
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
 
 export class ApiError extends Error {
@@ -11,22 +13,26 @@ export class ApiError extends Error {
 
 async function request(path, { body, headers = {}, ...options } = {}) {
   const token = localStorage.getItem("access_token");
+  const isFormData = body instanceof FormData;
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       Accept: "application/json",
-      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...(body !== undefined && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: body !== undefined ? (isFormData ? body : JSON.stringify(body)) : undefined,
   });
 
   const contentType = response.headers.get("content-type") || "";
   const payload = contentType.includes("application/json") ? await response.json() : null;
 
   if (!response.ok) {
-    if (response.status === 401) localStorage.removeItem("access_token");
+    if (response.status === 401) {
+      localStorage.removeItem("access_token");
+      clearSessionState();
+    }
     throw new ApiError(payload?.mensagem || "Não foi possível concluir a solicitação.", response.status, payload);
   }
 
@@ -39,4 +45,5 @@ export const ApiClient = {
   put: (path, body) => request(path, { method: "PUT", body }),
   patch: (path, body) => request(path, { method: "PATCH", body }),
   delete: (path) => request(path, { method: "DELETE" }),
+  postForm: (path, body) => request(path, { method: "POST", body }),
 };

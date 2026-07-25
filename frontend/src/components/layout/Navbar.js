@@ -4,6 +4,9 @@ import { WalletDialog } from "../wallet/WalletDialog";
 
 export function Navbar() {
   const { cart, wishlist, user } = Store.getState();
+  const isAuthenticated = Boolean(localStorage.getItem("access_token") && user);
+  const isAdmin = isAuthenticated && user.role === "ADMIN";
+  const isCustomer = isAuthenticated && !isAdmin;
   const currentPath = window.location.pathname;
   const cartCount = cart.length;
   const wishlistCount = wishlist.length;
@@ -27,8 +30,8 @@ export function Navbar() {
         <div class="hidden lg:flex items-center gap-7">
           ${navLink("/", "Início")}
           ${navLink("/hub", "Catálogo")}
-          ${navLink("/library", "Biblioteca")}
-          ${user?.role === "ADMIN" ? navLink("/admin", "Admin") : ""}
+          ${isCustomer ? navLink("/library", "Biblioteca") : ""}
+          ${isAdmin ? navLink("/admin", "Admin") : ""}
           ${navLink("/acessibilidade", "Acessibilidade")}
         </div>
 
@@ -50,35 +53,39 @@ export function Navbar() {
               <a href="/hub" data-link ${currentPath === "/hub" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Catálogo</a>
               <a href="/acessibilidade" data-link ${currentPath === "/acessibilidade" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Acessibilidade</a>
               <a href="/configuracoes" data-link ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
-              <a href="/library" data-link ${currentPath === "/library" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
-              ${user?.role === "ADMIN" ? '<a href="/admin" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Administração</a>' : ""}
-              <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
-              <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
-              ${user ? '<button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>' : ""}
-              <a href="/profile" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
+              ${
+                isCustomer
+                  ? `
+                    <a href="/library" data-link ${currentPath === "/library" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+                    <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
+                    <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
+                    <button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>
+                    <a href="/profile" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
+                  `
+                  : isAdmin
+                    ? '<a href="/admin" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Administração</a>'
+                    : ""
+              }
             </nav>
           </details>
 
-          <a href="/wishlist" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Lista de desejos">
-            ${Icon(icons.heart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
-            ${
-              wishlistCount > 0
-                ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-accent-400)] text-[var(--color-bg)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>`
-                : ""
-            }
-          </a>
-
-          <a href="/cart" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Carrinho de compras">
-            ${Icon(icons.shoppingCart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
-            ${
-              cartCount > 0
-                ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-500)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>`
-                : ""
-            }
-          </a>
+          ${
+            isCustomer
+              ? `
+                <a href="/wishlist" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Lista de desejos">
+                  ${Icon(icons.heart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                  ${wishlistCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-accent-400)] text-[var(--color-bg)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>` : ""}
+                </a>
+                <a href="/cart" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Carrinho de compras">
+                  ${Icon(icons.shoppingCart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                  ${cartCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-500)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>` : ""}
+                </a>
+              `
+              : ""
+          }
 
           ${
-            user
+            isCustomer
               ? `<button type="button" data-wallet-trigger class="nav-icon-link hidden sm:flex" aria-haspopup="dialog" aria-controls="wallet-dialog" aria-label="Abrir carteira">
                   ${Icon(icons.wallet, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
                 </button>`
@@ -86,7 +93,7 @@ export function Navbar() {
           }
 
           ${
-            user
+            isCustomer
               ? `
             <a href="/profile" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
               <div class="w-8 h-8 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] border-2 border-[var(--color-brand-500)]/60 hover:border-[var(--color-accent-400)] transition-colors"
@@ -94,16 +101,18 @@ export function Navbar() {
                    style="background-image: url('${user.avatar_url}')"></div>
             </a>
           `
-              : `
-            <a href="/login" data-link class="button-primary hidden sm:inline-flex px-4 py-2 text-sm">
-              Entrar
-            </a>
-          `
+              : !isAuthenticated
+                ? `
+                  <a href="/login" data-link class="nav-icon-link" aria-label="Entrar">
+                    ${Icon(icons.logIn, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                  </a>
+                `
+                : ""
           }
         </div>
 
       </div>
     </nav>
-    ${user ? WalletDialog() : ""}
+    ${isCustomer ? WalletDialog() : ""}
   `;
 }

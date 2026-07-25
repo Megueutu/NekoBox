@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { matchRoute } from "../app/router/matchRoute";
 import { routes } from "../app/router/routes";
+import { shouldRedirectAdmin } from "../app/router/router";
 
 describe("Suíte de Testes de Engenharia: Roteamento SPA Vanilla", () => {
   it("Deve validar o casamento exato de caminhos estáticos sem parâmetros", () => {
@@ -60,5 +61,23 @@ describe("Settings page route", () => {
     const settingsRoute = routes.find((route) => route.path === "/configuracoes");
 
     expect(settingsRoute.private).toBe(false);
+  });
+});
+
+describe("Admin route isolation", () => {
+  it.each(["/", "/hub", "/profile", "/configuracoes", "/game/example", "/unknown"])(
+    "should redirect an authenticated admin from %s",
+    (pathname) => {
+      expect(shouldRedirectAdmin(pathname, "active-token", "ADMIN")).toBe(true);
+    }
+  );
+
+  it("should keep an authenticated admin inside the admin dashboard", () => {
+    expect(shouldRedirectAdmin("/admin", "active-token", "ADMIN")).toBe(false);
+  });
+
+  it("should not restrict regular users or logged-out visitors", () => {
+    expect(shouldRedirectAdmin("/profile", "active-token", "USER")).toBe(false);
+    expect(shouldRedirectAdmin("/", null, "ADMIN")).toBe(false);
   });
 });

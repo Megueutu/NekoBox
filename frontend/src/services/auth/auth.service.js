@@ -7,6 +7,16 @@ import { Actions } from "../../store/actions";
 async function persistSession(session) {
   localStorage.setItem("access_token", session.access_token);
 
+  if (session.user?.role === "ADMIN") {
+    Actions.hydrateAccount({
+      user: session.user,
+      cart: [],
+      wishlist: [],
+      library: [],
+    });
+    return session.user;
+  }
+
   const [user, cart, wishlist, library] = await Promise.all([
     AccountService.getProfile(),
     AccountService.getCart(),

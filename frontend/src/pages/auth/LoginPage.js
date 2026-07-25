@@ -142,6 +142,11 @@ export default function LoginPage() {
   return renderAuthPage();
 }
 
+export function resolvePostLoginTarget(user, redirectTarget) {
+  if (user?.role === "ADMIN") return "/admin";
+  return redirectTarget || "/hub";
+}
+
 export async function afterRender() {
   document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
@@ -159,14 +164,8 @@ export async function afterRender() {
 
   const redirecionarAposLogin = (usuario) => {
     const target = localStorage.getItem("redirect_target");
-    if (target) {
-      localStorage.removeItem("redirect_target");
-      navigate(target);
-    } else if (usuario?.role === "ADMIN") {
-      navigate("/admin");
-    } else {
-      navigate("/hub");
-    }
+    localStorage.removeItem("redirect_target");
+    navigate(resolvePostLoginTarget(usuario, target));
   };
 
   document.getElementById("tab-login")?.addEventListener("click", () => {
