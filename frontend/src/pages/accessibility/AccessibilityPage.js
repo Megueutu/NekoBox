@@ -1,4 +1,6 @@
 import { PublicLayout } from "../../app/layouts/PublicLayout";
+import { GamesService } from "../../services/games/games.service";
+import { getRandomGameBanner } from "../../utils/random-banner";
 
 const principles = [
   {
@@ -69,12 +71,23 @@ const implementedFeatures = [
   "Redução de animações quando o sistema solicita menos movimento.",
 ];
 
-export default function AccessibilityPage() {
+export default async function AccessibilityPage() {
+  let heroBannerUrl = "/mocks/callofduty.png";
+
+  try {
+    const randomBanner = getRandomGameBanner(await GamesService.getAll());
+    heroBannerUrl = randomBanner?.url || heroBannerUrl;
+  } catch {
+    // A declaração de acessibilidade continua disponível com a arte local.
+  }
+
   const content = `
     <div class="accessibility-page">
-      <header class="accessibility-hero" aria-labelledby="accessibility-title">
+      <header class="accessibility-hero noise-overlay" aria-labelledby="accessibility-title">
+        <img src="${heroBannerUrl}" alt="" class="accessibility-hero__image" fetchpriority="high" />
+        <div class="accessibility-hero__backdrop" aria-hidden="true"></div>
         <div class="site-container accessibility-hero__layout">
-          <div>
+          <div class="accessibility-hero__content">
             <p class="section-heading__eyebrow mb-3">Acessibilidade no NekoBox</p>
             <h1 id="accessibility-title">Jogar e descobrir devem ser experiências para todos.</h1>
             <p class="accessibility-hero__lead">
