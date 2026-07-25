@@ -1,0 +1,660 @@
+.app-shell {
+  position: relative;
+  isolation: isolate;
+  --app-neon-primary: var(--color-brand-500);
+  --app-neon-soft: var(--color-brand-400);
+  --app-neon-secondary: var(--color-accent-400);
+}
+
+.app-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.app-shell:has(.landing-page) > .app-ambient {
+  display: none;
+}
+
+.app-ambient__blob {
+  position: absolute;
+  width: clamp(25rem, 50vw, 48rem);
+  height: clamp(25rem, 50vw, 48rem);
+  border-radius: 999px;
+  filter: blur(130px);
+  opacity: 0.2;
+  animation: app-ambient-drift 24s ease-in-out infinite alternate;
+}
+
+.app-ambient__blob--one {
+  top: -18rem;
+  left: -14rem;
+  background: var(--app-neon-primary);
+}
+
+.app-ambient__blob--two {
+  right: -20rem;
+  bottom: -18rem;
+  background: var(--app-neon-secondary);
+  opacity: 0.12;
+  animation-direction: alternate-reverse;
+  animation-duration: 30s;
+}
+
+.app-ambient__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, white 2.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, white 2.5%, transparent) 1px, transparent 1px);
+  background-size: 4.5rem 4.5rem;
+  mask-image: radial-gradient(circle at 50% 18%, black, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle at 50% 18%, black, transparent 72%);
+}
+
+@keyframes app-ambient-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(5rem, 3rem, 0) scale(1.1); }
+}
+
+.app-shell:not(:has(.landing-page)) #main-content > * {
+  animation: app-page-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes app-page-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+.app-shell .site-nav {
+  background: color-mix(in srgb, var(--color-bg) 75%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--app-neon-soft) 16%, var(--color-border));
+  box-shadow: 0 10px 32px -28px var(--app-neon-primary);
+  backdrop-filter: blur(22px) saturate(135%);
+}
+
+.app-shell .site-footer {
+  border-top: 1px solid color-mix(in srgb, var(--app-neon-soft) 14%, var(--color-border));
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(22px) saturate(125%);
+}
+
+.app-shell .hero-panel {
+  border: 1px solid color-mix(in srgb, var(--app-neon-soft) 26%, transparent);
+  box-shadow:
+    0 30px 70px -42px color-mix(in srgb, var(--app-neon-primary) 76%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+}
+
+.app-shell .hero-panel::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--app-neon-soft) 24%, transparent);
+  pointer-events: none;
+  content: "";
+}
+
+.app-shell .catalog-toolbar,
+.app-shell .panel,
+.app-shell .account-sidebar-panel,
+.app-shell .purchase-card,
+.app-shell .settings-control-list,
+.app-shell .accessibility-status,
+.app-shell .accessibility-features {
+  border: 1px solid color-mix(in srgb, white 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  box-shadow:
+    0 22px 54px -40px color-mix(in srgb, var(--app-neon-primary) 70%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 9%, transparent);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+.app-shell .game-card {
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  box-shadow: 0 18px 42px -34px rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(12px) saturate(120%);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease, background-color 0.22s ease;
+}
+
+.app-shell .game-card:hover {
+  border-color: color-mix(in srgb, var(--app-neon-soft) 48%, transparent);
+  background: color-mix(in srgb, var(--color-surface-2) 82%, transparent);
+  box-shadow: 0 24px 50px -34px color-mix(in srgb, var(--app-neon-primary) 72%, transparent);
+}
+
+.app-shell .game-card__media::after {
+  position: absolute;
+  inset: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--app-neon-soft) 16%, transparent);
+  pointer-events: none;
+  content: "";
+}
+
+.app-shell .game-section {
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--color-surface) 58%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
+  backdrop-filter: blur(14px) saturate(120%);
+}
+
+.app-shell .game-section > h2,
+.app-shell .page-heading h1,
+.app-shell .accessibility-heading h2,
+.app-shell .settings-section__heading h2 {
+  text-shadow: 0 0 30px color-mix(in srgb, var(--app-neon-primary) 24%, transparent);
+}
+
+.app-shell .purchase-card {
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--app-neon-soft) 28%, var(--color-border));
+}
+
+.app-shell .purchase-card::before {
+  display: block;
+  height: 2px;
+  margin: -1px -1px 0;
+  background: linear-gradient(90deg, transparent, var(--app-neon-soft), var(--app-neon-secondary), transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--app-neon-soft) 62%, transparent);
+  content: "";
+}
+
+.app-shell .button-primary,
+.app-shell .button-accent {
+  background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-700));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--app-neon-soft) 48%, transparent),
+    0 12px 28px -16px color-mix(in srgb, var(--app-neon-primary) 88%, transparent);
+}
+
+.app-shell .button-primary:hover,
+.app-shell .button-accent:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--app-neon-secondary) 48%, transparent),
+    0 0 24px -8px color-mix(in srgb, var(--app-neon-primary) 82%, transparent);
+}
+
+.app-shell .button-secondary {
+  border: 1px solid color-mix(in srgb, white 12%, transparent);
+  background: color-mix(in srgb, var(--color-surface-2) 68%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.app-shell .surface-chip {
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  background: color-mix(in srgb, var(--color-surface-2) 62%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.app-shell .surface-chip[data-active="true"] {
+  border-color: color-mix(in srgb, var(--app-neon-soft) 62%, transparent);
+  box-shadow: 0 0 18px -8px var(--app-neon-primary);
+}
+
+.app-shell .page-heading {
+  position: relative;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, white 9%, transparent);
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--app-neon-primary) 18%, transparent), transparent 42%),
+    color-mix(in srgb, var(--color-surface) 62%, transparent);
+  backdrop-filter: blur(16px) saturate(125%);
+}
+
+.app-shell .page-heading::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -5rem;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  background: var(--app-neon-primary);
+  filter: blur(4rem);
+  opacity: 0.16;
+  pointer-events: none;
+  content: "";
+}
+
+.app-shell--private .account-shell {
+  position: relative;
+}
+
+.account-sidebar-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem;
+  border-radius: var(--radius-card);
+}
+
+.account-sidebar__identity {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.35rem 0.35rem 1.15rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.account-sidebar__avatar {
+  width: 3.25rem;
+  aspect-ratio: 1;
+  border: 2px solid color-mix(in srgb, var(--app-neon-soft) 76%, white 8%);
+  border-radius: 50%;
+  background-color: var(--color-surface-3);
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--app-neon-primary) 10%, transparent);
+}
+
+.account-sidebar__user {
+  min-width: 0;
+}
+
+.account-sidebar__user > span {
+  color: var(--color-brand-300);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.account-sidebar__user p {
+  margin-top: 0.12rem;
+  overflow: hidden;
+  color: var(--color-ink);
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-sidebar__user small {
+  display: block;
+  margin-top: 0.12rem;
+  overflow: hidden;
+  color: var(--color-muted-2);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-nav {
+  display: grid;
+  gap: 0.3rem;
+  padding-top: 0.85rem;
+}
+
+.account-nav__link {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-align: left;
+  transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+}
+
+.account-nav__link:hover {
+  color: var(--color-ink);
+  background: color-mix(in srgb, white 5%, transparent);
+}
+
+.account-nav__link:focus-visible {
+  outline: 2px solid var(--app-neon-soft);
+  outline-offset: 2px;
+}
+
+.account-nav__link--active {
+  border-color: color-mix(in srgb, var(--app-neon-soft) 22%, transparent);
+  color: var(--color-ink);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--app-neon-primary) 17%, transparent), transparent),
+    color-mix(in srgb, white 5%, transparent);
+  box-shadow: inset 3px 0 0 var(--app-neon-soft);
+}
+
+.account-nav__link--active svg {
+  color: var(--app-neon-soft);
+}
+
+.account-nav__logout {
+  margin-top: 0.55rem;
+  border-top-color: var(--color-border);
+  border-radius: 0;
+  color: #fb7185;
+}
+
+.account-nav__logout:hover {
+  color: #fda4af;
+  background: color-mix(in srgb, #fb7185 8%, transparent);
+}
+
+.profile-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.profile-card {
+  overflow: hidden;
+}
+
+.profile-card__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-card__heading p {
+  color: var(--color-brand-300);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.profile-card__heading h2 {
+  margin-top: 0.25rem;
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  font-weight: 750;
+}
+
+.profile-card__heading > span {
+  max-width: 17rem;
+  color: var(--color-muted-2);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.profile-avatar-editor {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
+  align-items: center;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at 0% 50%, color-mix(in srgb, var(--app-neon-primary) 12%, transparent), transparent 34%);
+}
+
+.profile-avatar-editor__preview {
+  position: relative;
+}
+
+.profile-avatar {
+  width: clamp(5.5rem, 10vw, 7rem);
+  aspect-ratio: 1;
+  border: 3px solid color-mix(in srgb, var(--app-neon-soft) 76%, white 8%);
+  border-radius: 50%;
+  background-color: var(--color-surface-2);
+  background-position: center;
+  background-size: cover;
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--app-neon-primary) 10%, transparent),
+    0 20px 45px -28px var(--app-neon-primary);
+}
+
+.profile-avatar__edit {
+  position: absolute;
+  right: -0.2rem;
+  bottom: 0.2rem;
+  display: grid;
+  width: 2rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  color: var(--color-ink);
+  background: var(--color-brand-600);
+  box-shadow: 0 8px 20px -10px black;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.profile-avatar__edit:hover,
+.profile-avatar__edit[aria-expanded="true"] {
+  background: var(--color-brand-500);
+  transform: scale(1.06);
+}
+
+.profile-avatar__edit:focus-visible {
+  outline: 2px solid var(--color-accent-400);
+  outline-offset: 3px;
+}
+
+.profile-avatar-url-editor {
+  grid-column: 1 / -1;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--app-neon-soft) 24%, var(--color-border));
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--color-bg) 52%, transparent);
+}
+
+.profile-avatar-url-editor[hidden] {
+  display: none;
+}
+
+.profile-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.profile-field--full {
+  margin: 0 clamp(1.25rem, 3vw, 2rem);
+}
+
+.profile-field--full + .profile-field--full {
+  margin-top: 1.25rem;
+}
+
+.profile-field label {
+  color: var(--color-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.profile-field input,
+.profile-field textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.7rem;
+  color: var(--color-ink);
+  font-size: 0.84rem;
+  outline: none;
+}
+
+.profile-field textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.profile-field input:disabled {
+  color: var(--color-muted-2);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.profile-field small {
+  color: var(--color-muted-2);
+  font-size: 0.68rem;
+}
+
+.profile-card__actions {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem clamp(1.25rem, 3vw, 2rem);
+  border-top: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 36%, transparent);
+}
+
+.profile-card__actions .button-primary {
+  padding: 0.72rem 1.1rem;
+  font-size: 0.8rem;
+}
+
+.profile-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-accent-300);
+  font-size: 0.75rem;
+}
+
+.profile-status[hidden] {
+  display: none;
+}
+
+.profile-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.profile-session > div {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.profile-session > div > span {
+  display: grid;
+  width: 2.75rem;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  color: var(--color-muted);
+  background: var(--color-surface-2);
+}
+
+.profile-session h2 {
+  font-size: 0.92rem;
+  font-weight: 750;
+}
+
+.profile-session p {
+  margin-top: 0.2rem;
+  color: var(--color-muted);
+  font-size: 0.74rem;
+}
+
+.profile-logout {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid color-mix(in srgb, #fb7185 35%, transparent);
+  border-radius: 0.65rem;
+  color: #fb7185;
+  font-size: 0.74rem;
+  font-weight: 750;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.profile-logout:hover {
+  border-color: color-mix(in srgb, #fb7185 60%, transparent);
+  color: #fecdd3;
+  background: color-mix(in srgb, #fb7185 9%, transparent);
+}
+
+.profile-logout:focus-visible {
+  outline: 2px solid #fb7185;
+  outline-offset: 2px;
+}
+
+.app-shell--private .account-content > div {
+  min-width: 0;
+}
+
+.app-shell--auth {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--app-neon-primary) 24%, transparent), transparent 33%),
+    radial-gradient(circle at 82% 88%, color-mix(in srgb, var(--app-neon-secondary) 13%, transparent), transparent 34%),
+    var(--color-bg);
+}
+
+.app-shell .catalog-toolbar input,
+.app-shell--private input,
+.app-shell--private textarea {
+  border-color: color-mix(in srgb, var(--app-neon-soft) 18%, var(--color-border));
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+}
+
+.app-shell .catalog-toolbar input:focus,
+.app-shell--private input:focus,
+.app-shell--private textarea:focus {
+  border-color: var(--app-neon-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-neon-primary) 18%, transparent);
+}
+
+.app-shell .accent-option,
+.app-shell .setting-choice > span {
+  background: color-mix(in srgb, var(--color-surface) 68%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.app-shell .accent-option:hover,
+.app-shell .setting-choice:hover > span {
+  border-color: color-mix(in srgb, var(--app-neon-soft) 42%, transparent);
+}
+
+.app-shell .accessibility-hero {
+  border-bottom: 1px solid color-mix(in srgb, var(--app-neon-soft) 18%, var(--color-border));
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--app-neon-soft) 12%, transparent);
+}
+
+.app-shell .accessibility-principles,
+.app-shell .accessibility-standards {
+  gap: 1px;
+  border: 1px solid color-mix(in srgb, var(--app-neon-soft) 18%, var(--color-border));
+  background: color-mix(in srgb, var(--app-neon-primary) 22%, var(--color-border));
+  box-shadow: 0 28px 64px -48px var(--app-neon-primary);
+}
+
+.app-shell .accessibility-principles article,
+.app-shell .accessibility-standards article {
+  background: color-mix(in srgb, var(--color-surface) 76%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+@media (max-width: 640px) {
+  .app-ambient__blob { opacity: 0.14; }
+  .app-ambient__grid { background-size: 3.5rem 3.5rem; }
+  .app-shell .page-heading { padding: 1.25rem; }
+  .app-shell .game-section { border-radius: 0.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-ambient__blob,
+  .app-shell:not(:has(.landing-page)) #main-content > * {
+    animation: none !important;
+  }
+}
+
+:root[data-motion="reduced"] .app-ambient__blob,
+:root[data-motion="reduced"] .app-shell:not(:has(.landing-page)) #main-content > * {
+  animation: none !important;
+}

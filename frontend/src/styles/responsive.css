@@ -1,0 +1,309 @@
+@media (max-width: 640px) {
+  :root {
+    --spacing-page: 1rem;
+  }
+
+  .admin-media-inputs { grid-template-columns: 1fr; }
+
+  .site-container {
+    width: min(calc(100% - 1.25rem), 86rem);
+  }
+
+  .site-nav__inner {
+    min-height: 4rem;
+  }
+
+  .site-nav .nav-icon-link.hidden {
+    display: none;
+  }
+
+  .wallet-dialog { width: min(calc(100% - 1rem), 32rem); max-height: calc(100dvh - 1rem); }
+  .wallet-dialog__header { padding: 1.25rem; }
+  .wallet-balance, .wallet-payment, .gift-card-form { margin-inline: 1.25rem; }
+  .gift-card-form__controls { grid-template-columns: 1fr; }
+  .gift-card-form button { min-height: 2.75rem; }
+  .wallet-status { margin-inline: 1.25rem; }
+
+  .hero-panel {
+    min-height: 27rem;
+    border-radius: 1rem;
+  }
+
+  .hero-panel__content {
+    padding: 1.25rem;
+  }
+
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .catalog-grid,
+  .account-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .game-card__body {
+    min-height: 6rem;
+    padding: 0.8rem;
+  }
+
+  .horizontal-rail { grid-auto-columns: 10.75rem; margin-inline: -0.625rem; padding-inline: 0.625rem; }
+  .hero-recommendation { display: none; }
+  .site-footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 1.25rem; }
+  .site-footer__brand { grid-column: 1 / -1; }
+
+  .game-detail-hero {
+    min-height: 24rem;
+  }
+
+  .game-section {
+    padding: 1rem;
+  }
+
+  .game-requirement-list > div {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+
+  .game-language-card li {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+  }
+
+  .game-language-card li strong {
+    grid-column: 2;
+  }
+
+  .screenshot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .screenshot-carousel__rail {
+    grid-auto-columns: 90%;
+  }
+
+  .storefront-hero,
+  .storefront-hero__content {
+    min-height: 38rem;
+  }
+
+  .storefront-hero__shade {
+    background: linear-gradient(0deg, rgba(8, 7, 11, 0.98) 6%, rgba(8, 7, 11, 0.52) 66%, rgba(8, 7, 11, 0.18));
+  }
+
+  .storefront-hero__content {
+    padding-bottom: 2.25rem;
+  }
+
+  .storefront-hero h1 {
+    font-size: clamp(3rem, 17vw, 4.5rem);
+  }
+
+  .landing-game-rail {
+    grid-auto-columns: 10.75rem;
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    overflow-x: auto;
+    margin-inline: -0.625rem;
+    padding: 0.2rem 0.625rem 1rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .landing-game-rail > * {
+    scroll-snap-align: start;
+  }
+
+  .landing-collections {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  .collection-card--wide {
+    grid-row: auto;
+  }
+
+  .landing-membership {
+    align-items: start;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .accent-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .setting-choice-grid { grid-template-columns: 1fr; }
+  .settings-control-row { grid-template-columns: 1fr; gap: 1rem; }
+  .settings-actions { align-items: stretch; flex-direction: column; }
+  .settings-reset { width: 100%; }
+
+  .accessibility-hero {
+    min-height: 40rem;
+    padding-block: 4rem 3rem;
+  }
+  .accessibility-hero__image { object-position: 62% center; }
+  .accessibility-hero__backdrop {
+    background:
+      linear-gradient(0deg, var(--color-bg) 0%, rgba(5, 5, 9, 0.68) 55%, rgba(5, 5, 9, 0.42) 100%),
+      linear-gradient(90deg, rgba(5, 5, 9, 0.9), rgba(5, 5, 9, 0.3));
+  }
+  .accessibility-hero__layout { gap: 1.5rem; }
+  .accessibility-hero h1 { max-width: 12ch; font-size: clamp(2.45rem, 12vw, 3.5rem); line-height: 0.98; }
+  .accessibility-hero__lead { margin-top: 1.1rem; font-size: 0.94rem; }
+  .accessibility-status { max-width: none; }
+  .accessibility-shortcuts { width: 100%; margin-inline: 0; padding-inline: 0.625rem; }
+  .accessibility-content { gap: 4rem; padding-top: 3.5rem; }
+  .accessibility-heading { gap: 0.85rem; margin-bottom: 1.5rem; }
+  .accessibility-intro h2,
+  .accessibility-heading h2,
+  .accessibility-features h2,
+  .accessibility-evolution h2 { max-width: 100%; font-size: clamp(1.8rem, 9vw, 2.4rem); }
+  .accessibility-intro blockquote { padding: 1rem 0 1rem 1rem; font-size: 1rem; }
+  .accessibility-page .accessibility-principles,
+  .accessibility-page .accessibility-standards { grid-template-columns: 1fr; }
+  .accessibility-principles article, .accessibility-standards article { min-height: auto; padding: 1.25rem; }
+  .accessibility-principles small { margin-top: 1rem; padding-top: 0; }
+  .accessibility-features { gap: 1.5rem; padding: 1.25rem; }
+  .accessibility-features li { padding-left: 1.5rem; font-size: 0.84rem; }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .landing-game-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .landing-game-rail > :nth-child(n + 4) {
+    display: none;
+  }
+
+}
+
+@media (max-width: 1023px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-card {
+    position: static;
+  }
+
+  .account-shell {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .account-sidebar {
+    position: static;
+    min-width: 0;
+  }
+
+  .account-sidebar-panel {
+    padding: 0.7rem;
+  }
+
+  .account-sidebar__identity {
+    display: none;
+  }
+
+  .account-nav {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 0.15rem 0.15rem 0.55rem;
+    overscroll-behavior-inline: contain;
+    scrollbar-color: var(--color-surface-3) transparent;
+  }
+
+  .account-nav__link {
+    width: auto;
+    flex: 0 0 auto;
+    padding: 0.65rem 0.8rem;
+    white-space: nowrap;
+  }
+
+  .account-nav__link--active {
+    box-shadow: inset 0 -2px 0 var(--app-neon-soft);
+  }
+
+  .account-nav__logout {
+    margin-top: 0;
+    border: 1px solid color-mix(in srgb, #fb7185 18%, transparent);
+    border-radius: 0.65rem;
+  }
+
+  .auth-stage { padding: 1rem; }
+  .auth-card { padding: 1.35rem; border-radius: 1.15rem; }
+  .auth-brand { margin-bottom: 1rem; }
+  .auth-card__icon { margin-bottom: 1rem; }
+  .auth-card__header { margin-bottom: 1.25rem; }
+
+  .accessibility-hero__layout,
+  .accessibility-intro,
+  .accessibility-features,
+  .accessibility-evolution { grid-template-columns: 1fr; }
+  .accessibility-status { width: min(100%, 30rem); }
+  .accessibility-section-index { display: none; }
+  .accessibility-heading { align-items: start; flex-direction: column; }
+  .accessibility-principles, .accessibility-standards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .legal-layout { grid-template-columns: 1fr; }
+  .legal-index { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-card); }
+  .legal-index p { grid-column: 1 / -1; }
+}
+
+@media (max-width: 640px) {
+  .profile-card__heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .profile-card__heading > span {
+    text-align: left;
+  }
+
+  .profile-avatar-editor__preview {
+    width: fit-content;
+  }
+
+  .profile-card__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-card__actions .button-primary {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .profile-session {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-logout {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 641px) {
+  .site-container {
+    width: min(calc(100% - 3rem), 86rem);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
