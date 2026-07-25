@@ -37,6 +37,22 @@ export function renderLoadError() {
 }
 
 class RouterManager {
+  async atualizarPagina(callback) {
+    const prefersReducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.dataset.motion === "reduced";
+
+    if (!document.startViewTransition || prefersReducedMotion) {
+      await callback();
+      return;
+    }
+
+    const transition = document.startViewTransition(callback);
+    transition.ready.catch(() => {});
+    transition.finished.catch(() => {});
+    await transition.updateCallbackDone;
+  }
+
   async renderizar({ focusTarget = null } = {}) {
     const pathname = window.location.pathname;
     const appContainer = document.getElementById("app");
@@ -73,24 +89,26 @@ class RouterManager {
       try {
         const module = await route.page();
 
-        // Estado de carregamento: evita tela em branco enquanto a página busca seus dados (ex.: HubPage, GamePage)
-        appContainer.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
-            <div class="flex flex-col items-center gap-4">
-              <div class="w-10 h-10 border-4 border-[var(--color-border)] border-t-[var(--color-brand-500)] rounded-full animate-spin"></div>
-              <p class="text-muted text-sm">Carregando...</p>
+        await this.atualizarPagina(async () => {
+          // Estado de carregamento: evita tela em branco enquanto a página busca seus dados (ex.: HubPage, GamePage)
+          appContainer.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
+              <div class="flex flex-col items-center gap-4">
+                <div class="w-10 h-10 border-4 border-[var(--color-border)] border-t-[var(--color-brand-500)] rounded-full animate-spin"></div>
+                <p class="text-muted text-sm">Carregando...</p>
+              </div>
             </div>
-          </div>
-        `;
+          `;
 
-        // Renderiza o HTML bruto da página no container raiz
-        const htmlGerado = await module.default(params);
-        appContainer.innerHTML = htmlGerado;
+          // Renderiza o HTML bruto da página no container raiz
+          const htmlGerado = await module.default(params);
+          appContainer.innerHTML = htmlGerado;
 
-        // Ativa os listeners específicos da página após inserção no DOM
-        if (module.afterRender) {
-          await module.afterRender(params);
-        }
+          // Ativa os listeners específicos da página após inserção no DOM
+          if (module.afterRender) {
+            await module.afterRender(params);
+          }
+        });
 
         if (focusTarget) {
           document.querySelector(focusTarget)?.focus();
