@@ -4,153 +4,22 @@ import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
 import { navigate } from "../../app/router/navigate";
 import { formatPrice, formatDate } from "../../utils/format";
-import { getCoverUrl, getBannerUrl, getScreenshotUrl } from "../../utils/media";
+import { getCoverUrl, getBannerUrl } from "../../utils/media";
 import { Section } from "../../components/ui/Section";
 import { Icon, icons } from "../../components/ui/Icon";
+import { renderScreenshotGallery } from "./game-gallery";
+import {
+  renderAboutGame,
+  renderLanguages,
+  renderSystemRequirements,
+} from "./game-information";
 
-const SCREENSHOT_LIMIT = 10;
-const SCREENSHOT_GRID_LIMIT = 4;
-
-function screenshotCard(gameTitle, screenshot, index, total) {
-  return `
-    <figure class="screenshot-card">
-      <img src="${getScreenshotUrl(screenshot)}"
-           alt="Captura de tela ${index + 1} de ${total} de ${gameTitle}"
-           width="800" height="450" loading="lazy" />
-    </figure>
-  `;
-}
-
-export function renderScreenshotGallery(gameTitle, screenshots = []) {
-  const visibleScreenshots = [...screenshots]
-    .sort((first, second) => Number(first.position || 1) - Number(second.position || 1))
-    .slice(0, SCREENSHOT_LIMIT);
-
-  if (!visibleScreenshots.length) {
-    return `
-      <div class="screenshot-empty" role="status">
-        <img src="${getScreenshotUrl(null)}" alt="" width="800" height="450" />
-        <p>Sem imagens disponíveis deste jogo.</p>
-      </div>
-    `;
-  }
-
-  const cards = visibleScreenshots
-    .map((screenshot, index) => screenshotCard(gameTitle, screenshot, index, visibleScreenshots.length))
-    .join("");
-
-  if (visibleScreenshots.length <= SCREENSHOT_GRID_LIMIT) {
-    return `<div class="screenshot-grid">${cards}</div>`;
-  }
-
-  return `
-    <div class="screenshot-carousel" data-screenshot-carousel>
-      <div class="screenshot-carousel__controls" aria-label="Controles das capturas de tela">
-        <button type="button" data-carousel-direction="-1" aria-label="Mostrar capturas anteriores">
-          ${Icon(icons.arrowLeft, { className: "w-4 h-4" })}
-        </button>
-        <button type="button" data-carousel-direction="1" aria-label="Mostrar próximas capturas">
-          ${Icon(icons.arrowLeft, { className: "w-4 h-4 rotate-180" })}
-        </button>
-      </div>
-      <div class="screenshot-carousel__rail" tabindex="0" aria-label="Capturas de tela de ${gameTitle}">
-        ${cards}
-      </div>
-    </div>
-  `;
-}
-
-const requirementFields = [
-  ["Sistema operacional", "os"],
-  ["Processador", "cpu"],
-  ["Memória", "ram"],
-  ["Placa de vídeo", "gpu"],
-  ["Armazenamento", "storage"],
-];
-
-function requirementCard(title, requirement, recommended = false) {
-  if (!requirement) return "";
-
-  return `
-    <article class="game-requirement-card${recommended ? " game-requirement-card--recommended" : ""}">
-      <header>
-        <span aria-hidden="true">${Icon(recommended ? icons.star : icons.settings, { className: "w-4 h-4" })}</span>
-        <div>
-          <p>${recommended ? "Experiência ideal" : "Para executar"}</p>
-          <h3>${title}</h3>
-        </div>
-      </header>
-      <dl class="game-requirement-list">
-        ${requirementFields
-          .filter(([, field]) => requirement[field])
-          .map(
-            ([label, field]) => `
-              <div>
-                <dt>${label}</dt>
-                <dd>${requirement[field]}</dd>
-              </div>
-            `
-          )
-          .join("")}
-      </dl>
-    </article>
-  `;
-}
-
-export function renderSystemRequirements(minimum, recommended) {
-  return `
-    <div class="game-requirements">
-      ${requirementCard("Requisitos mínimos", minimum)}
-      ${requirementCard("Requisitos recomendados", recommended, true)}
-    </div>
-  `;
-}
-
-function languageSupport(label, available) {
-  return `
-    <li class="${available ? "is-available" : "is-unavailable"}">
-      <span aria-hidden="true">
-        ${Icon(available ? icons.check : icons.x, { className: "w-4 h-4", strokeWidth: 2.5 })}
-      </span>
-      <span>${label}</span>
-      <strong>${available ? "Disponível" : "Indisponível"}</strong>
-    </li>
-  `;
-}
-
-export function renderLanguages(languages = []) {
-  return `
-    <div class="game-languages">
-      ${languages
-        .map(
-          (language) => `
-            <article class="game-language-card">
-              <h3>${language.name}</h3>
-              <ul aria-label="Recursos disponíveis em ${language.name}">
-                ${languageSupport("Interface", language.interface)}
-                ${languageSupport("Legendas", language.subtitles)}
-                ${languageSupport("Áudio", language.audio)}
-              </ul>
-            </article>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-export function renderAboutGame(description, tags = []) {
-  return `
-    <p class="text-muted text-sm leading-relaxed">${description}</p>
-    ${
-      tags.length
-        ? `<div class="flex flex-wrap gap-2 mt-5" aria-label="Tags do jogo">
-            ${tags.map((tag) => `<span class="surface-chip px-2.5 py-1 text-xs rounded-md">${tag}</span>`).join("")}
-          </div>`
-        : ""
-    }
-  `;
-}
+export {
+  renderScreenshotGallery,
+  renderAboutGame,
+  renderLanguages,
+  renderSystemRequirements,
+};
 
 export default async function GamePage({ slug }) {
   const game = await GamesService.getBySlug(slug);
