@@ -76,9 +76,24 @@ CREATE TABLE IF NOT EXISTS carrinho_itens (
     id SERIAL PRIMARY KEY,
     carrinho_id INT NOT NULL REFERENCES carrinho(id) ON DELETE CASCADE,
     produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    quantidade INT NOT NULL DEFAULT 1 CHECK (quantidade BETWEEN 1 AND 10),
+    para_presente BOOLEAN NOT NULL DEFAULT FALSE,
     criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (carrinho_id, produto_id)
+    UNIQUE (carrinho_id, produto_id, para_presente)
 );
+
+ALTER TABLE carrinho_itens
+    ADD COLUMN IF NOT EXISTS quantidade INT NOT NULL DEFAULT 1;
+ALTER TABLE carrinho_itens
+    ADD COLUMN IF NOT EXISTS para_presente BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE carrinho_itens
+    DROP CONSTRAINT IF EXISTS carrinho_itens_quantidade_check;
+ALTER TABLE carrinho_itens
+    ADD CONSTRAINT carrinho_itens_quantidade_check CHECK (quantidade BETWEEN 1 AND 10);
+ALTER TABLE carrinho_itens
+    DROP CONSTRAINT IF EXISTS carrinho_itens_carrinho_id_produto_id_key;
+CREATE UNIQUE INDEX IF NOT EXISTS uk_carrinho_itens_modalidade
+    ON carrinho_itens(carrinho_id, produto_id, para_presente);
 
 CREATE TABLE IF NOT EXISTS wishlist_itens (
     id SERIAL PRIMARY KEY,
@@ -92,10 +107,21 @@ CREATE TABLE IF NOT EXISTS pagamento (
     id SERIAL PRIMARY KEY,
     usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE RESTRICT,
     produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE RESTRICT,
+    quantidade INT NOT NULL DEFAULT 1 CHECK (quantidade BETWEEN 1 AND 10),
+    para_presente BOOLEAN NOT NULL DEFAULT FALSE,
     valor_pago NUMERIC(12,2) NOT NULL CHECK (valor_pago >= 0),
     status VARCHAR(20) NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'aprovado', 'cancelado')),
     criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE pagamento
+    ADD COLUMN IF NOT EXISTS quantidade INT NOT NULL DEFAULT 1;
+ALTER TABLE pagamento
+    ADD COLUMN IF NOT EXISTS para_presente BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE pagamento
+    DROP CONSTRAINT IF EXISTS pagamento_quantidade_check;
+ALTER TABLE pagamento
+    ADD CONSTRAINT pagamento_quantidade_check CHECK (quantidade BETWEEN 1 AND 10);
 
 CREATE TABLE IF NOT EXISTS biblioteca_usuarios (
     usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -104,6 +130,32 @@ CREATE TABLE IF NOT EXISTS biblioteca_usuarios (
     adicionado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (usuario_id, produto_id)
 );
+
+CREATE TABLE IF NOT EXISTS codigos_jogo_presente (
+    id BIGSERIAL PRIMARY KEY,
+    codigo_hash VARCHAR(64) NOT NULL UNIQUE,
+    codigo_criptografado TEXT,
+    produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE RESTRICT,
+    comprador_usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE RESTRICT,
+    resgatado_por_usuario_id INT REFERENCES usuarios(id) ON DELETE RESTRICT,
+    resgatado_em TIMESTAMP,
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+        (resgatado_por_usuario_id IS NULL AND resgatado_em IS NULL) OR
+        (resgatado_por_usuario_id IS NOT NULL AND resgatado_em IS NOT NULL)
+    )
+);
+
+ALTER TABLE codigos_jogo_presente
+    ADD COLUMN IF NOT EXISTS codigo_criptografado TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_codigos_jogo_presente_produto
+    ON codigos_jogo_presente(produto_id);
+CREATE INDEX IF NOT EXISTS idx_codigos_jogo_presente_comprador
+    ON codigos_jogo_presente(comprador_usuario_id);
+CREATE INDEX IF NOT EXISTS idx_codigos_jogo_presente_resgatado_por
+    ON codigos_jogo_presente(resgatado_por_usuario_id)
+    WHERE resgatado_por_usuario_id IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS avaliacoes (
     id SERIAL PRIMARY KEY,
@@ -219,9 +271,16 @@ FROM usuarios CROSS JOIN (VALUES
     ('Red Dead Redemption 2', 'red-dead-redemption-2', 'Uma aventura no coração da América do fim do século XIX.', 'Arthur Morgan e a gangue Van der Linde lutam para sobreviver.', 179.90, DATE '2018-10-26', '["Faroeste","Narrativa"]'),
     ('Elden Ring', 'elden-ring', 'Levante, Maculado, e que a graça guie seu caminho.', 'Um vasto RPG de ação e fantasia criado pela FromSoftware.', 249.90, DATE '2022-02-25', '["Souls-like","Fantasia"]'),
     ('Hollow Knight', 'hollow-knight', 'Explore um vasto reino subterrâneo de insetos e heróis.', 'Forje seu caminho por cavernas, vilas antigas e ruínas mortais.', 49.90, DATE '2017-02-24', '["Indie","Metroidvania","2D"]'),
-    ('Hades', 'hades', 'Desafie o deus da morte e escape do submundo.', 'Um roguelike de ação inspirado na mitologia grega.', 69.90, DATE '2020-09-17', '["Roguelike","Mitologia Grega","Indie"]')
+    ('Hades', 'hades', 'Desafie o deus da morte e escape do submundo.', 'Um roguelike de ação inspirado na mitologia grega.', 69.90, DATE '2020-09-17', '["Roguelike","Mitologia Grega","Indie"]'),
+    ('Stardew Valley', 'stardew-valley', 'Construa a fazenda dos seus sonhos e faça parte de uma comunidade acolhedora.', 'Cultive, explore cavernas, pesque e crie laços em uma aventura rural aberta.', 24.90, DATE '2016-02-26', '["Simulação","Sandbox","Cooperativo"]'),
+    ('Celeste', 'celeste', 'Ajude Madeline a superar seus desafios durante a escalada da Montanha Celeste.', 'Uma plataforma precisa e emocionante sobre perseverança, descoberta e amizade.', 36.90, DATE '2018-01-25', '["Plataforma","Indie","Narrativa"]')
 ) AS game(titulo, slug, curta, longa, preco, lancamento, tags)
 WHERE usuarios.email = 'catalog@nekobox.local'
+  AND (
+      game.slug NOT IN ('stardew-valley', 'celeste')
+      OR EXISTS (SELECT 1 FROM produtos existente WHERE existente.slug = game.slug)
+      OR (SELECT COUNT(*) FROM produtos WHERE status = 'published') < 8
+  )
 ON CONFLICT (slug) DO UPDATE SET
     usuario_id = EXCLUDED.usuario_id,
     titulo = EXCLUDED.titulo,
@@ -258,7 +317,10 @@ WHERE NOT EXISTS (
 DELETE FROM produtos_categorias
 WHERE produto_id IN (
     SELECT id FROM produtos
-    WHERE slug IN ('cyberpunk-2077', 'the-witcher-3', 'red-dead-redemption-2', 'elden-ring', 'hollow-knight', 'hades')
+    WHERE slug IN (
+        'cyberpunk-2077', 'the-witcher-3', 'red-dead-redemption-2', 'elden-ring',
+        'hollow-knight', 'hades', 'stardew-valley', 'celeste'
+    )
 );
 
 INSERT INTO produtos_categorias (produto_id, categoria_id)
@@ -269,6 +331,8 @@ JOIN categorias c ON
     (p.slug IN ('cyberpunk-2077', 'red-dead-redemption-2', 'elden-ring', 'hades') AND c.nome = 'Ação') OR
     (p.slug IN ('the-witcher-3', 'red-dead-redemption-2') AND c.nome = 'Mundo Aberto') OR
     (p.slug = 'hollow-knight' AND c.nome IN ('Metroidvania', 'Plataforma')) OR
-    (p.slug = 'hades' AND c.nome = 'Roguelike');
+    (p.slug = 'hades' AND c.nome = 'Roguelike') OR
+    (p.slug = 'stardew-valley' AND c.nome IN ('Simulação', 'Sandbox')) OR
+    (p.slug = 'celeste' AND c.nome = 'Plataforma');
 
 COMMIT;

@@ -52,17 +52,12 @@ public class BibliotecaUsuarioService {
                     "O produto so pode entrar na biblioteca apos pagamento aprovado.");
         }
 
-        try {
-            return bibliotecaUsuarioRepository.saveAndFlush(BibliotecaUsuario.builder()
-                    .id(id)
-                    .usuario(usuario)
-                    .produto(produto)
-                    .tempoJogoMinutos(0)
-                    .adicionadoEm(LocalDateTime.now())
-                    .build());
-        } catch (DataIntegrityViolationException exception) {
-            throw new ConflitoDeDadosException("O produto ja existe na biblioteca do usuario.");
-        }
+        return salvarNaBiblioteca(id, usuario, produto);
+    }
+
+    public BibliotecaUsuario adicionarProdutoPresente(Usuario usuario, Produto produto) {
+        return salvarNaBiblioteca(
+                new BibliotecaUsuarioId(usuario.getId(), produto.getId()), usuario, produto);
     }
 
     public List<BibliotecaUsuario> listarBiblioteca(Integer usuarioId) {
@@ -86,5 +81,20 @@ public class BibliotecaUsuarioService {
         return bibliotecaUsuarioRepository.findById(new BibliotecaUsuarioId(usuarioId, produtoId))
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Produto nao encontrado na biblioteca do usuario."));
+    }
+
+    private BibliotecaUsuario salvarNaBiblioteca(
+            BibliotecaUsuarioId id, Usuario usuario, Produto produto) {
+        try {
+            return bibliotecaUsuarioRepository.saveAndFlush(BibliotecaUsuario.builder()
+                    .id(id)
+                    .usuario(usuario)
+                    .produto(produto)
+                    .tempoJogoMinutos(0)
+                    .adicionadoEm(LocalDateTime.now())
+                    .build());
+        } catch (DataIntegrityViolationException exception) {
+            throw new ConflitoDeDadosException("O produto ja existe na biblioteca do usuario.");
+        }
     }
 }

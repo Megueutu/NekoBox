@@ -21,7 +21,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "carrinho_itens",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"carrinho_id", "produto_id"})
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"carrinho_id", "produto_id", "para_presente"})
 )
 @Getter
 @Setter
@@ -41,6 +42,14 @@ public class CarrinhoItem {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer quantidade = 1;
+
+    @Builder.Default
+    @Column(name = "para_presente", nullable = false)
+    private Boolean paraPresente = false;
 
     @Builder.Default
     @Column(name = "criado_em", nullable = false)

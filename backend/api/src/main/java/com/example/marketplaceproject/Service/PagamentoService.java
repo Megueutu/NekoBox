@@ -31,9 +31,15 @@ public class PagamentoService {
     private final CarrinhoService carrinhoService;
     private final CarrinhoItemRepository carrinhoItemRepository;
     private final BibliotecaUsuarioService bibliotecaUsuarioService;
+    private final CodigoJogoPresenteService codigoJogoPresenteService;
+
+    public record ResultadoCheckout(
+            List<Pagamento> pagamentos,
+            List<CodigoJogoPresenteService.CodigoGerado> codigosPresente) {
+    }
 
     @Transactional
-    public List<Pagamento> checkout(Integer usuarioId) {
+    public ResultadoCheckout checkout(Integer usuarioId) {
         Usuario comprador = usuarioService.buscarPorIdParaAtualizacao(usuarioId);
         Carrinho carrinho = carrinhoService.obterOuCriarCarrinho(usuarioId);
         List<CarrinhoItem> itens = carrinhoItemRepository.findByCarrinho_Id(carrinho.getId());
@@ -43,7 +49,9 @@ public class PagamentoService {
         }
 
         BigDecimal total = itens.stream()
-                .map(item -> item.getProduto().getPreco())
+                .map(item -> item.getProduto().getPreco()
+                        .multiply(BigDecimal.valueOf(
+                                item.getParaPresente() ? item.getQuantidade() : 1)))
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_EVEN);
 
@@ -52,13 +60,19 @@ public class PagamentoService {
         }
 
         List<Pagamento> pagamentos = new ArrayList<>();
+        List<CodigoJogoPresenteService.CodigoGerado> codigosPresente = new ArrayList<>();
         for (CarrinhoItem item : itens) {
-            pagamentos.add(processarItem(comprador, item.getProduto()));
+            Pagamento pagamento = processarItem(comprador, item);
+            pagamentos.add(pagamento);
+            if (item.getParaPresente()) {
+                codigosPresente.addAll(codigoJogoPresenteService.gerar(
+                        comprador, item.getProduto(), item.getQuantidade()));
+            }
         }
 
         usuarioService.salvar(comprador);
         carrinhoItemRepository.deleteAll(itens);
-        return pagamentos;
+        return new ResultadoCheckout(pagamentos, codigosPresente);
     }
 
     public Pagamento buscarPorId(Integer pagamentoId) {
@@ -75,13 +89,17 @@ public class PagamentoService {
         return pagamentoRepository.findByUsuario_Id(usuarioId);
     }
 
-    private Pagamento processarItem(Usuario comprador, Produto produto) {
+    private Pagamento processarItem(Usuario comprador, CarrinhoItem item) {
+        Produto produto = item.getProduto();
+        int quantidade = item.getParaPresente() ? item.getQuantidade() : 1;
         if (produto.getUsuario().getId().equals(comprador.getId())) {
             throw new RegraNegocioException("O vendedor nao pode comprar o proprio produto.");
         }
 
         Usuario vendedor = usuarioService.buscarPorId(produto.getUsuario().getId());
-        BigDecimal preco = produto.getPreco().setScale(2, RoundingMode.HALF_EVEN);
+        BigDecimal preco = produto.getPreco()
+                .multiply(BigDecimal.valueOf(quantidade))
+                .setScale(2, RoundingMode.HALF_EVEN);
 
         comprador.setSaldo(comprador.getSaldo().subtract(preco).setScale(2, RoundingMode.HALF_EVEN));
         vendedor.setSaldo(vendedor.getSaldo().add(preco).setScale(2, RoundingMode.HALF_EVEN));
@@ -90,11 +108,15 @@ public class PagamentoService {
         Pagamento pagamento = pagamentoRepository.save(Pagamento.builder()
                 .usuario(comprador)
                 .produto(produto)
+                .quantidade(quantidade)
+                .paraPresente(item.getParaPresente())
                 .valorPago(preco)
                 .status(StatusPagamento.APROVADO)
                 .build());
 
-        bibliotecaUsuarioService.adicionarProduto(comprador.getId(), produto.getId());
+        if (!item.getParaPresente()) {
+            bibliotecaUsuarioService.adicionarProduto(comprador.getId(), produto.getId());
+        }
         return pagamento;
     }
 }

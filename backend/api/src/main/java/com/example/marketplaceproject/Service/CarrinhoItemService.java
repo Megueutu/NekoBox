@@ -3,6 +3,7 @@ package com.example.marketplaceproject.Service;
 import com.example.marketplaceproject.Entity.Carrinho;
 import com.example.marketplaceproject.Entity.CarrinhoItem;
 import com.example.marketplaceproject.Entity.Produto;
+import com.example.marketplaceproject.Exception.CampoInvalidoException;
 import com.example.marketplaceproject.Exception.ConflitoDeDadosException;
 import com.example.marketplaceproject.Exception.RecursoNaoEncontradoException;
 import com.example.marketplaceproject.Exception.RegraNegocioException;
@@ -19,12 +20,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CarrinhoItemService {
 
+    private static final int QUANTIDADE_MAXIMA = 10;
+
     private final CarrinhoItemRepository carrinhoItemRepository;
     private final CarrinhoService carrinhoService;
     private final ProdutoService produtoService;
     private final BibliotecaUsuarioRepository bibliotecaUsuarioRepository;
 
-    public CarrinhoItem adicionarProduto(Integer usuarioId, Integer produtoId) {
+    public CarrinhoItem adicionarProduto(Integer usuarioId, Integer produtoId, boolean paraPresente) {
         Carrinho carrinho = carrinhoService.obterOuCriarCarrinho(usuarioId);
         Produto produto = produtoService.buscarPorId(produtoId);
 
@@ -32,7 +35,8 @@ public class CarrinhoItemService {
             throw new RegraNegocioException(
                     "O vendedor nao pode adicionar o proprio produto ao carrinho.");
         }
-        if (bibliotecaUsuarioRepository.existsByUsuario_IdAndProduto_Id(usuarioId, produtoId)) {
+        if (!paraPresente
+                && bibliotecaUsuarioRepository.existsByUsuario_IdAndProduto_Id(usuarioId, produtoId)) {
             throw new ConflitoDeDadosException(
                     "O usuario ja possui este produto na biblioteca.");
         }
@@ -41,20 +45,43 @@ public class CarrinhoItemService {
             return carrinhoItemRepository.saveAndFlush(CarrinhoItem.builder()
                     .carrinho(carrinho)
                     .produto(produto)
+                    .quantidade(1)
+                    .paraPresente(paraPresente)
                     .criadoEm(LocalDateTime.now())
                     .build());
         } catch (DataIntegrityViolationException exception) {
-            throw new ConflitoDeDadosException("O produto ja foi adicionado ao carrinho.");
+            throw new ConflitoDeDadosException(
+                    paraPresente
+                            ? "O presente ja foi adicionado ao carrinho."
+                            : "O produto ja foi adicionado ao carrinho.");
         }
     }
 
-    public void removerProduto(Integer usuarioId, Integer produtoId) {
+    public void removerProduto(Integer usuarioId, Integer produtoId, boolean paraPresente) {
         Carrinho carrinho = carrinhoService.obterOuCriarCarrinho(usuarioId);
         CarrinhoItem item = carrinhoItemRepository
-                .findByCarrinho_IdAndProduto_Id(carrinho.getId(), produtoId)
+                .findByCarrinho_IdAndProduto_IdAndParaPresente(
+                        carrinho.getId(), produtoId, paraPresente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Produto nao encontrado no carrinho do usuario."));
         carrinhoItemRepository.delete(item);
+    }
+
+    public CarrinhoItem atualizarQuantidadePresente(
+            Integer usuarioId, Integer produtoId, Integer quantidade) {
+        if (quantidade == null || quantidade < 1 || quantidade > QUANTIDADE_MAXIMA) {
+            throw new CampoInvalidoException(
+                    "A quantidade de presentes deve estar entre 1 e 10.");
+        }
+
+        Carrinho carrinho = carrinhoService.obterOuCriarCarrinho(usuarioId);
+        CarrinhoItem item = carrinhoItemRepository
+                .findByCarrinho_IdAndProduto_IdAndParaPresente(
+                        carrinho.getId(), produtoId, true)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Presente nao encontrado no carrinho do usuario."));
+        item.setQuantidade(quantidade);
+        return carrinhoItemRepository.saveAndFlush(item);
     }
 
     public List<CarrinhoItem> listarItens(Integer usuarioId) {

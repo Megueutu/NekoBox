@@ -2,6 +2,7 @@ package com.example.marketplaceproject.Controller;
 
 import com.example.marketplaceproject.Entity.BibliotecaUsuario;
 import com.example.marketplaceproject.Service.BibliotecaUsuarioService;
+import com.example.marketplaceproject.Service.CodigoJogoPresenteService;
 import com.example.marketplaceproject.Service.GameMapper;
 import com.example.marketplaceproject.Service.SessaoService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,12 +30,16 @@ public class BibliotecaController {
     private final BibliotecaUsuarioService bibliotecaUsuarioService;
     private final SessaoService sessaoService;
     private final GameMapper gameMapper;
+    private final CodigoJogoPresenteService codigoJogoPresenteService;
 
     public record ItemResponse(
             Integer produtoId, String titulo, Integer tempoJogoMinutos, LocalDateTime adicionadoEm) {
     }
 
     public record IncrementarTempoRequest(Integer minutos) {
+    }
+
+    public record ResgatarCodigoRequest(String codigo) {
     }
 
     @GetMapping
@@ -62,6 +68,15 @@ public class BibliotecaController {
         BibliotecaUsuario item = bibliotecaUsuarioService.incrementarTempoJogo(
                 usuarioId, produtoId, request.minutos());
         return ResponseEntity.ok(paraResponse(item));
+    }
+
+    @PostMapping("/resgates")
+    public ResponseEntity<Map<String, Object>> resgatarCodigo(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody ResgatarCodigoRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
+        return ResponseEntity.ok(gameMapper.toGame(
+                codigoJogoPresenteService.resgatar(usuarioId, request.codigo())));
     }
 
     private ItemResponse paraResponse(BibliotecaUsuario item) {

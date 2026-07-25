@@ -43,6 +43,14 @@ public class Pagamento {
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer quantidade = 1;
+
+    @Builder.Default
+    @Column(name = "para_presente", nullable = false)
+    private Boolean paraPresente = false;
+
     @Column(name = "valor_pago", nullable = false, precision = 12, scale = 2)
     private BigDecimal valorPago;
 
