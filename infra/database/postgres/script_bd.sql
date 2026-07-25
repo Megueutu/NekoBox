@@ -17,8 +17,13 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS papel VARCHAR(20) NOT NULL DEFAULT 'USER';
 ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_papel_check;
 ALTER TABLE usuarios ADD CONSTRAINT usuarios_papel_check CHECK (papel IN ('USER', 'ADMIN'));
+UPDATE usuarios SET email = 'admin@admin.com'
+WHERE email = 'admin@nekobox.local'
+  AND NOT EXISTS (
+      SELECT 1 FROM usuarios WHERE email = 'admin@admin.com'
+  );
 UPDATE usuarios SET papel = 'USER'
-WHERE papel = 'ADMIN' AND email <> 'admin@nekobox.local';
+WHERE papel = 'ADMIN' AND email <> 'admin@admin.com';
 CREATE UNIQUE INDEX IF NOT EXISTS uk_usuarios_unico_admin
     ON usuarios (papel)
     WHERE papel = 'ADMIN';
@@ -218,7 +223,7 @@ ON CONFLICT (email) DO UPDATE SET
     atualizado_em = CURRENT_TIMESTAMP;
 
 INSERT INTO usuarios (nome_usuario, email, senha, saldo, biografia, papel)
-VALUES ('admin', 'admin@nekobox.local', '$2y$10$cwUtHF0/aFE5nYgzqxs/t.mCRZMgjnPk2TKA/KH/cW600/kdiUhru', 0.00, 'Administrador único do NexusPlay.', 'ADMIN')
+VALUES ('admin', 'admin@admin.com', '$2y$10$RKA40E2CClFo.IgVor2lh.NrDtUGtHEZ6YP2uN1hUL6GVpXCUvZoa', 0.00, 'Administrador único do NexusPlay.', 'ADMIN')
 ON CONFLICT (email) DO UPDATE SET
     nome_usuario = EXCLUDED.nome_usuario,
     senha = EXCLUDED.senha,

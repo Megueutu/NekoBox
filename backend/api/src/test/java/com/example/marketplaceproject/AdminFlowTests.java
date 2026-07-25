@@ -37,10 +37,10 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class AdminFlowTests {
 
-    private static final String ADMIN_EMAIL = "admin@nekobox.local";
-    private static final String ADMIN_PASSWORD = "Admin1!Nexus";
+    private static final String ADMIN_EMAIL = "admin@admin.com";
+    private static final String ADMIN_PASSWORD = "Batata123";
     private static final String ADMIN_SEED_HASH =
-            "$2y$10$cwUtHF0/aFE5nYgzqxs/t.mCRZMgjnPk2TKA/KH/cW600/kdiUhru";
+            "$2y$10$RKA40E2CClFo.IgVor2lh.NrDtUGtHEZ6YP2uN1hUL6GVpXCUvZoa";
 
     @Autowired
     private MockMvc mockMvc;
@@ -82,7 +82,7 @@ class AdminFlowTests {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"email":"admin@nekobox.local","senha":"Admin1!Nexus"}
+                                {"email":"admin@admin.com","senha":"Batata123"}
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.role").value("ADMIN"));

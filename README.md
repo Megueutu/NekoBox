@@ -98,7 +98,7 @@ As credenciais abaixo existem apenas no ambiente local:
 
 | Perfil | E-mail | Senha | Observação |
 | --- | --- | --- | --- |
-| Administrador | `admin@nekobox.local` | `Admin1!Nexus` | Acesso ao marketplace e à área `/admin` |
+| Administrador | `admin@admin.com` | `Batata123` | Acesso ao marketplace e à área `/admin` |
 | Catálogo | `catalog@nekobox.local` | Não aplicável | Conta técnica usada como proprietária dos jogos; o login é bloqueado |
 
 O seed também cria a conta `usert@nekobox.local`, mas sua senha original não está disponível em texto no repositório. Para testes manuais, use a conta administrativa ou cadastre um novo usuário pela tela de login.
