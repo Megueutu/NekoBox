@@ -2,16 +2,13 @@ package com.example.marketplaceproject.Controller;
 
 import com.example.marketplaceproject.Entity.Enuns.TipoFoto;
 import com.example.marketplaceproject.Entity.Foto;
-import com.example.marketplaceproject.Entity.Produto;
 import com.example.marketplaceproject.Service.CloudinaryService;
 import com.example.marketplaceproject.Service.FotoService;
-import com.example.marketplaceproject.Service.ProdutoService;
-import com.example.marketplaceproject.Service.SessaoService;
+import com.example.marketplaceproject.Service.ProdutoAuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class FotoController {
 
     private final FotoService fotoService;
-    private final ProdutoService produtoService;
     private final CloudinaryService cloudinaryService;
-    private final SessaoService sessaoService;
+    private final ProdutoAuthorizationService produtoAuthorizationService;
 
     public record FotoResponse(Integer id, String url, String tipo) {
     }
@@ -40,7 +36,7 @@ public class FotoController {
             @PathVariable Integer produtoId,
             @RequestParam("arquivo") MultipartFile arquivo,
             @RequestParam("tipo") String tipo) {
-        verificarDono(sessaoService.autenticar(authorization).getId(), produtoService.buscarPorId(produtoId));
+        produtoAuthorizationService.exigirDono(authorization, produtoId);
 
         CloudinaryService.ResultadoUpload resultado = cloudinaryService.upload(arquivo, "produtos/" + produtoId);
         Foto foto = fotoService.adicionarFoto(
@@ -52,18 +48,12 @@ public class FotoController {
     public ResponseEntity<Void> remover(
             @RequestHeader("Authorization") String authorization,
             @PathVariable Integer produtoId, @PathVariable Integer fotoId) {
-        verificarDono(sessaoService.autenticar(authorization).getId(), produtoService.buscarPorId(produtoId));
+        produtoAuthorizationService.exigirDono(authorization, produtoId);
 
         Foto foto = fotoService.buscarPorId(produtoId, fotoId);
         cloudinaryService.remover(foto.getPublicId());
         fotoService.removerFoto(fotoId);
         return ResponseEntity.noContent().build();
-    }
-
-    private void verificarDono(Integer usuarioId, Produto produto) {
-        if (!produto.getUsuario().getId().equals(usuarioId)) {
-            throw new AccessDeniedException("Apenas o dono do produto pode executar esta acao.");
-        }
     }
 
     private FotoResponse paraResponse(Foto foto) {

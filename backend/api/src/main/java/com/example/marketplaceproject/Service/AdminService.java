@@ -24,15 +24,10 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +37,9 @@ import java.util.Map;
 public class AdminService {
 
     private static final String CATALOGO_EMAIL = "catalog@nekobox.local";
-    private static final String CARACTERES_CODIGO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final SessaoService sessaoService;
+    private final GeradorCodigoGiftCard geradorCodigoGiftCard;
     private final UsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
     private final ProdutoService produtoService;
@@ -171,18 +165,16 @@ public class AdminService {
             throw new CampoInvalidoException("O valor do gift card deve estar entre R$ 1,00 e R$ 10.000,00.");
         }
 
-        String codigo;
-        String codigoHash;
+        GeradorCodigoGiftCard.Codigo codigo;
         do {
-            codigo = gerarCodigo();
-            codigoHash = hash(codigo);
-        } while (cartaoPresenteRepository.existsByCodigoHash(codigoHash));
+            codigo = geradorCodigoGiftCard.gerar();
+        } while (cartaoPresenteRepository.existsByCodigoHash(codigo.hash()));
 
         CartaoPresente cartao = cartaoPresenteRepository.saveAndFlush(CartaoPresente.builder()
-                .codigoHash(codigoHash)
+                .codigoHash(codigo.hash())
                 .valor(valor.setScale(2, RoundingMode.HALF_UP))
                 .build());
-        return new GiftCardGerado(cartao.getId(), codigo, cartao.getValor(), cartao.getCriadoEm());
+        return new GiftCardGerado(cartao.getId(), codigo.valor(), cartao.getValor(), cartao.getCriadoEm());
     }
 
     @Transactional(readOnly = true)
@@ -330,24 +322,4 @@ public class AdminService {
         }
     }
 
-    private String gerarCodigo() {
-        StringBuilder codigo = new StringBuilder("NEXUS");
-        for (int bloco = 0; bloco < 3; bloco++) {
-            codigo.append("-");
-            for (int caractere = 0; caractere < 4; caractere++) {
-                codigo.append(CARACTERES_CODIGO.charAt(RANDOM.nextInt(CARACTERES_CODIGO.length())));
-            }
-        }
-        return codigo.toString();
-    }
-
-    private String hash(String codigo) {
-        try {
-            return HexFormat.of().formatHex(
-                    MessageDigest.getInstance("SHA-256")
-                            .digest(codigo.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 indisponivel.", exception);
-        }
-    }
 }
