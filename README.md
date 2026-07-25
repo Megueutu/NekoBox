@@ -1,6 +1,34 @@
 # NekoBox
 
-Marketplace de jogos com frontend Vite, API Spring Boot e PostgreSQL. O ambiente local roda integralmente no Docker e pode ser iniciado no Windows com um único comando.
+Marketplace de jogos digitais desenvolvido como MVP da disciplina Desenvolvimento de Aplicações Dinâmicas. O produto reúne catálogo, busca, detalhes, carrinho persistente, checkout simulado, biblioteca, presentes digitais, autenticação e administração.
+
+## Stack e arquitetura
+
+- frontend: JavaScript vanilla, ES Modules, Vite, Tailwind CSS e CSS próprio;
+- backend: Java 21, Spring Boot, Spring MVC e Spring Data JPA;
+- banco: PostgreSQL 16;
+- ambiente: Docker e Docker Compose;
+- testes: Vitest no frontend e JUnit/Spring MockMvc no backend;
+- integrações opcionais: Firebase para login Google e Cloudinary para mídias.
+
+```text
+Navegador → SPA JavaScript → API REST Spring Boot → PostgreSQL
+```
+
+O frontend é uma SPA com roteador próprio, páginas carregadas por import dinâmico, store observável e serviços HTTP. A API separa controllers, services, repositories e entities. Mais detalhes estão em [`.docs/arquitetura-e-pontos-chave.md`](./.docs/arquitetura-e-pontos-chave.md).
+
+## Funcionalidades
+
+- catálogo dinâmico com oito produtos no seed;
+- busca por texto e filtro por categoria;
+- detalhes com imagens, descrição, preço, requisitos, idiomas e avaliações;
+- carrinho persistido para usuário autenticado;
+- compra pessoal unitária e presentes com quantidade de 1 a 10;
+- checkout acessível com validação e confirmação;
+- códigos de presente protegidos, consultáveis pelo comprador e resgatáveis na biblioteca;
+- wishlist e biblioteca;
+- perfil, preferências de acessibilidade e sessão persistente;
+- área administrativa para usuários, produtos, mídias e gift cards.
 
 ## Pré-requisitos
 
@@ -75,7 +103,7 @@ As credenciais abaixo existem apenas no ambiente local:
 
 O seed também cria a conta `usert@nekobox.local`, mas sua senha original não está disponível em texto no repositório. Para testes manuais, use a conta administrativa ou cadastre um novo usuário pela tela de login.
 
-O banco inicia com seis jogos publicados e saldo inicial de `R$ 1.000,00` para novos usuários. Há três gift cards de uso único:
+O banco inicia com oito jogos publicados e saldo inicial de `R$ 1.000,00` para novos usuários. Há três gift cards de uso único:
 
 | Código | Valor |
 | --- | ---: |
@@ -84,6 +112,23 @@ O banco inicia com seis jogos publicados e saldo inicial de `R$ 1.000,00` para n
 | `NEKO-100-DEMO` | R$ 100,00 |
 
 Como o volume do PostgreSQL é persistente, um código já resgatado continua indisponível após reiniciar os containers.
+
+## API e banco
+
+Principais recursos REST:
+
+| Domínio | Rotas |
+| --- | --- |
+| Autenticação | `/api/auth` |
+| Usuários e perfil | `/api/usuarios` |
+| Catálogo | `/api/games`, `/api/produtos`, `/api/categorias` |
+| Carrinho | `/api/carrinho` |
+| Checkout e pagamentos | `/api/pagamentos` |
+| Biblioteca e presentes | `/api/biblioteca` |
+| Wishlist | `/api/wishlist` |
+| Administração | `/api/admin` |
+
+O schema versionado está em [`infra/database/postgres/script_bd.sql`](./infra/database/postgres/script_bd.sql). Ele cria usuários, produtos, mídias, categorias, carrinho, pagamentos, biblioteca, avaliações, sessões, gift cards e códigos de jogos-presente, incluindo chaves, relacionamentos, índices e restrições.
 
 ## Testes locais opcionais
 
@@ -103,6 +148,31 @@ cd frontend
 npx vitest run
 npm run build
 ```
+
+## Equipe
+
+As identidades e responsabilidades abaixo foram levantadas a partir dos arquivos alterados no histórico Git. A equipe deve apenas confirmar a grafia dos nomes antes da apresentação.
+
+| Integrante/identidade | Atuação observada |
+| --- | --- |
+| Davi Silva (`meguito`/`davisilva`) | frontend, integração, infraestrutura e documentação |
+| Arthur Machado (`arthurMachado2501`) | backend e persistência |
+| Cadu Bellomo | prototipação da arquitetura de IA |
+
+## Uso de Inteligência Artificial
+
+Este projeto utilizou HubAI Nitro/Codex como apoio em revisão de código, refatoração, testes, diagnóstico e documentação. Todas as sugestões foram revisadas e validadas com testes, build, inspeção de diff e verificação funcional. Produto, decisões finais e domínio do código permanecem sob responsabilidade da equipe.
+
+A declaração detalhada está em [`.docs/declaracao-uso-ia.md`](./.docs/declaracao-uso-ia.md).
+
+## Documentação da entrega
+
+- [matriz de conformidade](./.docs/matriz-requisitos.md);
+- [execução e validação](./.docs/execucao-e-validacao.md);
+- [relatório Lighthouse](./.docs/lighthouse-report.md);
+- [roteiro do pitch em PDF](./.docs/roteiro-pitch.pdf);
+- [fonte editável do roteiro](./.docs/roteiro-pitch.md);
+- [segurança e dados](./.docs/seguranca-e-dados.md).
 
 ## Encerrar o ambiente
 
