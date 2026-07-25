@@ -26,8 +26,11 @@ describe("Authentication page", () => {
 
     container.innerHTML = renderAuthPage("register");
 
-    expect(container.querySelector("#register-form .auth-form__hint")?.textContent).toContain("8 ou mais");
+    const hints = [...container.querySelectorAll("#register-form .auth-form__hint")];
+    expect(hints[0]?.textContent).toContain("sem espaços");
+    expect(hints[1]?.textContent).toContain("minúscula");
     expect(container.querySelector("#input-reg-password")?.getAttribute("autocomplete")).toBe("new-password");
+    expect(container.querySelector("#input-reg-username")?.getAttribute("autocomplete")).toBe("username");
   });
 
   it("should render password recovery with a registered email field", () => {

@@ -54,11 +54,12 @@ export function renderAuthPage(view = activeTab) {
 
   const registerForm = `
     <form id="register-form" class="auth-form">
-      ${FormField({ id: "input-reg-username", label: "Nome de usuário", type: "text", placeholder: "jogador123" })}
+      ${FormField({ id: "input-reg-username", label: "Nome de usuário", type: "text", placeholder: "jogador123", autocomplete: "username" })}
+      <p class="auth-form__hint">Use de 3 a 50 letras, números ou _ (sem espaços).</p>
       ${FormField({ id: "input-reg-email", label: "E-mail", type: "email", placeholder: "seu@email.com" })}
       ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "Crie uma senha segura", autocomplete: "new-password" })}
       ${FormField({ id: "input-reg-confirm", label: "Confirmar Senha", type: "password", placeholder: "Repita a senha", autocomplete: "new-password" })}
-      <p class="auth-form__hint">Use 8 ou mais caracteres, com maiúscula, número e símbolo.</p>
+      <p class="auth-form__hint">Use 8 ou mais caracteres, com maiúscula, minúscula, número e um símbolo: @ $ ! % * ? &.</p>
       <button id="btn-register" type="submit" class="button-primary auth-submit">
         Criar Conta
       </button>

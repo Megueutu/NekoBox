@@ -4,6 +4,9 @@ import { ApiClient } from "../api/api.client";
 import { AccountService } from "../account/account.service";
 import { Actions } from "../../store/actions";
 
+const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,50}$/;
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 async function persistSession(session) {
   localStorage.setItem("access_token", session.access_token);
 
@@ -46,8 +49,22 @@ export const AuthService = {
 
   async registrar(username, email, password) {
     if (!username || !email || !password) throw new Error("Todos os campos são obrigatórios.");
-    await ApiClient.post("/api/usuarios", { nome_usuario: username, email, senha: password });
-    return this.loginComEmail(email, password);
+    const normalizedUsername = username.trim();
+    const normalizedEmail = email.trim();
+
+    if (!USERNAME_PATTERN.test(normalizedUsername)) {
+      throw new Error("O nome de usuário deve ter de 3 a 50 letras, números ou _, sem espaços.");
+    }
+    if (!PASSWORD_PATTERN.test(password)) {
+      throw new Error("A senha deve ter 8 ou mais caracteres, com maiúscula, minúscula, número e um símbolo: @ $ ! % * ? &.");
+    }
+
+    await ApiClient.post("/api/usuarios", {
+      nome_usuario: normalizedUsername,
+      email: normalizedEmail,
+      senha: password,
+    });
+    return this.loginComEmail(normalizedEmail, password);
   },
 
   async enviarRedefinicaoSenha() {
