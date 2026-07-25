@@ -19,6 +19,10 @@ describe("Navbar authentication visibility", () => {
     const privateTargets = ["/library", "/wishlist", "/cart", "/profile", "/admin"];
 
     expect(privateTargets.some((href) => document.querySelector(`a[href="${href}"]`))).toBe(false);
+    expect(document.querySelector('a[href="/configuracoes"]')).toBeNull();
+    expect(document.querySelector('a[href="/"][aria-label="Início"] svg')).not.toBeNull();
+    expect(document.querySelector('a[href="/hub"][aria-label="Catálogo"] svg')).not.toBeNull();
+    expect(document.querySelector(".site-nav__link")).toBeNull();
     expect(document.querySelector('[data-wallet-trigger]')).toBeNull();
     expect(document.querySelector('a[href="/login"][aria-label="Entrar"]')).not.toBeNull();
   });
@@ -51,6 +55,9 @@ describe("Navbar authentication visibility", () => {
     document.body.innerHTML = Navbar();
 
     expect(document.querySelector('a[href="/profile"]')).not.toBeNull();
+    expect(document.querySelector('a[href="/library"][aria-label="Minha Biblioteca"] svg')).not.toBeNull();
+    expect(document.querySelector('.nav-icon-link[href="/configuracoes"]')).toBeNull();
+    expect(document.querySelectorAll('a[href="/configuracoes"]')).toHaveLength(1);
     expect(document.querySelector('[data-wallet-trigger]')).not.toBeNull();
     expect(document.querySelector('a[href="/admin"]')).toBeNull();
     expect(document.querySelector('a[href="/login"]')).toBeNull();
@@ -68,6 +75,7 @@ describe("Navbar authentication visibility", () => {
     document.body.innerHTML = Navbar();
 
     expect(document.querySelector('a[href="/admin"]')).not.toBeNull();
+    expect(document.querySelector('a[href="/admin"][aria-label="Administração"] svg')).not.toBeNull();
     expect(document.querySelector('a[href="/library"]')).toBeNull();
     expect(document.querySelector('a[href="/wishlist"]')).toBeNull();
     expect(document.querySelector('a[href="/cart"]')).toBeNull();

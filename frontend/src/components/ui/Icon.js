@@ -1,4 +1,5 @@
 import {
+  Accessibility,
   ArrowLeft,
   Check,
   CircleCheck,
@@ -9,6 +10,7 @@ import {
   Gamepad2,
   Gift,
   Heart,
+  Home,
   Library,
   LayoutDashboard,
   LockKeyhole,
@@ -34,6 +36,7 @@ import {
 } from "lucide";
 
 export const icons = Object.freeze({
+  accessibility: Accessibility,
   arrowLeft: ArrowLeft,
   check: Check,
   circleCheck: CircleCheck,
@@ -45,6 +48,7 @@ export const icons = Object.freeze({
   gamepad: Gamepad2,
   gift: Gift,
   heart: Heart,
+  home: Home,
   library: Library,
   lock: LockKeyhole,
   logIn: LogIn,

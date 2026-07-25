@@ -10,10 +10,13 @@ export function Navbar() {
   const currentPath = window.location.pathname;
   const cartCount = cart.length;
   const wishlistCount = wishlist.length;
-  const navLink = (href, label) => {
+  const navIcon = (href, label, icon, className = "") => {
     const isCurrent = currentPath === href;
     return `<a href="${href}" data-link ${isCurrent ? 'aria-current="page"' : ""}
-      class="site-nav__link ${isCurrent ? "site-nav__link--current" : ""}">${label}</a>`;
+      class="nav-icon-link ${className} ${isCurrent ? "nav-icon-link--current" : ""}"
+      aria-label="${label}" title="${label}">
+        ${Icon(icon, { className: "w-5 h-5 sm:w-5.5 sm:h-5.5" })}
+      </a>`;
   };
 
   return `
@@ -27,24 +30,14 @@ export function Navbar() {
           <span class="text-[var(--color-ink)]">NEXUS<span class="text-[var(--color-brand-400)]">PLAY</span></span>
         </a>
 
-        <div class="hidden lg:flex items-center gap-7">
-          ${navLink("/", "Início")}
-          ${navLink("/hub", "Catálogo")}
-          ${isCustomer ? navLink("/library", "Biblioteca") : ""}
-          ${isAdmin ? navLink("/admin", "Admin") : ""}
-          ${navLink("/acessibilidade", "Acessibilidade")}
-        </div>
+        <div class="flex items-center gap-0 sm:gap-2">
+          ${navIcon("/", "Início", icons.home)}
+          ${navIcon("/hub", "Catálogo", icons.search)}
+          ${isCustomer ? navIcon("/library", "Minha Biblioteca", icons.library, "hidden sm:flex") : ""}
+          ${isAdmin ? navIcon("/admin", "Administração", icons.dashboard, "hidden sm:flex") : ""}
+          ${navIcon("/acessibilidade", "Acessibilidade", icons.accessibility, "hidden sm:flex")}
 
-        <div class="flex items-center gap-3 sm:gap-5">
-
-          <a href="/configuracoes" data-link
-             class="nav-icon-link ${currentPath === "/configuracoes" ? "nav-icon-link--current" : ""}"
-             ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""}
-             aria-label="Configurações">
-            ${Icon(icons.settings, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
-          </a>
-
-          <details class="lg:hidden relative order-last">
+          ${isAuthenticated ? `<details class="lg:hidden relative order-last">
             <summary class="list-none [&::-webkit-details-marker]:hidden flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer" aria-label="Abrir menu de navegação">
               ${Icon(icons.menu)}
             </summary>
@@ -52,10 +45,10 @@ export function Navbar() {
               <a href="/" data-link ${currentPath === "/" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Início</a>
               <a href="/hub" data-link ${currentPath === "/hub" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Catálogo</a>
               <a href="/acessibilidade" data-link ${currentPath === "/acessibilidade" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Acessibilidade</a>
-              <a href="/configuracoes" data-link ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
               ${
                 isCustomer
                   ? `
+                    <a href="/configuracoes" data-link ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
                     <a href="/library" data-link ${currentPath === "/library" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
                     <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
                     <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
@@ -67,16 +60,16 @@ export function Navbar() {
                     : ""
               }
             </nav>
-          </details>
+          </details>` : ""}
 
           ${
             isCustomer
               ? `
-                <a href="/wishlist" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Lista de desejos">
+                <a href="/wishlist" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Lista de desejos" title="Lista de desejos">
                   ${Icon(icons.heart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
                   ${wishlistCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-accent-400)] text-[var(--color-bg)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>` : ""}
                 </a>
-                <a href="/cart" data-link class="hidden sm:block relative text-muted hover:text-[var(--color-accent-400)] transition-colors" aria-label="Carrinho de compras">
+                <a href="/cart" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Carrinho de compras" title="Carrinho de compras">
                   ${Icon(icons.shoppingCart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
                   ${cartCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-500)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>` : ""}
                 </a>
