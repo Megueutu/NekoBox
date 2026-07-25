@@ -26,7 +26,7 @@ const viewContent = {
   },
 };
 
-export function renderAuthPage(view = activeTab) {
+export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
   const resolvedView = viewContent[view] ? view : "login";
   const currentView = viewContent[resolvedView];
   const loginForm = `
@@ -87,6 +87,41 @@ export function renderAuthPage(view = activeTab) {
   };
 
   return `
+    <section class="auth-card auth-card--${resolvedView}" aria-labelledby="auth-title">
+      <div class="auth-card__icon" aria-hidden="true">
+        ${Icon(currentView.icon, { className: "w-5 h-5" })}
+      </div>
+      <header class="auth-card__header">
+        <p>${currentView.eyebrow}</p>
+        <${headingTag} id="auth-title">${currentView.title}</${headingTag}>
+        <span>${currentView.description}</span>
+      </header>
+
+      ${
+        resolvedView !== "forgot"
+          ? `
+        <div class="auth-tabs" role="tablist" aria-label="Acesso à conta">
+          <button id="tab-login"
+                  type="button" role="tab" aria-selected="${resolvedView === "login"}" aria-controls="form-content" tabindex="${resolvedView === "login" ? "0" : "-1"}">
+            Login
+          </button>
+          <button id="tab-register"
+                  type="button" role="tab" aria-selected="${resolvedView === "register"}" aria-controls="form-content" tabindex="${resolvedView === "register" ? "0" : "-1"}">
+            Cadastro
+          </button>
+        </div>
+      `
+          : ""
+      }
+      <div id="form-content" role="tabpanel" ${resolvedView !== "forgot" ? `aria-labelledby="tab-${resolvedView}"` : ""}>
+        ${tabContent[resolvedView]}
+      </div>
+    </section>
+  `;
+}
+
+export function renderAuthPage(view = activeTab) {
+  return `
     <div class="auth-shell app-shell app-shell--auth">
       <div class="app-ambient" aria-hidden="true">
         <span class="app-ambient__blob app-ambient__blob--one"></span>
@@ -94,45 +129,11 @@ export function renderAuthPage(view = activeTab) {
         <span class="app-ambient__grid"></span>
       </div>
       <main class="auth-stage">
-        <a href="/" data-link class="auth-brand" aria-label="NexusPlay — Início">
+        <a href="/" data-link class="auth-brand" aria-label="NekoBox — Início">
           <span class="auth-brand__mark">${Icon(icons.gamepad, { className: "w-5 h-5" })}</span>
-          <span>NEXUS<strong>PLAY</strong></span>
+          <span>NEKO<strong>BOX</strong></span>
         </a>
-
-        <section class="auth-card auth-card--${resolvedView}" aria-labelledby="auth-title">
-          <div class="auth-card__icon" aria-hidden="true">
-            ${Icon(currentView.icon, { className: "w-5 h-5" })}
-          </div>
-          <header class="auth-card__header">
-            <p>${currentView.eyebrow}</p>
-            <h1 id="auth-title">${currentView.title}</h1>
-            <span>${currentView.description}</span>
-          </header>
-
-          ${
-            resolvedView !== "forgot"
-              ? `
-            <div class="auth-tabs" role="tablist" aria-label="Acesso à conta">
-              <button id="tab-login"
-                      type="button" role="tab" aria-selected="${resolvedView === "login"}" aria-controls="form-content" tabindex="${resolvedView === "login" ? "0" : "-1"}">
-                Login
-              </button>
-              <button id="tab-register"
-                      type="button" role="tab" aria-selected="${resolvedView === "register"}" aria-controls="form-content" tabindex="${resolvedView === "register" ? "0" : "-1"}">
-                Cadastro
-              </button>
-            </div>
-          `
-              : ""
-          }
-          <div id="form-content" role="tabpanel" ${resolvedView !== "forgot" ? `aria-labelledby="tab-${resolvedView}"` : ""}>
-            ${tabContent[resolvedView]}
-          </div>
-          <footer class="auth-trust">
-            ${Icon(icons.shieldCheck, { className: "w-4 h-4" })}
-            <span>Acesso protegido por autenticação</span>
-          </footer>
-        </section>
+        ${renderAuthCard(view)}
         <p class="auth-legal">Ao continuar, você concorda com os <a href="/termos-de-uso" data-link>Termos de Uso</a> e a <a href="/privacidade" data-link>Política de Privacidade</a>.</p>
       </main>
     </div>
@@ -148,10 +149,26 @@ export function resolvePostLoginTarget(user, redirectTarget) {
   return redirectTarget || "/hub";
 }
 
-export async function afterRender() {
-  document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
+export function bindAuthInteractions(root = document, { dialog = false } = {}) {
+  const find = (selector) => root.querySelector(selector);
+  const showView = (view, focusTarget) => {
+    activeTab = view;
+    if (!dialog) {
+      navigate("/login", { focusTarget });
+      return;
+    }
+
+    const dialogElement = root.closest?.("#auth-dialog") || root;
+    const body = dialogElement.querySelector(".auth-dialog__body");
+    if (!body) return;
+    body.innerHTML = renderAuthCard(view, { headingTag: "h2" });
+    bindAuthInteractions(dialogElement, { dialog: true });
+    dialogElement.querySelector(focusTarget || "input, button")?.focus();
+  };
+
+  root.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
-      const input = document.getElementById(toggle.dataset.passwordToggle);
+      const input = find(`#${toggle.dataset.passwordToggle}`);
       if (!input) return;
 
       const isVisible = input.type === "text";
@@ -169,25 +186,13 @@ export async function afterRender() {
     navigate(resolvePostLoginTarget(usuario, target));
   };
 
-  document.getElementById("tab-login")?.addEventListener("click", () => {
-    activeTab = "login";
-    navigate("/login", { focusTarget: "#tab-login" });
-  });
-  document.getElementById("tab-register")?.addEventListener("click", () => {
-    activeTab = "register";
-    navigate("/login", { focusTarget: "#tab-register" });
-  });
-  document.getElementById("btn-forgot-tab")?.addEventListener("click", () => {
-    activeTab = "forgot";
-    navigate("/login");
-  });
-  document.getElementById("btn-back-login")?.addEventListener("click", () => {
-    activeTab = "login";
-    navigate("/login", { focusTarget: "#btn-forgot-tab" });
-  });
+  find("#tab-login")?.addEventListener("click", () => showView("login", "#tab-login"));
+  find("#tab-register")?.addEventListener("click", () => showView("register", "#tab-register"));
+  find("#btn-forgot-tab")?.addEventListener("click", () => showView("forgot", "#input-forgot-email"));
+  find("#btn-back-login")?.addEventListener("click", () => showView("login", "#btn-forgot-tab"));
 
-  document.getElementById("btn-google-login")?.addEventListener("click", async () => {
-    const btn = document.getElementById("btn-google-login");
+  find("#btn-google-login")?.addEventListener("click", async () => {
+    const btn = find("#btn-google-login");
     const idleContent = btn.innerHTML;
     btn.textContent = "Autenticando...";
     btn.disabled = true;
@@ -195,7 +200,7 @@ export async function afterRender() {
       const usuario = await AuthService.loginComGoogle();
       redirecionarAposLogin(usuario);
     } catch {
-      const err = document.getElementById("login-error");
+      const err = find("#login-error");
       if (err) {
         err.textContent = "Falha ao autenticar com Google. Tente novamente.";
         err.classList.remove("hidden");
@@ -205,11 +210,11 @@ export async function afterRender() {
     }
   });
 
-  document.getElementById("login-form")?.addEventListener("submit", async (event) => {
+  find("#login-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const email = document.getElementById("input-email")?.value;
-    const password = document.getElementById("input-password")?.value;
-    const errEl = document.getElementById("login-error");
+    const email = find("#input-email")?.value;
+    const password = find("#input-password")?.value;
+    const errEl = find("#login-error");
     if (errEl) errEl.classList.add("hidden");
     try {
       const usuario = await AuthService.loginComEmail(email, password);
@@ -222,13 +227,13 @@ export async function afterRender() {
     }
   });
 
-  document.getElementById("register-form")?.addEventListener("submit", async (event) => {
+  find("#register-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const username = document.getElementById("input-reg-username")?.value;
-    const email = document.getElementById("input-reg-email")?.value;
-    const password = document.getElementById("input-reg-password")?.value;
-    const confirm = document.getElementById("input-reg-confirm")?.value;
-    const errEl = document.getElementById("register-error");
+    const username = find("#input-reg-username")?.value;
+    const email = find("#input-reg-email")?.value;
+    const password = find("#input-reg-password")?.value;
+    const confirm = find("#input-reg-confirm")?.value;
+    const errEl = find("#register-error");
     if (errEl) errEl.classList.add("hidden");
 
     if (password !== confirm) {
@@ -249,10 +254,10 @@ export async function afterRender() {
     }
   });
 
-  document.getElementById("forgot-form")?.addEventListener("submit", async (event) => {
+  find("#forgot-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const email = document.getElementById("input-forgot-email")?.value;
-    const msgEl = document.getElementById("forgot-msg");
+    const email = find("#input-forgot-email")?.value;
+    const msgEl = find("#forgot-msg");
     if (!email) return;
     try {
       await AuthService.enviarRedefinicaoSenha(email);
@@ -263,4 +268,8 @@ export async function afterRender() {
       }
     }
   });
+}
+
+export async function afterRender() {
+  bindAuthInteractions();
 }

@@ -1,5 +1,6 @@
 import { Navbar } from "../../components/layout/Navbar";
 import { Footer } from "../../components/layout/Footer";
+import { renderAuthDialog } from "../../components/auth/AuthDialog";
 
 export function PublicLayout(content) {
   return `
@@ -15,6 +16,7 @@ export function PublicLayout(content) {
         ${content}
       </main>
       ${Footer()}
+      ${renderAuthDialog()}
     </div>
   `;
 }

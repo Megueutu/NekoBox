@@ -34,10 +34,10 @@
   width: 2.4rem;
   height: 2.4rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--color-brand-400) 48%, transparent);
+  border: 0;
   border-radius: 0.75rem;
   background: var(--color-brand-600);
-  box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.95);
+  box-shadow: none;
 }
 
 .auth-card {
@@ -45,11 +45,10 @@
   width: 100%;
   padding: clamp(1.5rem, 5vw, 2.25rem);
   overflow: clip;
-  border: 1px solid color-mix(in srgb, white 12%, transparent);
-  border-radius: 1.5rem;
-  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
-  box-shadow: 0 28px 70px -46px rgba(0, 0, 0, 0.98);
-  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: none;
 }
 
 .auth-card::after {
@@ -245,20 +244,6 @@
 .auth-feedback { min-height: 1.25rem; color: var(--color-accent-400); font-size: 0.72rem; text-align: center; }
 .auth-feedback--error { color: #fb7185; }
 
-.auth-trust {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--color-border);
-  color: var(--color-muted-2);
-  font-size: 0.66rem;
-}
-
 .auth-legal {
   max-width: 29rem;
   margin-top: 1.25rem;
@@ -270,6 +255,94 @@
 
 .auth-legal a { color: var(--color-muted); text-decoration: underline; text-underline-offset: 0.2rem; }
 .auth-legal a:hover { color: var(--color-ink); }
+
+.auth-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(calc(100% - 2rem), 28rem);
+  height: min(38rem, calc(100dvh - 2rem));
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  box-shadow: 0 24px 70px -32px rgba(0, 0, 0, 0.95);
+}
+
+.auth-dialog[open] {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.auth-dialog::backdrop {
+  background: rgba(5, 5, 8, 0.78);
+}
+
+.auth-dialog__body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.auth-dialog__body .auth-card {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.auth-dialog__body .auth-card__icon {
+  margin-bottom: 0.85rem;
+}
+
+.auth-dialog__body .auth-card__header {
+  margin-bottom: 1rem;
+}
+
+.auth-dialog__body .auth-tabs {
+  margin-bottom: 1rem;
+}
+
+.auth-dialog__body #form-content {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.auth-dialog__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 3;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--radius-control);
+  color: var(--color-muted);
+  background: var(--color-surface-2);
+}
+
+.auth-dialog__close:hover {
+  color: var(--color-ink);
+  background: var(--color-surface-3);
+}
+
+.auth-dialog > .auth-legal {
+  margin: 0 auto;
+  padding: 0.9rem 1.5rem 1rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
 
 .error-page {
   position: relative;
@@ -288,14 +361,14 @@
 }
 
 .error-page__card {
-  width: min(100%, 34rem);
+  width: min(calc(100vw - 2rem), 34rem);
+  max-width: 100%;
   padding: clamp(2rem, 7vw, 3.25rem);
-  border: 1px solid color-mix(in srgb, white 10%, transparent);
-  border-radius: clamp(1.25rem, 4vw, 1.75rem);
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  box-shadow: 0 28px 70px -48px rgba(0, 0, 0, 0.98);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: none;
   text-align: center;
-  backdrop-filter: blur(16px);
 }
 
 .error-page__icon {
@@ -327,6 +400,7 @@
   font-weight: 760;
   line-height: 1.12;
   letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
 }
 
 .error-page__description {
@@ -402,11 +476,10 @@ sub {
 }
 
 .card-hover-glow {
-  box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  box-shadow: none;
+  transition: background-color 0.18s ease;
 }
 .card-hover-glow:hover {
-  transform: translateY(-2px);
   background: var(--color-surface-2);
 }
 

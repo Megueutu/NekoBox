@@ -28,7 +28,7 @@ export function Navbar() {
           <span class="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center">
             ${Icon(icons.gamepad, { className: "w-4.5 h-4.5 text-white", strokeWidth: 2.25 })}
           </span>
-          <span class="text-[var(--color-ink)]">NEXUS<span class="text-[var(--color-brand-400)]">PLAY</span></span>
+          <span class="text-[var(--color-ink)]">Neko<span class="text-[var(--color-brand-400)]">Box</span></span>
         </a>
 
         <div class="flex items-center gap-0 sm:gap-2">
@@ -97,7 +97,7 @@ export function Navbar() {
           `
               : !isAuthenticated
                 ? `
-                  <a href="/login" data-link class="nav-icon-link" aria-label="Entrar">
+                  <a href="/login" data-login-trigger class="nav-icon-link" aria-label="Entrar" aria-haspopup="dialog" aria-controls="auth-dialog">
                     ${Icon(icons.logIn, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
                   </a>
                 `

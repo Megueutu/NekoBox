@@ -28,7 +28,7 @@ export function Footer() {
           <ul class="space-y-2">
             <li><a href="${ACCOUNT_PATHS.profile}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Meu Perfil</a></li>
             <li><a href="${ACCOUNT_PATHS.library}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Minha Biblioteca</a></li>
-            <li><a href="/login" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Entrar / Cadastrar</a></li>
+            <li><a href="/login" data-login-trigger aria-haspopup="dialog" aria-controls="auth-dialog" class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Entrar / Cadastrar</a></li>
             <li><a href="${ACCOUNT_PATHS.settings}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Configurações</a></li>
           </ul>
         </div>

@@ -1,5 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { renderAuthPage, resolvePostLoginTarget } from "../pages/auth/LoginPage";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  renderAuthPage,
+  resolvePostLoginTarget,
+} from "../pages/auth/LoginPage";
+import { renderAuthDialog, setupAuthDialog } from "../components/auth/AuthDialog";
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 describe("Authentication page", () => {
   it("should render login as a centered semantic form", () => {
@@ -39,6 +47,39 @@ describe("Authentication page", () => {
     container.innerHTML = renderAuthPage("forgot");
 
     expect(container.querySelector('#forgot-form input[type="email"]')).not.toBeNull();
+  });
+
+  it("should not render the removed authentication protection message", () => {
+    expect(renderAuthPage("login")).not.toContain("Acesso protegido por autenticação");
+    expect(renderAuthDialog()).not.toContain("Acesso protegido por autenticação");
+  });
+
+  it("should open the login dialog and restore focus when it closes", async () => {
+    document.body.innerHTML = `
+      <a href="/login" data-login-trigger>Entrar</a>
+      ${renderAuthDialog()}
+    `;
+    const trigger = document.querySelector("[data-login-trigger]");
+    const dialog = document.querySelector("#auth-dialog");
+    dialog.showModal = vi.fn(() => dialog.setAttribute("open", ""));
+    dialog.close = vi.fn(() => {
+      dialog.removeAttribute("open");
+      dialog.dispatchEvent(new Event("close"));
+    });
+    const cleanup = setupAuthDialog();
+
+    trigger.focus();
+    trigger.click();
+
+    await vi.waitFor(() => expect(dialog.showModal).toHaveBeenCalledOnce());
+    expect(dialog.hasAttribute("open")).toBe(true);
+    expect(document.activeElement?.id).toBe("input-email");
+
+    dialog.querySelector("[data-auth-close]").click();
+
+    expect(dialog.close).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(trigger);
+    cleanup();
   });
 
   it("should always send admins to the admin dashboard", () => {
