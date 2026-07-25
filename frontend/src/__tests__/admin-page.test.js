@@ -30,7 +30,7 @@ describe("Admin page", () => {
       {
         id: 1,
         nome_usuario: "admin",
-        email: "admin@nekobox.local",
+        email: "admin@admin.com",
         saldo: 0,
         papel: "ADMIN",
         criado_em: "2026-07-23T10:00:00",
