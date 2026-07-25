@@ -97,8 +97,28 @@
     padding-bottom: 2.25rem;
   }
 
+  .storefront-hero__copy {
+    width: 100%;
+    max-width: calc(100vw - 1.25rem);
+    min-width: 0;
+  }
+
   .storefront-hero h1 {
     font-size: clamp(3rem, 17vw, 4.5rem);
+  }
+
+  .landing-stats {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .landing-stat {
+    min-width: 0;
+  }
+
+  .landing-stat__label {
+    overflow-wrap: anywhere;
   }
 
   .landing-game-rail {
