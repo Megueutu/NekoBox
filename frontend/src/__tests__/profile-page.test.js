@@ -24,7 +24,7 @@ vi.mock("../services/auth/auth.service", () => ({
 const initialState = Store.getState();
 
 beforeEach(() => {
-  window.history.replaceState({}, "", "/profile");
+  window.history.replaceState({}, "", "/conta/perfil");
   localStorage.setItem("access_token", "user-token");
   vi.spyOn(Actions, "atualizarDadosPerfil").mockResolvedValue();
 });
@@ -42,7 +42,7 @@ describe("Profile account page", () => {
     document.body.innerHTML = await ProfilePage();
 
     expect(document.querySelector(".profile-page")).not.toBeNull();
-    expect(document.querySelector('.account-nav a[href="/profile"][aria-current="page"]')).not.toBeNull();
+    expect(document.querySelector('.account-nav a[href="/conta/perfil"][aria-current="page"]')).not.toBeNull();
     expect(document.querySelector(".account-nav")?.getAttribute("aria-label")).toBe("Área da conta");
     expect(styles).not.toMatch(/\.account-sidebar-panel::before/);
   });

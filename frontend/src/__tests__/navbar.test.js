@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { Navbar } from "../components/layout/Navbar";
+import { ACCOUNT_PATHS } from "../app/router/account-routes";
 import { Store } from "../store/store";
 
 const initialState = Store.getState();
@@ -16,10 +17,16 @@ describe("Navbar authentication visibility", () => {
     Store.setState({ ...initialState, user: null, cart: [], wishlist: [], library: [] });
     document.body.innerHTML = Navbar();
 
-    const privateTargets = ["/library", "/wishlist", "/cart", "/profile", "/admin"];
+    const privateTargets = [
+      ACCOUNT_PATHS.library,
+      ACCOUNT_PATHS.wishlist,
+      ACCOUNT_PATHS.cart,
+      ACCOUNT_PATHS.profile,
+      "/admin",
+    ];
 
     expect(privateTargets.some((href) => document.querySelector(`a[href="${href}"]`))).toBe(false);
-    expect(document.querySelector('a[href="/configuracoes"]')).toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.settings}"]`)).toBeNull();
     expect(document.querySelector('a[href="/"][aria-label="Início"] svg')).not.toBeNull();
     expect(document.querySelector('a[href="/hub"][aria-label="Catálogo"] svg')).not.toBeNull();
     expect(document.querySelector(".site-nav__link")).toBeNull();
@@ -38,7 +45,7 @@ describe("Navbar authentication visibility", () => {
     document.body.innerHTML = Navbar();
 
     expect(document.querySelector('a[href="/admin"]')).toBeNull();
-    expect(document.querySelector('a[href="/library"]')).toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.library}"]`)).toBeNull();
     expect(document.querySelector('[data-wallet-trigger]')).toBeNull();
     expect(document.querySelector('a[href="/login"][aria-label="Entrar"]')).not.toBeNull();
   });
@@ -54,10 +61,10 @@ describe("Navbar authentication visibility", () => {
     });
     document.body.innerHTML = Navbar();
 
-    expect(document.querySelector('a[href="/profile"]')).not.toBeNull();
-    expect(document.querySelector('a[href="/library"][aria-label="Minha Biblioteca"] svg')).not.toBeNull();
-    expect(document.querySelector('.nav-icon-link[href="/configuracoes"]')).toBeNull();
-    expect(document.querySelectorAll('a[href="/configuracoes"]')).toHaveLength(1);
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.profile}"]`)).not.toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.library}"][aria-label="Minha Biblioteca"] svg`)).not.toBeNull();
+    expect(document.querySelector(`.nav-icon-link[href="${ACCOUNT_PATHS.settings}"]`)).toBeNull();
+    expect(document.querySelectorAll(`a[href="${ACCOUNT_PATHS.settings}"]`)).toHaveLength(1);
     expect(document.querySelector('[data-wallet-trigger]')).not.toBeNull();
     expect(document.querySelector('a[href="/admin"]')).toBeNull();
     expect(document.querySelector('a[href="/login"]')).toBeNull();
@@ -76,10 +83,10 @@ describe("Navbar authentication visibility", () => {
 
     expect(document.querySelector('a[href="/admin"]')).not.toBeNull();
     expect(document.querySelector('a[href="/admin"][aria-label="Administração"] svg')).not.toBeNull();
-    expect(document.querySelector('a[href="/library"]')).toBeNull();
-    expect(document.querySelector('a[href="/wishlist"]')).toBeNull();
-    expect(document.querySelector('a[href="/cart"]')).toBeNull();
-    expect(document.querySelector('a[href="/profile"]')).toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.library}"]`)).toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.wishlist}"]`)).toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.cart}"]`)).toBeNull();
+    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.profile}"]`)).toBeNull();
     expect(document.querySelector('[data-wallet-trigger]')).toBeNull();
     expect(document.querySelector('a[href="/login"]')).toBeNull();
   });

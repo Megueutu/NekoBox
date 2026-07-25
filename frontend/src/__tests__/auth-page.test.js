@@ -42,10 +42,10 @@ describe("Authentication page", () => {
   });
 
   it("should always send admins to the admin dashboard", () => {
-    expect(resolvePostLoginTarget({ role: "ADMIN" }, "/profile")).toBe("/admin");
+    expect(resolvePostLoginTarget({ role: "ADMIN" }, "/conta/perfil")).toBe("/admin");
   });
 
   it("should preserve a valid redirect target for regular users", () => {
-    expect(resolvePostLoginTarget({ role: "USER" }, "/library")).toBe("/library");
+    expect(resolvePostLoginTarget({ role: "USER" }, "/conta/biblioteca")).toBe("/conta/biblioteca");
   });
 });

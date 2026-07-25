@@ -1,4 +1,5 @@
 import { Store } from "../../store/store";
+import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { Icon, icons } from "../ui/Icon";
 import { WalletDialog } from "../wallet/WalletDialog";
 
@@ -33,7 +34,7 @@ export function Navbar() {
         <div class="flex items-center gap-0 sm:gap-2">
           ${navIcon("/", "Início", icons.home)}
           ${navIcon("/hub", "Catálogo", icons.search)}
-          ${isCustomer ? navIcon("/library", "Minha Biblioteca", icons.library, "hidden sm:flex") : ""}
+          ${isCustomer ? navIcon(ACCOUNT_PATHS.library, "Minha Biblioteca", icons.library, "hidden sm:flex") : ""}
           ${isAdmin ? navIcon("/admin", "Administração", icons.dashboard, "hidden sm:flex") : ""}
           ${navIcon("/acessibilidade", "Acessibilidade", icons.accessibility, "hidden sm:flex")}
 
@@ -48,12 +49,12 @@ export function Navbar() {
               ${
                 isCustomer
                   ? `
-                    <a href="/configuracoes" data-link ${currentPath === "/configuracoes" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
-                    <a href="/library" data-link ${currentPath === "/library" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
-                    <a href="/wishlist" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
-                    <a href="/cart" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
+                    <a href="${ACCOUNT_PATHS.settings}" data-link ${currentPath === ACCOUNT_PATHS.settings ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
+                    <a href="${ACCOUNT_PATHS.library}" data-link ${currentPath === ACCOUNT_PATHS.library ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+                    <a href="${ACCOUNT_PATHS.wishlist}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
+                    <a href="${ACCOUNT_PATHS.cart}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
                     <button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>
-                    <a href="/profile" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
+                    <a href="${ACCOUNT_PATHS.profile}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
                   `
                   : isAdmin
                     ? '<a href="/admin" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Administração</a>'
@@ -65,11 +66,11 @@ export function Navbar() {
           ${
             isCustomer
               ? `
-                <a href="/wishlist" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Lista de desejos" title="Lista de desejos">
+                <a href="${ACCOUNT_PATHS.wishlist}" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Lista de desejos" title="Lista de desejos">
                   ${Icon(icons.heart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
                   ${wishlistCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-accent-400)] text-[var(--color-bg)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>` : ""}
                 </a>
-                <a href="/cart" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Carrinho de compras" title="Carrinho de compras">
+                <a href="${ACCOUNT_PATHS.cart}" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Carrinho de compras" title="Carrinho de compras">
                   ${Icon(icons.shoppingCart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
                   ${cartCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-500)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>` : ""}
                 </a>
@@ -88,7 +89,7 @@ export function Navbar() {
           ${
             isCustomer
               ? `
-            <a href="/profile" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
+            <a href="${ACCOUNT_PATHS.profile}" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
               <div class="w-8 h-8 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] border-2 border-[var(--color-brand-500)]/60 hover:border-[var(--color-accent-400)] transition-colors"
                    role="img" aria-label="Avatar de ${user.username || "usuário"}"
                    style="background-image: url('${user.avatar_url}')"></div>

@@ -1,3 +1,5 @@
+import { ACCOUNT_PATHS } from "../../app/router/account-routes";
+
 export function Footer() {
   return `
     <footer class="site-footer mt-auto">
@@ -15,19 +17,19 @@ export function Footer() {
           <p class="text-ink font-semibold text-sm mb-3">Navegação</p>
           <ul class="space-y-2">
             <li><a href="/hub" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Catálogo</a></li>
-            <li><a href="/cart" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Carrinho</a></li>
-            <li><a href="/wishlist" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Lista de Desejos</a></li>
-            <li><a href="/library" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Biblioteca</a></li>
+            <li><a href="${ACCOUNT_PATHS.cart}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Carrinho</a></li>
+            <li><a href="${ACCOUNT_PATHS.wishlist}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Lista de Desejos</a></li>
+            <li><a href="${ACCOUNT_PATHS.library}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Biblioteca</a></li>
           </ul>
         </div>
 
         <div>
           <p class="text-[var(--color-ink)] font-semibold text-sm mb-3">Conta</p>
           <ul class="space-y-2">
-            <li><a href="/profile" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Meu Perfil</a></li>
-            <li><a href="/library" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Minha Biblioteca</a></li>
+            <li><a href="${ACCOUNT_PATHS.profile}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Meu Perfil</a></li>
+            <li><a href="${ACCOUNT_PATHS.library}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Minha Biblioteca</a></li>
             <li><a href="/login" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Entrar / Cadastrar</a></li>
-            <li><a href="/configuracoes" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Configurações</a></li>
+            <li><a href="${ACCOUNT_PATHS.settings}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Configurações</a></li>
           </ul>
         </div>
 

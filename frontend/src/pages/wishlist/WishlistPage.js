@@ -1,4 +1,5 @@
 import { PrivateLayout } from "../../app/layouts/PrivateLayout";
+import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
 import { navigate } from "../../app/router/navigate";
@@ -50,7 +51,7 @@ export async function afterRender() {
       const game = wishlist.find((g) => g.id === gameId);
       if (game) {
         await Actions.alternarListaDesejos(game);
-        navigate("/wishlist");
+        navigate(ACCOUNT_PATHS.wishlist);
       }
     });
   });
@@ -63,7 +64,7 @@ export async function afterRender() {
       const game = wishlist.find((g) => g.id === gameId);
       if (game) {
         await Actions.adicionarAoCarrinho(game);
-        navigate("/cart");
+        navigate(ACCOUNT_PATHS.cart);
       }
     });
   });

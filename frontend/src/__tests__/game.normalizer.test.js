@@ -10,10 +10,16 @@ describe("Game API normalization", () => {
       owner_id: "2",
       title: "Quest",
       price: 49.9,
+      quantity: 1,
       categories: [],
       media: [],
       reviews: [],
     });
+  });
+
+  it("should constrain cart quantities to the supported range", () => {
+    expect(normalizeGame({ quantity: 15 }).quantity).toBe(10);
+    expect(normalizeGame({ quantity: 0 }).quantity).toBe(1);
   });
 
   it("should escape API text before interpolating it into HTML views", () => {

@@ -6,7 +6,7 @@ import { Store } from "../store/store";
 const initialState = Store.getState();
 
 beforeEach(() => {
-  window.history.replaceState({}, "", "/configuracoes");
+  window.history.replaceState({}, "", "/conta/configuracoes");
   localStorage.setItem("access_token", "user-token");
   Store.setState({
     ...initialState,
@@ -30,7 +30,7 @@ describe("Settings account page", () => {
 
     expect(document.querySelector(".app-shell--private")).not.toBeNull();
     expect(document.querySelector(".account-sidebar-panel")).not.toBeNull();
-    expect(document.querySelector('.account-sidebar-panel a[href="/configuracoes"][aria-current="page"]')).not.toBeNull();
+    expect(document.querySelector('.account-sidebar-panel a[href="/conta/configuracoes"][aria-current="page"]')).not.toBeNull();
     expect(document.querySelector(".settings-preview")).toBeNull();
     expect(document.querySelector(".settings-summary__sample")).toBeNull();
     expect(document.querySelectorAll(".settings-section")).toHaveLength(2);

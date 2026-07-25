@@ -13,6 +13,8 @@ export function normalizeGame(game) {
     short_description: text(game.short_description),
     long_description: text(game.long_description),
     price: Number(game.price || 0),
+    quantity: Math.min(10, Math.max(1, Number(game.quantity || 1))),
+    for_gift: Boolean(game.for_gift),
     playtime_minutes: Math.max(0, Number(game.playtime_minutes || 0)),
     acquired_at: text(game.acquired_at),
     categories: Array.isArray(game.categories) ? game.categories.map(text) : [],

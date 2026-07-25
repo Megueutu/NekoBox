@@ -1,4 +1,5 @@
 import { PrivateLayout } from "../../app/layouts/PrivateLayout";
+import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { Store } from "../../store/store";
 import { navigate } from "../../app/router/navigate";
 import { AuthService } from "../../services/auth/auth.service";
@@ -54,6 +55,8 @@ function LibraryCard(game) {
 export default async function LibraryPage() {
   const library = await AccountService.getLibrary();
   const orderedLibrary = filterAndSortLibrary(library);
+  const redemptionMessage = sessionStorage.getItem("game-code-redemption-message");
+  sessionStorage.removeItem("game-code-redemption-message");
   Store.setState((state) => ({ ...state, library }));
 
   const totalPlaytime = library.reduce((total, game) => total + game.playtime_minutes, 0);
@@ -68,6 +71,26 @@ export default async function LibraryPage() {
             ? `${library.length} jogo${library.length !== 1 ? "s" : ""} adquirido${library.length !== 1 ? "s" : ""}`
             : "Sua coleção pessoal de jogos digitais.",
       })}
+
+      <section class="library-redemption panel" aria-labelledby="library-redemption-title">
+        <div>
+          <span>${Icon(icons.gift, { className: "w-5 h-5" })}</span>
+          <div>
+            <p>Recebeu um presente?</p>
+            <h2 id="library-redemption-title">Resgatar código de jogo</h2>
+            <small>O código adiciona o título diretamente à sua biblioteca.</small>
+          </div>
+        </div>
+        <form id="game-code-form" novalidate>
+          <label class="sr-only" for="game-code-input">Código de jogo</label>
+          <input id="game-code-input" name="code" type="text" maxlength="32"
+                 autocomplete="off" spellcheck="false" placeholder="NEKO-GAME-XXXX-XXXX-XXXX"
+                 aria-describedby="game-code-status" required />
+          <button type="submit" class="button-primary">Resgatar</button>
+        </form>
+        <p id="game-code-status" class="library-redemption__status${redemptionMessage ? " is-success" : ""}"
+           role="status" aria-live="polite">${redemptionMessage || ""}</p>
+      </section>
 
       ${
         library.length === 0
@@ -136,6 +159,45 @@ export async function afterRender() {
 
   search?.addEventListener("input", renderLibrary);
   sort?.addEventListener("change", renderLibrary);
+
+  const codeForm = document.getElementById("game-code-form");
+  codeForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const input = document.getElementById("game-code-input");
+    const status = document.getElementById("game-code-status");
+    const button = codeForm.querySelector("button");
+    const code = input.value.trim();
+
+    status.classList.remove("is-success", "is-error");
+    if (!code) {
+      status.textContent = "Informe o código que você recebeu.";
+      status.classList.add("is-error");
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      return;
+    }
+
+    input.removeAttribute("aria-invalid");
+    codeForm.setAttribute("aria-busy", "true");
+    button.disabled = true;
+    try {
+      const game = await AccountService.redeemGameCode(code);
+      const library = await AccountService.getLibrary();
+      Store.setState((state) => ({ ...state, library }));
+      sessionStorage.setItem(
+        "game-code-redemption-message",
+        `${game.title} foi adicionado à sua biblioteca.`
+      );
+      navigate(ACCOUNT_PATHS.library, { focusTarget: "#game-code-status" });
+    } catch (error) {
+      status.textContent = error.message || "Não foi possível resgatar o código.";
+      status.classList.add("is-error");
+      codeForm.removeAttribute("aria-busy");
+      button.disabled = false;
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+    }
+  });
 
   document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
     await AuthService.logout();

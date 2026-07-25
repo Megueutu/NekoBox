@@ -1,4 +1,5 @@
 import { PublicLayout } from "../../app/layouts/PublicLayout";
+import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { GamesService } from "../../services/games/games.service";
 import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
@@ -43,7 +44,8 @@ export default async function GamePage({ slug }) {
 
   const { cart, wishlist, library } = Store.getState();
   const inLibrary = library.some((g) => g.id === game.id);
-  const inCart = cart.some((g) => g.id === game.id);
+  const inCart = cart.some((g) => g.id === game.id && !g.for_gift);
+  const giftInCart = cart.some((g) => g.id === game.id && g.for_gift);
   const inWishlist = wishlist.some((g) => g.id === game.id);
 
   const buyButton = inLibrary
@@ -51,11 +53,19 @@ export default async function GamePage({ slug }) {
          Disponível na sua Biblioteca
        </button>`
     : inCart
-    ? `<a href="/cart" data-link class="block w-full py-3 bg-[var(--color-surface-3)] text-white font-bold rounded-lg text-center text-sm hover:bg-[var(--color-brand-700)]/50 transition-colors">
+    ? `<a href="${ACCOUNT_PATHS.cart}" data-link class="block w-full py-3 bg-[var(--color-surface-3)] text-white font-bold rounded-lg text-center text-sm hover:bg-[var(--color-brand-700)]/50 transition-colors">
          Item no Carrinho — Ver Sacola
        </a>`
     : `<button id="btn-add-cart" class="button-primary w-full py-3 text-sm">
          Adicionar ao Carrinho
+       </button>`;
+
+  const giftButton = giftInCart
+    ? `<a href="${ACCOUNT_PATHS.cart}" data-link class="button-secondary purchase-gift-action__button w-full py-2.5 text-sm gap-2">
+         ${Icon(icons.gift, { className: "w-4 h-4" })} Presente no carrinho — Ver sacola
+       </a>`
+    : `<button id="btn-gift-game" class="button-secondary purchase-gift-action__button w-full py-2.5 text-sm gap-2">
+         ${Icon(icons.gift, { className: "w-4 h-4" })} Presentear este jogo
        </button>`;
 
   const wishlistButton = inWishlist
@@ -199,6 +209,10 @@ export default async function GamePage({ slug }) {
           <!-- Botões de Ação -->
           <div class="space-y-2">
             ${buyButton}
+            <div class="purchase-gift-action">
+              ${giftButton}
+              <p>Você recebe um código para enviar a um amigo. <a href="${ACCOUNT_PATHS.gifts}" data-link>Ver meus códigos</a></p>
+            </div>
             ${!inLibrary ? wishlistButton : ""}
           </div>
 
@@ -227,8 +241,13 @@ export async function afterRender({ slug }) {
 
   // Adicionar ao Carrinho
   document.getElementById("btn-add-cart")?.addEventListener("click", async () => {
-    await Actions.adicionarAoCarrinho(game);
-    navigate("/cart");
+    await Actions.adicionarAoCarrinho(game, false);
+    navigate(ACCOUNT_PATHS.cart);
+  });
+
+  document.getElementById("btn-gift-game")?.addEventListener("click", async () => {
+    await Actions.adicionarAoCarrinho(game, true);
+    navigate(ACCOUNT_PATHS.cart);
   });
 
   // Alternar Lista de Desejos
