@@ -96,4 +96,39 @@ describe("Admin page", () => {
     expect(dialog.querySelector("#admin-dialog-title")?.textContent).toBe("admin");
     expect(dialog.querySelector('button[type="submit"]')?.classList).toContain("admin-form-wide");
   });
+
+  it("should update the game preview while editing catalog fields", async () => {
+    AdminService.getGames.mockResolvedValue([{
+      id: 10,
+      titulo: "Cyberpunk 2077",
+      slug: "cyberpunk-2077",
+      descricao_curta: "Night City.",
+      preco: 199.9,
+      status: "published",
+      tags: ["RPG"],
+      midias: [
+        { id: 21, tipo: "cover", posicao: 1, url: "https://example.com/cover.jpg" },
+        { id: 22, tipo: "banner", posicao: 1, url: "https://example.com/banner.jpg" },
+      ],
+    }]);
+    document.body.innerHTML = await AdminPage();
+    const dialog = document.getElementById("admin-dialog");
+    dialog.showModal = vi.fn(() => dialog.setAttribute("open", ""));
+    afterRender();
+
+    document.querySelector('[data-admin-edit-game="10"]').click();
+    const form = dialog.querySelector('[data-kind="game"]');
+    form.elements.titulo.value = "Novo título";
+    form.elements.preco.value = "89.9";
+    form.elements.tags.value = "Indie, Aventura";
+    form.elements.titulo.dispatchEvent(new Event("input", { bubbles: true }));
+
+    expect(dialog.querySelector("[data-preview-title]").textContent).toBe("Novo título");
+    expect(dialog.querySelector("[data-preview-card-title]").textContent).toBe("Novo título");
+    expect(dialog.querySelector("[data-preview-card-price]").textContent).toContain("89,90");
+    expect([...dialog.querySelectorAll("[data-preview-tags] span")].map((item) => item.textContent))
+      .toEqual(["Indie", "Aventura"]);
+    expect(dialog.querySelector("[data-preview-cover] img").src).toBe("https://example.com/cover.jpg");
+    expect(dialog.querySelector("[data-preview-banner] img").src).toBe("https://example.com/banner.jpg");
+  });
 });

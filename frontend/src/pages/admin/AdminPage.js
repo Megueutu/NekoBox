@@ -257,6 +257,11 @@ function openGameDialog(game = null) {
   content.innerHTML = `
     <header><p>${game ? "Editar catálogo" : "Novo catálogo"}</p><h2 id="admin-dialog-title">${game ? escapeHtml(game.titulo) : "Cadastrar jogo"}</h2></header>
     <form id="admin-resource-form" data-kind="game" data-resource-id="${game?.id || ""}" class="admin-resource-form">
+      <div class="admin-form-section-heading admin-form-wide">
+        <p>Informações e mídias</p>
+        <h3>Dados do jogo</h3>
+        <span>Preencha os campos e acompanhe a apresentação no catálogo.</span>
+      </div>
       <label>Título<input name="titulo" maxlength="255" value="${escapeHtml(game?.titulo || "")}" required></label>
       <label>Descrição curta<input name="descricao_curta" maxlength="300" value="${escapeHtml(game?.descricao_curta || "")}"></label>
       <label class="admin-form-wide">Descrição completa<textarea name="descricao_longa" rows="4">${escapeHtml(game?.descricao_longa || "")}</textarea></label>
@@ -274,7 +279,7 @@ function openGameDialog(game = null) {
         </div>
         <div class="admin-media-preview" data-media-preview aria-live="polite">
           ${(game?.midias || []).map((media) => `
-            <figure class="admin-media-item" data-existing-media="${media.id}">
+            <figure class="admin-media-item" data-existing-media="${media.id}" data-media-type="${media.tipo}">
               <img src="${escapeHtml(media.url)}" alt="">
               <figcaption><span>${media.tipo === "screenshot" ? `Screenshot ${media.posicao}` : media.tipo}</span>
                 <button type="button" data-admin-delete-media="${media.id}" data-game-id="${game.id}" aria-label="Remover ${media.tipo}">${Icon(icons.trash, { className: "w-4 h-4" })}</button>
@@ -283,11 +288,54 @@ function openGameDialog(game = null) {
           `).join("")}
         </div>
       </fieldset>
+      <section class="admin-game-preview admin-form-wide" data-game-preview aria-labelledby="admin-game-preview-title">
+        <div class="admin-game-preview__heading">
+          <div>
+            <p>Prévia ao vivo</p>
+            <h3 id="admin-game-preview-title">Como o jogo vai aparecer</h3>
+          </div>
+          <span data-preview-status>Rascunho</span>
+        </div>
+        <div class="admin-game-preview__stage">
+          <article class="admin-game-preview__hero">
+            <div class="admin-game-preview__hero-media" data-preview-banner>
+              <img data-preview-image alt="">
+              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-7 h-7" })}<span>Banner do jogo</span></div>
+            </div>
+            <div class="admin-game-preview__hero-shade" aria-hidden="true"></div>
+            <div class="admin-game-preview__hero-content">
+              <span data-preview-release>Data a definir</span>
+              <h4 data-preview-title>Título do jogo</h4>
+              <p data-preview-description>Uma breve descrição vai aparecer aqui.</p>
+              <div data-preview-tags></div>
+              <strong data-preview-price>R$ 0,00</strong>
+            </div>
+          </article>
+          <article class="admin-game-preview__card">
+            <div class="admin-game-preview__cover" data-preview-cover>
+              <img data-preview-image alt="">
+              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-7 h-7" })}<span>Capa do jogo</span></div>
+            </div>
+            <div class="admin-game-preview__card-body">
+              <span>Prévia do catálogo</span>
+              <h4 data-preview-card-title>Título do jogo</h4>
+              <p data-preview-card-description>Jogo digital</p>
+              <strong data-preview-card-price>R$ 0,00</strong>
+            </div>
+          </article>
+        </div>
+        <div class="admin-game-preview__screenshots">
+          <span>Capturas de tela</span>
+          <div data-preview-screenshots></div>
+        </div>
+      </section>
       <button class="button-primary admin-form-wide" type="submit">${game ? "Salvar alterações" : "Cadastrar jogo"}</button>
       <p class="admin-form-error admin-form-wide hidden" role="alert"></p>
     </form>`;
   dialog.showModal();
-  content.querySelector("input")?.focus();
+  const form = content.querySelector("form");
+  updateGamePreview(form);
+  form.querySelector("input")?.focus();
 }
 
 async function submitResourceForm(form) {
@@ -361,6 +409,7 @@ function renderSelectedMedia(form) {
     const figure = document.createElement("figure");
     figure.className = "admin-media-item admin-media-item--selected";
     figure.dataset.selectedMedia = "";
+    figure.dataset.mediaType = type;
     const image = document.createElement("img");
     image.src = URL.createObjectURL(file);
     image.alt = "";
@@ -368,6 +417,101 @@ function renderSelectedMedia(form) {
     caption.textContent = `${type === "screenshot" ? "Screenshot" : type} — ${file.name}`;
     figure.append(image, caption);
     preview.append(figure);
+  });
+  updateGamePreview(form);
+}
+
+function selectedMediaUrls(form, type) {
+  const selected = [...form.querySelectorAll(`[data-selected-media][data-media-type="${type}"] img`)]
+    .map((image) => image.src);
+  if (selected.length) return selected;
+  return [...form.querySelectorAll(`[data-existing-media][data-media-type="${type}"] img`)]
+    .map((image) => image.src);
+}
+
+function setPreviewImage(container, url, alt) {
+  const image = container.querySelector("[data-preview-image]");
+  const placeholder = container.querySelector("[data-preview-placeholder]");
+  image.hidden = !url;
+  placeholder.hidden = Boolean(url);
+  if (url) {
+    image.src = url;
+    image.alt = alt;
+  } else {
+    image.removeAttribute("src");
+    image.alt = "";
+  }
+}
+
+function updateGamePreview(form) {
+  const preview = form?.querySelector("[data-game-preview]");
+  if (!preview) return;
+
+  const title = form.elements.titulo.value.trim() || "Título do jogo";
+  const description = form.elements.descricao_curta.value.trim()
+    || "Uma breve descrição vai aparecer aqui.";
+  const price = Number(form.elements.preco.value || 0);
+  const formattedPrice = money.format(Number.isFinite(price) ? price : 0);
+  const releaseDate = form.elements.data_lancamento.value;
+  const status = form.elements.status.value;
+  const statusLabels = { draft: "Rascunho", published: "Publicado", archived: "Arquivado" };
+  const tags = form.elements.tags.value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+  const coverUrl = selectedMediaUrls(form, "cover")[0] || "";
+  const bannerUrl = selectedMediaUrls(form, "banner")[0] || "";
+  const screenshots = selectedMediaUrls(form, "screenshot");
+
+  preview.querySelector("[data-preview-title]").textContent = title;
+  preview.querySelector("[data-preview-card-title]").textContent = title;
+  preview.querySelector("[data-preview-description]").textContent = description;
+  preview.querySelector("[data-preview-card-description]").textContent = tags[0] || "Jogo digital";
+  preview.querySelector("[data-preview-price]").textContent = formattedPrice;
+  preview.querySelector("[data-preview-card-price]").textContent = formattedPrice;
+  preview.querySelector("[data-preview-release]").textContent = releaseDate
+    ? formatDate(releaseDate)
+    : "Data a definir";
+
+  const statusBadge = preview.querySelector("[data-preview-status]");
+  statusBadge.textContent = statusLabels[status] || status;
+  statusBadge.dataset.status = status;
+
+  const tagsContainer = preview.querySelector("[data-preview-tags]");
+  tagsContainer.replaceChildren(...tags.map((tag) => {
+    const chip = document.createElement("span");
+    chip.textContent = tag;
+    return chip;
+  }));
+
+  setPreviewImage(preview.querySelector("[data-preview-cover]"), coverUrl, `Capa de ${title}`);
+  setPreviewImage(preview.querySelector("[data-preview-banner]"), bannerUrl, `Banner de ${title}`);
+
+  const screenshotsContainer = preview.querySelector("[data-preview-screenshots]");
+  screenshotsContainer.replaceChildren();
+  if (!screenshots.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "As screenshots selecionadas aparecerão aqui.";
+    screenshotsContainer.append(empty);
+    return;
+  }
+  screenshots.slice(0, 4).forEach((url, index) => {
+    const image = document.createElement("img");
+    image.src = url;
+    image.alt = `Screenshot ${index + 1} de ${title}`;
+    screenshotsContainer.append(image);
+  });
+  if (screenshots.length > 4) {
+    const remaining = document.createElement("span");
+    remaining.textContent = `+${screenshots.length - 4}`;
+    screenshotsContainer.append(remaining);
+  }
+}
+
+function cleanupSelectedMedia(dialog) {
+  dialog.querySelectorAll("[data-selected-media] img").forEach((image) => {
+    URL.revokeObjectURL(image.src);
   });
 }
 
@@ -460,6 +604,15 @@ export function afterRender() {
 
   document.getElementById("admin-dialog")?.addEventListener("change", (event) => {
     if (event.target.type === "file") renderSelectedMedia(event.target.form);
+    else if (event.target.form?.dataset.kind === "game") updateGamePreview(event.target.form);
+  });
+
+  document.getElementById("admin-dialog")?.addEventListener("input", (event) => {
+    if (event.target.form?.dataset.kind === "game") updateGamePreview(event.target.form);
+  });
+
+  document.getElementById("admin-dialog")?.addEventListener("close", (event) => {
+    cleanupSelectedMedia(event.currentTarget);
   });
 
   document.getElementById("admin-dialog")?.addEventListener("click", async (event) => {
@@ -469,6 +622,7 @@ export function afterRender() {
     try {
       await AdminService.deleteGameMedia(button.dataset.gameId, button.dataset.adminDeleteMedia);
       button.closest("[data-existing-media]")?.remove();
+      updateGamePreview(button.form);
       showToast("Mídia removida.");
     } catch (error) {
       button.disabled = false;
