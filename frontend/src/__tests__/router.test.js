@@ -57,10 +57,10 @@ describe("Accessibility page route", () => {
 });
 
 describe("Settings page route", () => {
-  it("should expose visual preferences without requiring authentication", () => {
+  it("should keep visual preferences inside the authenticated account area", () => {
     const settingsRoute = routes.find((route) => route.path === "/configuracoes");
 
-    expect(settingsRoute.private).toBe(false);
+    expect(settingsRoute.private).toBe(true);
   });
 });
 

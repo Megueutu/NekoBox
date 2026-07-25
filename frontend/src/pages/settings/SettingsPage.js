@@ -1,10 +1,13 @@
-import { PublicLayout } from "../../app/layouts/PublicLayout";
+import { PrivateLayout } from "../../app/layouts/PrivateLayout";
+import { navigate } from "../../app/router/navigate";
 import {
   getPreferences,
   resetPreferences,
   savePreferences,
 } from "../../app/preferences/preferences";
+import { AuthService } from "../../services/auth/auth.service";
 import { Icon, icons } from "../../components/ui/Icon";
+import { PageHeader } from "../../components/ui/PageHeader";
 
 const accentOptions = [
   { value: "violet", label: "Violeta Nexus", color: "#a78bfa" },
@@ -35,55 +38,47 @@ function radioOption(name, value, label, description, selected) {
 export default function SettingsPage() {
   const preferences = getPreferences();
   const content = `
-    <div class="settings-page">
-      <header class="site-container settings-hero">
-        <div>
-          <p class="section-heading__eyebrow mb-2">Seu espaço, suas regras</p>
-          <h1>Configurações</h1>
-          <p>Personalize a aparência e o ritmo do NekoBox. As escolhas ficam salvas neste dispositivo.</p>
-        </div>
-        <div class="settings-preview" aria-hidden="true">
-          <span></span><span></span><span></span>
-          <strong>NEKOBOX</strong>
-          <small>Prévia ao vivo</small>
-        </div>
-      </header>
+    <div class="settings-page space-y-8">
+      ${PageHeader({
+        title: "Configurações",
+        subtitle: "Personalize a aparência e o conforto de leitura. As escolhas ficam salvas neste dispositivo.",
+      })}
 
-      <form id="settings-form" class="site-container settings-layout">
+      <form id="settings-form" class="settings-layout">
         <div class="settings-main">
-          <section class="settings-section" aria-labelledby="color-title">
+          <section class="settings-section panel" aria-labelledby="appearance-title">
             <div class="settings-section__heading">
-              <p>01</p>
-              <div><h2 id="color-title">Cor vibrante</h2><span>Escolha a energia que contrasta com a base escura.</span></div>
+              <h2 id="appearance-title">Aparência</h2>
+              <span>Defina a cor de destaque e o tom da interface.</span>
             </div>
-            <fieldset class="accent-picker">
-              <legend class="sr-only">Cor vibrante da interface</legend>
-              ${accentOptions.map(({ value, label, color }) => `
-                <label class="accent-option" style="--swatch-color: ${color}">
-                  <input type="radio" name="accent" value="${value}" ${preferences.accent === value ? "checked" : ""} />
-                  <span class="accent-option__swatch"></span>
-                  <strong>${label}</strong>
-                  <small aria-hidden="true">Selecionar</small>
-                </label>
-              `).join("")}
-            </fieldset>
+
+            <div class="settings-section__content">
+              <fieldset class="settings-fieldset">
+                <legend>Cor de destaque</legend>
+                <div class="accent-picker">
+                  ${accentOptions.map(({ value, label, color }) => `
+                    <label class="accent-option" style="--swatch-color: ${color}">
+                      <input type="radio" name="accent" value="${value}" ${preferences.accent === value ? "checked" : ""} />
+                      <span class="accent-option__swatch"></span>
+                      <strong>${label}</strong>
+                    </label>
+                  `).join("")}
+                </div>
+              </fieldset>
+
+              <fieldset class="settings-fieldset">
+                <legend>Tom da interface</legend>
+                <div class="setting-choice-grid">
+                  ${baseOptions.map(({ value, label, description }) => radioOption("base", value, label, description, preferences.base)).join("")}
+                </div>
+              </fieldset>
+            </div>
           </section>
 
-          <section class="settings-section" aria-labelledby="base-title">
+          <section class="settings-section panel" aria-labelledby="reading-title">
             <div class="settings-section__heading">
-              <p>02</p>
-              <div><h2 id="base-title">Tom da interface</h2><span>A identidade permanece escura, com diferentes profundidades.</span></div>
-            </div>
-            <fieldset class="setting-choice-grid">
-              <legend class="sr-only">Tom escuro da interface</legend>
-              ${baseOptions.map(({ value, label, description }) => radioOption("base", value, label, description, preferences.base)).join("")}
-            </fieldset>
-          </section>
-
-          <section class="settings-section" aria-labelledby="reading-title">
-            <div class="settings-section__heading">
-              <p>03</p>
-              <div><h2 id="reading-title">Leitura e conforto</h2><span>Ajustes que ajudam a interface a acompanhar vc.</span></div>
+              <h2 id="reading-title">Leitura e conforto</h2>
+              <span>Ajuste texto, espaçamento e movimento.</span>
             </div>
             <div class="settings-control-list">
               <fieldset class="settings-control-row">
@@ -109,21 +104,18 @@ export default function SettingsPage() {
           </section>
         </div>
 
-        <aside class="settings-summary" aria-labelledby="summary-title">
-          <p class="section-heading__eyebrow mb-2">Aplicado agora</p>
-          <h2 id="summary-title">Sua combinação</h2>
-          <div class="settings-summary__sample" aria-hidden="true"><span></span><strong>Jogue do seu jeito.</strong><small>Uma prévia da identidade escolhida.</small><i>Ação em destaque</i></div>
-          <dl id="settings-summary-values"></dl>
+        <div class="settings-actions">
+          <p>As alterações são aplicadas e salvas automaticamente.</p>
           <button id="reset-settings" type="button" class="button-secondary settings-reset">
             ${Icon(icons.reset, { className: "w-4 h-4" })} Restaurar padrão
           </button>
           <p id="settings-status" class="sr-only" role="status" aria-live="polite"></p>
-        </aside>
+        </div>
       </form>
     </div>
   `;
 
-  return PublicLayout(content);
+  return PrivateLayout(content);
 }
 
 function readFormPreferences(form) {
@@ -137,30 +129,13 @@ function readFormPreferences(form) {
   };
 }
 
-function updateSummary(preferences) {
-  const accent = accentOptions.find((option) => option.value === preferences.accent);
-  const base = baseOptions.find((option) => option.value === preferences.base);
-  const values = document.getElementById("settings-summary-values");
-  if (!values) return;
-
-  values.innerHTML = `
-    <div><dt>Cor</dt><dd>${accent.label}</dd></div>
-    <div><dt>Base</dt><dd>${base.label}</dd></div>
-    <div><dt>Texto</dt><dd>${preferences.textSize === "large" ? "Ampliado" : "Padrão"}</dd></div>
-    <div><dt>Movimento</dt><dd>${preferences.motion === "reduced" ? "Reduzido" : "Do sistema"}</dd></div>
-  `;
-}
-
 export function afterRender() {
   const form = document.getElementById("settings-form");
   const status = document.getElementById("settings-status");
   if (!form) return;
 
-  updateSummary(getPreferences());
-
   form.addEventListener("change", () => {
-    const preferences = savePreferences(readFormPreferences(form));
-    updateSummary(preferences);
+    savePreferences(readFormPreferences(form));
     status.textContent = "Preferências aplicadas e salvas neste dispositivo.";
   });
 
@@ -175,7 +150,11 @@ export function afterRender() {
       const input = form.querySelector(`[name="${name}"][value="${value}"]`);
       if (input) input.checked = true;
     });
-    updateSummary(preferences);
     status.textContent = "Configurações padrão restauradas.";
+  });
+
+  document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
+    await AuthService.logout();
+    navigate("/hub");
   });
 }
