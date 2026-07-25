@@ -1,31 +1,21 @@
 # NekoBox
 
-Marketplace de jogos com frontend em Vite, API Spring Boot e PostgreSQL. Este guia descreve como executar o ambiente local no Windows usando PowerShell ou Prompt de Comando.
+Marketplace de jogos com frontend Vite, API Spring Boot e PostgreSQL. O ambiente local roda integralmente no Docker e pode ser iniciado no Windows com um único comando.
 
 ## Pré-requisitos
 
-Instale:
+Instale o Git e o Docker Desktop com Docker Compose v2. Java, Maven, Node.js e PostgreSQL não precisam estar instalados no Windows.
 
-- Git;
-- Docker Desktop com Docker Compose v2;
-- Java 21;
-- Node.js 22 LTS com npm.
-
-Não é necessário instalar Maven: o projeto inclui o Maven Wrapper para Windows (`mvnw.cmd`).
-
-Antes de continuar, abra o Docker Desktop e aguarde o engine ficar disponível. Confirme as instalações:
+Abra o Docker Desktop e aguarde o engine ficar disponível. Depois, confirme:
 
 ```powershell
 docker --version
 docker compose version
-java -version
-node --version
-npm --version
 ```
 
 ## Configuração inicial
 
-Clone o repositório, entre na pasta do projeto e crie o arquivo local de variáveis:
+Clone o repositório, entre na pasta e crie o arquivo local de variáveis:
 
 ```powershell
 git clone <URL_DO_REPOSITORIO>
@@ -33,67 +23,46 @@ cd marketplace-project
 Copy-Item .env.example .env
 ```
 
-No Prompt de Comando, substitua a última linha por:
+No Prompt de Comando, use `copy .env.example .env` no lugar do `Copy-Item`.
 
-```cmd
-copy .env.example .env
-```
+O `.env` é ignorado pelo Git. Os valores de exemplo permitem executar o catálogo e o login local, mas as integrações externas exigem credenciais próprias:
 
-O `.env.example` já contém a configuração necessária para PostgreSQL, API e frontend locais. O arquivo `.env` é ignorado pelo Git e não deve ser versionado.
+- Cloudinary: substitua `CLOUDINARY_URL` e `VITE_CLOUDINARY_CLOUD_NAME`;
+- Google/Firebase: preencha `FIREBASE_API_KEY` e as variáveis `VITE_FIREBASE_*`.
 
-As integrações externas são opcionais para o fluxo básico:
+`CLOUDINARY_URL` contém o segredo da API e é enviada somente ao backend. Variáveis `VITE_*` são incorporadas ao JavaScript público do navegador e nunca devem conter senhas ou `API_SECRET`.
 
-- login por e-mail e senha funciona sem Firebase;
-- login com Google exige preencher `FIREBASE_API_KEY` e as variáveis `VITE_FIREBASE_*`;
-- upload de imagens exige substituir o valor de exemplo de `CLOUDINARY_URL` e informar `VITE_CLOUDINARY_CLOUD_NAME`.
+## Executar com um comando
 
-## Executar o projeto
-
-Use três terminais, sempre a partir da raiz do repositório.
-
-### 1. Banco de dados
-
-No primeiro terminal:
+Na raiz do projeto:
 
 ```powershell
-docker compose up --build -d postgres
+docker compose up --build -d
+```
+
+O Compose constrói as imagens, inicializa os serviços na ordem correta e aguarda os healthchecks. Confira o resultado:
+
+```powershell
 docker compose ps
 ```
 
-O PostgreSQL fica disponível em `localhost:5433`. O container cria o schema e aplica o seed automaticamente; aguarde o status `healthy` antes de iniciar a API.
+Serviços locais:
+
+| Serviço | Endereço |
+| --- | --- |
+| Frontend | `http://localhost:5173` |
+| API | `http://localhost:8080` |
+| PostgreSQL | `localhost:5433` |
+
+As portas podem ser alteradas em `.env` por meio de `FRONTEND_PORT`, `API_PORT` e `POSTGRES_PORT`. Se mudar a porta da API ou do frontend, ajuste também `VITE_API_BASE_URL` e `APP_CORS_ALLOWED_ORIGINS`.
 
 Para acompanhar a inicialização:
 
 ```powershell
-docker compose logs -f postgres
+docker compose logs -f
 ```
 
-Use `Ctrl+C` para sair dos logs sem encerrar o container.
-
-### 2. Backend
-
-No segundo terminal:
-
-```powershell
-cd backend\api
-.\mvnw.cmd spring-boot:run
-```
-
-A API fica disponível em `http://localhost:8080`.
-
-### 3. Frontend
-
-No terceiro terminal:
-
-```powershell
-cd frontend
-npm ci
-npm run dev
-```
-
-Acesse `http://localhost:5173`.
-
-Nas próximas execuções, `npm ci` só precisa ser repetido quando o `package-lock.json` mudar.
+Use `Ctrl+C` para sair dos logs sem encerrar os containers.
 
 ## Usuários e dados de demonstração
 
@@ -116,9 +85,11 @@ O banco inicia com seis jogos publicados e saldo inicial de `R$ 1.000,00` para n
 
 Como o volume do PostgreSQL é persistente, um código já resgatado continua indisponível após reiniciar os containers.
 
-## Testes e build
+## Testes locais opcionais
 
-Backend:
+Os testes também podem ser executados fora do Docker se Java 21 e Node.js 22 estiverem instalados.
+
+Backend no PowerShell:
 
 ```powershell
 cd backend\api
@@ -135,13 +106,11 @@ npm run build
 
 ## Encerrar o ambiente
 
-Encerre backend e frontend com `Ctrl+C` nos respectivos terminais. Depois, na raiz do projeto:
-
 ```powershell
 docker compose down
 ```
 
-Esse comando remove o container e preserva os dados do PostgreSQL no volume Docker.
+Esse comando remove os containers e preserva os dados do PostgreSQL no volume Docker. Não use `docker compose down -v` se quiser manter usuários, jogos e gift cards.
 
 ## Solução de problemas
 
@@ -157,7 +126,7 @@ As portas padrão são:
 - `8080`: API;
 - `5433`: PostgreSQL no host.
 
-Encerre o processo que ocupa a porta. Para alterar somente a porta do PostgreSQL, edite `POSTGRES_PORT` e ajuste a porta de `BD_URL` no `.env`.
+Encerre o processo que ocupa a porta ou altere `FRONTEND_PORT`, `API_PORT` ou `POSTGRES_PORT` no `.env`.
 
 ### API não conecta ao banco
 
@@ -168,7 +137,7 @@ docker compose ps
 docker compose logs postgres
 ```
 
-Também confirme que `BD_URL`, `BD_ADMIN` e `BD_SENHA` no `.env` correspondem a `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_PORT`.
+Dentro do Compose, `BD_URL`, `BD_ADMIN` e `BD_SENHA` são derivados das variáveis `POSTGRES_*`. Não troque `localhost` pelo nome do container manualmente: o Compose já configura a API para acessar `postgres:5432`.
 
 ### Alterações no seed não aparecem
 
@@ -183,3 +152,9 @@ O script de seed é idempotente e roda a cada inicialização do container, sem 
 ### Login com Google ou upload de imagem falha
 
 Esses recursos dependem das credenciais opcionais de Firebase e Cloudinary no `.env`. O login local por e-mail e senha e a navegação pelo catálogo continuam disponíveis sem elas.
+
+### Falha de certificado durante o build
+
+O primeiro build baixa imagens e dependências do Docker Hub, Maven Central e npm. Em redes com inspeção TLS corporativa, o Docker pode rejeitar o certificado intermediário. Use a configuração de proxy/certificados aprovada pela sua organização no Docker Desktop ou faça o build em uma rede autorizada.
+
+O projeto não inclui certificados corporativos, truststores locais ou opções para desabilitar a validação TLS.
