@@ -7,94 +7,29 @@
 }
 
 .app-ambient {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.app-shell:has(.landing-page) > .app-ambient {
   display: none;
 }
 
-.app-ambient__blob {
-  position: absolute;
-  width: clamp(25rem, 50vw, 48rem);
-  height: clamp(25rem, 50vw, 48rem);
-  border-radius: 999px;
-  filter: blur(130px);
-  opacity: 0.2;
-  animation: app-ambient-drift 24s ease-in-out infinite alternate;
-}
-
-.app-ambient__blob--one {
-  top: -18rem;
-  left: -14rem;
-  background: var(--app-neon-primary);
-}
-
-.app-ambient__blob--two {
-  right: -20rem;
-  bottom: -18rem;
-  background: var(--app-neon-secondary);
-  opacity: 0.12;
-  animation-direction: alternate-reverse;
-  animation-duration: 30s;
-}
-
-.app-ambient__grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(color-mix(in srgb, white 2.5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, white 2.5%, transparent) 1px, transparent 1px);
-  background-size: 4.5rem 4.5rem;
-  mask-image: radial-gradient(circle at 50% 18%, black, transparent 72%);
-  -webkit-mask-image: radial-gradient(circle at 50% 18%, black, transparent 72%);
-}
-
-@keyframes app-ambient-drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(5rem, 3rem, 0) scale(1.1); }
-}
-
-.app-shell:not(:has(.landing-page)) #main-content > * {
-  animation: app-page-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes app-page-enter {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: none; }
-}
-
 .app-shell .site-nav {
-  background: color-mix(in srgb, var(--color-bg) 75%, transparent);
-  border-bottom-color: color-mix(in srgb, var(--app-neon-soft) 16%, var(--color-border));
-  box-shadow: 0 10px 32px -28px var(--app-neon-primary);
-  backdrop-filter: blur(22px) saturate(135%);
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  border-bottom-color: color-mix(in srgb, white 7%, transparent);
+  box-shadow: 0 8px 24px -22px rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(16px);
 }
 
 .app-shell .site-footer {
-  border-top: 1px solid color-mix(in srgb, var(--app-neon-soft) 14%, var(--color-border));
-  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-  backdrop-filter: blur(22px) saturate(125%);
+  border-top: 1px solid color-mix(in srgb, white 7%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(14px);
 }
 
 .app-shell .hero-panel {
-  border: 1px solid color-mix(in srgb, var(--app-neon-soft) 26%, transparent);
-  box-shadow:
-    0 30px 70px -42px color-mix(in srgb, var(--app-neon-primary) 76%, transparent),
-    inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  box-shadow: var(--shadow-elevated);
 }
 
 .app-shell .hero-panel::after {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--app-neon-soft) 24%, transparent);
-  pointer-events: none;
-  content: "";
+  content: none;
 }
 
 .app-shell .catalog-toolbar,
@@ -104,122 +39,100 @@
 .app-shell .settings-control-list,
 .app-shell .accessibility-status,
 .app-shell .accessibility-features {
-  border: 1px solid color-mix(in srgb, white 10%, transparent);
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  box-shadow:
-    0 22px 54px -40px color-mix(in srgb, var(--app-neon-primary) 70%, transparent),
-    inset 0 1px 0 color-mix(in srgb, white 9%, transparent);
-  backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(14px);
 }
 
 .app-shell .game-card {
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
-  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
-  box-shadow: 0 18px 42px -34px rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid transparent;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: none;
   transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease, background-color 0.22s ease;
 }
 
 .app-shell .game-card:hover {
-  border-color: color-mix(in srgb, var(--app-neon-soft) 48%, transparent);
-  background: color-mix(in srgb, var(--color-surface-2) 82%, transparent);
-  box-shadow: 0 24px 50px -34px color-mix(in srgb, var(--app-neon-primary) 72%, transparent);
+  border-color: color-mix(in srgb, white 9%, transparent);
+  background: var(--color-surface-2);
+  box-shadow: 0 18px 38px -28px rgba(0, 0, 0, 0.98);
+  transform: translateY(-2px);
 }
 
 .app-shell .game-card__media::after {
-  position: absolute;
-  inset: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--app-neon-soft) 16%, transparent);
-  pointer-events: none;
-  content: "";
+  content: none;
 }
 
 .app-shell .game-section {
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  border: 1px solid color-mix(in srgb, white 7%, transparent);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--color-surface) 58%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
-  backdrop-filter: blur(14px) saturate(120%);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px);
 }
 
 .app-shell .game-section > h2,
 .app-shell .page-heading h1,
 .app-shell .accessibility-heading h2,
 .app-shell .settings-section__heading h2 {
-  text-shadow: 0 0 30px color-mix(in srgb, var(--app-neon-primary) 24%, transparent);
+  text-shadow: none;
 }
 
 .app-shell .purchase-card {
   overflow: hidden;
-  border-color: color-mix(in srgb, var(--app-neon-soft) 28%, var(--color-border));
+  border-color: color-mix(in srgb, white 9%, transparent);
 }
 
 .app-shell .purchase-card::before {
-  display: block;
-  height: 2px;
-  margin: -1px -1px 0;
-  background: linear-gradient(90deg, transparent, var(--app-neon-soft), var(--app-neon-secondary), transparent);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--app-neon-soft) 62%, transparent);
-  content: "";
+  content: none;
 }
 
 .app-shell .button-primary,
 .app-shell .button-accent {
-  background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-700));
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--app-neon-soft) 48%, transparent),
-    0 12px 28px -16px color-mix(in srgb, var(--app-neon-primary) 88%, transparent);
+  background: var(--color-brand-600);
+  box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.9);
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .app-shell .button-primary:hover,
 .app-shell .button-accent:hover {
-  filter: brightness(1.08);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--app-neon-secondary) 48%, transparent),
-    0 0 24px -8px color-mix(in srgb, var(--app-neon-primary) 82%, transparent);
+  background: var(--color-brand-500);
+  filter: none;
+  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.95);
+  transform: translateY(-1px);
 }
 
 .app-shell .button-secondary {
-  border: 1px solid color-mix(in srgb, white 12%, transparent);
-  background: color-mix(in srgb, var(--color-surface-2) 68%, transparent);
-  backdrop-filter: blur(12px);
-}
-
-.app-shell .surface-chip {
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
-  background: color-mix(in srgb, var(--color-surface-2) 62%, transparent);
+  border: 1px solid color-mix(in srgb, white 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface-2) 86%, transparent);
   backdrop-filter: blur(10px);
 }
 
+.app-shell .surface-chip {
+  border: 1px solid color-mix(in srgb, white 7%, transparent);
+  background: var(--color-surface-2);
+  backdrop-filter: none;
+}
+
 .app-shell .surface-chip[data-active="true"] {
-  border-color: color-mix(in srgb, var(--app-neon-soft) 62%, transparent);
-  box-shadow: 0 0 18px -8px var(--app-neon-primary);
+  border-color: var(--color-brand-400);
+  box-shadow: none;
 }
 
 .app-shell .page-heading {
   position: relative;
   padding: clamp(1.25rem, 3vw, 2rem);
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, white 9%, transparent);
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
   border-radius: var(--radius-card);
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--app-neon-primary) 18%, transparent), transparent 42%),
-    color-mix(in srgb, var(--color-surface) 62%, transparent);
-  backdrop-filter: blur(16px) saturate(125%);
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px);
 }
 
 .app-shell .page-heading::after {
-  position: absolute;
-  right: -4rem;
-  bottom: -5rem;
-  width: 12rem;
-  height: 12rem;
-  border-radius: 50%;
-  background: var(--app-neon-primary);
-  filter: blur(4rem);
-  opacity: 0.16;
-  pointer-events: none;
-  content: "";
+  content: none;
 }
 
 .app-shell--private .account-shell {
@@ -245,12 +158,12 @@
 .account-sidebar__avatar {
   width: 3.25rem;
   aspect-ratio: 1;
-  border: 2px solid color-mix(in srgb, var(--app-neon-soft) 76%, white 8%);
+  border: 2px solid color-mix(in srgb, white 14%, var(--color-border));
   border-radius: 50%;
   background-color: var(--color-surface-3);
   background-position: center;
   background-size: cover;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--app-neon-primary) 10%, transparent);
+  box-shadow: none;
 }
 
 .account-sidebar__user {
@@ -318,11 +231,9 @@
 }
 
 .account-nav__link--active {
-  border-color: color-mix(in srgb, var(--app-neon-soft) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-400) 24%, transparent);
   color: var(--color-ink);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--app-neon-primary) 17%, transparent), transparent),
-    color-mix(in srgb, white 5%, transparent);
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-2));
   box-shadow: inset 3px 0 0 var(--app-neon-soft);
 }
 
@@ -387,8 +298,7 @@
   gap: clamp(1.25rem, 3vw, 2rem);
   align-items: center;
   padding: clamp(1.25rem, 3vw, 2rem);
-  background:
-    radial-gradient(circle at 0% 50%, color-mix(in srgb, var(--app-neon-primary) 12%, transparent), transparent 34%);
+  background: color-mix(in srgb, var(--color-surface-2) 42%, transparent);
 }
 
 .profile-avatar-editor__preview {
@@ -398,14 +308,12 @@
 .profile-avatar {
   width: clamp(5.5rem, 10vw, 7rem);
   aspect-ratio: 1;
-  border: 3px solid color-mix(in srgb, var(--app-neon-soft) 76%, white 8%);
+  border: 3px solid color-mix(in srgb, white 14%, var(--color-border));
   border-radius: 50%;
   background-color: var(--color-surface-2);
   background-position: center;
   background-size: cover;
-  box-shadow:
-    0 0 0 6px color-mix(in srgb, var(--app-neon-primary) 10%, transparent),
-    0 20px 45px -28px var(--app-neon-primary);
+  box-shadow: 0 16px 34px -26px rgba(0, 0, 0, 0.95);
 }
 
 .profile-avatar__edit {
@@ -589,18 +497,15 @@
 
 .app-shell--auth {
   overflow: hidden;
-  background:
-    radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--app-neon-primary) 24%, transparent), transparent 33%),
-    radial-gradient(circle at 82% 88%, color-mix(in srgb, var(--app-neon-secondary) 13%, transparent), transparent 34%),
-    var(--color-bg);
+  background: var(--color-bg);
 }
 
 .app-shell .catalog-toolbar input,
 .app-shell--private input,
 .app-shell--private textarea {
-  border-color: color-mix(in srgb, var(--app-neon-soft) 18%, var(--color-border));
-  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  box-shadow: none;
 }
 
 .app-shell .catalog-toolbar input:focus,
@@ -612,8 +517,8 @@
 
 .app-shell .accent-option,
 .app-shell .setting-choice > span {
-  background: color-mix(in srgb, var(--color-surface) 68%, transparent);
-  backdrop-filter: blur(12px);
+  background: var(--color-surface);
+  backdrop-filter: none;
 }
 
 .app-shell .accent-option:hover,
@@ -622,39 +527,31 @@
 }
 
 .app-shell .accessibility-hero {
-  border-bottom: 1px solid color-mix(in srgb, var(--app-neon-soft) 18%, var(--color-border));
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--app-neon-soft) 12%, transparent);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none;
 }
 
 .app-shell .accessibility-principles,
 .app-shell .accessibility-standards {
   gap: 1px;
-  border: 1px solid color-mix(in srgb, var(--app-neon-soft) 18%, var(--color-border));
-  background: color-mix(in srgb, var(--app-neon-primary) 22%, var(--color-border));
-  box-shadow: 0 28px 64px -48px var(--app-neon-primary);
+  border: 1px solid var(--color-border);
+  background: var(--color-border);
+  box-shadow: var(--shadow-card);
 }
 
 .app-shell .accessibility-principles article,
 .app-shell .accessibility-standards article {
-  background: color-mix(in srgb, var(--color-surface) 76%, transparent);
-  backdrop-filter: blur(14px);
+  background: var(--color-surface);
+  backdrop-filter: none;
 }
 
 @media (max-width: 640px) {
-  .app-ambient__blob { opacity: 0.14; }
-  .app-ambient__grid { background-size: 3.5rem 3.5rem; }
   .app-shell .page-heading { padding: 1.25rem; }
   .app-shell .game-section { border-radius: 0.75rem; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .app-ambient__blob,
-  .app-shell:not(:has(.landing-page)) #main-content > * {
-    animation: none !important;
-  }
-}
-
-:root[data-motion="reduced"] .app-ambient__blob,
-:root[data-motion="reduced"] .app-shell:not(:has(.landing-page)) #main-content > * {
-  animation: none !important;
+.text-gradient-brand {
+  background: none;
+  color: var(--color-brand-400);
+  -webkit-text-fill-color: currentColor;
 }
