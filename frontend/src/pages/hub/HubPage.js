@@ -15,9 +15,57 @@ const ALL_CATEGORIES = [
 
 let activeCategory = "Todos";
 let searchQuery = "";
+let catalogGames = [];
+
+export function filterCatalogGames(games, query = "", category = "Todos") {
+  const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
+
+  return games.filter((game) => {
+    const matchesCategory =
+      category === "Todos" || game.categories.includes(category);
+    const matchesQuery =
+      !normalizedQuery ||
+      [game.title, game.short_description, ...game.tags]
+        .some((value) => value.toLocaleLowerCase("pt-BR").includes(normalizedQuery));
+
+    return matchesCategory && matchesQuery;
+  });
+}
+
+function updateCatalogResults(games) {
+  const filteredGames = filterCatalogGames(games, searchQuery, activeCategory);
+  const count = document.getElementById("catalog-results-count");
+  const heading = document.getElementById("catalog-results-heading");
+  const grid = document.getElementById("catalog-grid");
+  const noResults = document.getElementById("catalog-no-results");
+
+  if (count) {
+    count.textContent = `${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}`;
+  }
+  if (heading) {
+    heading.textContent = activeCategory === "Todos" ? "Todos os jogos" : activeCategory;
+  }
+  if (grid) {
+    grid.innerHTML = filteredGames
+      .map((game) => GameCard(game, { variant: "catalog" }))
+      .join("");
+  }
+  if (noResults) {
+    noResults.hidden = filteredGames.length > 0;
+  }
+}
+
+export function bindCatalogSearch(games) {
+  const searchInput = document.getElementById("search-input");
+  searchInput?.addEventListener("input", (event) => {
+    searchQuery = event.target.value;
+    updateCatalogResults(games);
+  });
+}
 
 export default async function HubPage() {
   const allGames = await GamesService.getAll();
+  catalogGames = allGames;
   const heroGame = allGames[0];
   const heroRecRate = getRecommendationRate(heroGame.reviews);
 
@@ -30,21 +78,7 @@ export default async function HubPage() {
     .slice(0, 5)
     .map((g) => g.game);
 
-  let filteredGames = allGames;
-  if (activeCategory !== "Todos") {
-    filteredGames = filteredGames.filter((g) =>
-      g.categories.includes(activeCategory)
-    );
-  }
-  if (searchQuery.trim()) {
-    const q = searchQuery.toLowerCase();
-    filteredGames = filteredGames.filter(
-      (g) =>
-        g.title.toLowerCase().includes(q) ||
-        g.short_description.toLowerCase().includes(q) ||
-        g.tags.some((t) => t.toLowerCase().includes(q))
-    );
-  }
+  const filteredGames = filterCatalogGames(allGames, searchQuery, activeCategory);
 
   const content = `
     <div class="site-container page-stack">
@@ -111,7 +145,7 @@ export default async function HubPage() {
             <p class="section-heading__eyebrow mb-1">Explore</p>
             <h2 class="font-display text-2xl sm:text-3xl font-bold">Catálogo de jogos</h2>
           </div>
-          <p class="text-muted text-sm shrink-0">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
+          <p id="catalog-results-count" class="text-muted text-sm shrink-0" aria-live="polite">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
         </div>
         <div class="catalog-toolbar">
           <div class="relative w-full sm:max-w-lg">
@@ -141,23 +175,21 @@ export default async function HubPage() {
 
       <!-- Grid do Catálogo -->
       <section class="-mt-8">
-        <h3 class="sr-only">${activeCategory === "Todos" ? "Todos os jogos" : activeCategory}</h3>
-        <div class="catalog-grid">
+        <h3 id="catalog-results-heading" class="sr-only">${activeCategory === "Todos" ? "Todos os jogos" : activeCategory}</h3>
+        <div id="catalog-grid" class="catalog-grid">
           ${
             filteredGames.length > 0
               ? filteredGames.map((game) => GameCard(game, { variant: "catalog" })).join("")
               : ""
           }
         </div>
-        ${
-          filteredGames.length === 0
-            ? EmptyState({
-                icon: icons.search,
-                title: "Nenhum jogo encontrado",
-                description: "Tente outro filtro ou termo de busca.",
-              })
-            : ""
-        }
+        <div id="catalog-no-results" ${filteredGames.length > 0 ? "hidden" : ""}>
+          ${EmptyState({
+            icon: icons.search,
+            title: "Nenhum jogo encontrado",
+            description: "Tente outro filtro ou termo de busca.",
+          })}
+        </div>
       </section>
     </div>
   `;
@@ -166,20 +198,7 @@ export default async function HubPage() {
 }
 
 export async function afterRender() {
-  const searchInput = document.getElementById("search-input");
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      const cursorPosition = e.target.selectionStart;
-      searchQuery = e.target.value;
-      navigate("/hub", { focusTarget: null });
-      requestAnimationFrame(() => {
-        const nextInput = document.getElementById("search-input");
-        if (!nextInput) return;
-        nextInput.focus();
-        nextInput.setSelectionRange(cursorPosition, cursorPosition);
-      });
-    });
-  }
+  bindCatalogSearch(catalogGames);
 
   document.querySelectorAll("[data-category]").forEach((btn) => {
     btn.addEventListener("click", () => {
