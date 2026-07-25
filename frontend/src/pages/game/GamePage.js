@@ -60,6 +60,98 @@ export function renderScreenshotGallery(gameTitle, screenshots = []) {
   `;
 }
 
+const requirementFields = [
+  ["Sistema operacional", "os"],
+  ["Processador", "cpu"],
+  ["Memória", "ram"],
+  ["Placa de vídeo", "gpu"],
+  ["Armazenamento", "storage"],
+];
+
+function requirementCard(title, requirement, recommended = false) {
+  if (!requirement) return "";
+
+  return `
+    <article class="game-requirement-card${recommended ? " game-requirement-card--recommended" : ""}">
+      <header>
+        <span aria-hidden="true">${Icon(recommended ? icons.star : icons.settings, { className: "w-4 h-4" })}</span>
+        <div>
+          <p>${recommended ? "Experiência ideal" : "Para executar"}</p>
+          <h3>${title}</h3>
+        </div>
+      </header>
+      <dl class="game-requirement-list">
+        ${requirementFields
+          .filter(([, field]) => requirement[field])
+          .map(
+            ([label, field]) => `
+              <div>
+                <dt>${label}</dt>
+                <dd>${requirement[field]}</dd>
+              </div>
+            `
+          )
+          .join("")}
+      </dl>
+    </article>
+  `;
+}
+
+export function renderSystemRequirements(minimum, recommended) {
+  return `
+    <div class="game-requirements">
+      ${requirementCard("Requisitos mínimos", minimum)}
+      ${requirementCard("Requisitos recomendados", recommended, true)}
+    </div>
+  `;
+}
+
+function languageSupport(label, available) {
+  return `
+    <li class="${available ? "is-available" : "is-unavailable"}">
+      <span aria-hidden="true">
+        ${Icon(available ? icons.check : icons.x, { className: "w-4 h-4", strokeWidth: 2.5 })}
+      </span>
+      <span>${label}</span>
+      <strong>${available ? "Disponível" : "Indisponível"}</strong>
+    </li>
+  `;
+}
+
+export function renderLanguages(languages = []) {
+  return `
+    <div class="game-languages">
+      ${languages
+        .map(
+          (language) => `
+            <article class="game-language-card">
+              <h3>${language.name}</h3>
+              <ul aria-label="Recursos disponíveis em ${language.name}">
+                ${languageSupport("Interface", language.interface)}
+                ${languageSupport("Legendas", language.subtitles)}
+                ${languageSupport("Áudio", language.audio)}
+              </ul>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+export function renderAboutGame(description, tags = []) {
+  return `
+    <p class="text-muted text-sm leading-relaxed">${description}</p>
+    ${
+      tags.length
+        ? `<div class="flex flex-wrap gap-2 mt-5" aria-label="Tags do jogo">
+            ${tags.map((tag) => `<span class="surface-chip px-2.5 py-1 text-xs rounded-md">${tag}</span>`).join("")}
+          </div>`
+        : ""
+    }
+  `;
+}
+
 export default async function GamePage({ slug }) {
   const game = await GamesService.getBySlug(slug);
 
@@ -105,11 +197,6 @@ export default async function GamePage({ slug }) {
          ${Icon(icons.heart, { className: "w-4 h-4" })} Adicionar à Lista de Desejos
        </button>`;
 
-  const reqRow = (label, val) =>
-    val
-      ? `<div class="flex gap-2 text-xs"><span class="text-[var(--color-muted-2)] shrink-0 w-20">${label}</span><span class="text-muted">${val}</span></div>`
-      : "";
-
   const content = `
     <div class="site-container page-stack">
     <!-- Banner Hero -->
@@ -137,19 +224,8 @@ export default async function GamePage({ slug }) {
         <!-- Descrição -->
         ${Section({
           title: "Sobre o Jogo",
-          body: `<p class="text-muted text-sm leading-relaxed">${game.long_description}</p>`,
+          body: renderAboutGame(game.long_description, game.tags),
         })}
-
-        <!-- Tags -->
-        ${
-          game.tags?.length
-            ? `<section class="game-section">
-                <div class="flex flex-wrap gap-2">
-                  ${game.tags.map((t) => `<span class="surface-chip px-2.5 py-1 text-xs rounded-md">${t}</span>`).join("")}
-                </div>
-               </section>`
-            : ""
-        }
 
         <!-- Screenshots -->
         ${Section({
@@ -162,42 +238,7 @@ export default async function GamePage({ slug }) {
           (minReq || recReq)
             ? Section({
                 title: "Requisitos de Sistema",
-                body: `
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${
-                      minReq
-                        ? `
-                      <div class="bg-surface rounded-lg p-4">
-                        <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-muted-2)] mb-3">Mínimo</p>
-                        <div class="space-y-1.5">
-                          ${reqRow("SO", minReq.os)}
-                          ${reqRow("CPU", minReq.cpu)}
-                          ${reqRow("RAM", minReq.ram)}
-                          ${reqRow("GPU", minReq.gpu)}
-                          ${reqRow("Armazenamento", minReq.storage)}
-                        </div>
-                      </div>
-                    `
-                        : ""
-                    }
-                    ${
-                      recReq
-                        ? `
-                      <div class="bg-surface rounded-lg p-4">
-                        <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-400)] mb-3">Recomendado</p>
-                        <div class="space-y-1.5">
-                          ${reqRow("SO", recReq.os)}
-                          ${reqRow("CPU", recReq.cpu)}
-                          ${reqRow("RAM", recReq.ram)}
-                          ${reqRow("GPU", recReq.gpu)}
-                          ${reqRow("Armazenamento", recReq.storage)}
-                        </div>
-                      </div>
-                    `
-                        : ""
-                    }
-                  </div>
-                `,
+                body: renderSystemRequirements(minReq, recReq),
               })
             : ""
         }
@@ -207,34 +248,7 @@ export default async function GamePage({ slug }) {
           game.languages?.length
             ? Section({
                 title: "Idiomas Suportados",
-                body: `
-                  <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                      <thead>
-                        <tr class="text-left border-b border-[var(--color-border)]">
-                          <th class="pb-2 font-semibold text-muted pr-4">Idioma</th>
-                          <th class="pb-2 font-semibold text-muted text-center">Interface</th>
-                          <th class="pb-2 font-semibold text-muted text-center">Legendas</th>
-                          <th class="pb-2 font-semibold text-muted text-center">Áudio</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        ${game.languages
-                          .map(
-                            (lang) => `
-                          <tr class="border-b border-[var(--color-border)]/60">
-                            <td class="py-2 pr-4 text-[var(--color-ink)]">${lang.name}</td>
-                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Interface: ${lang.interface ? "disponível" : "não disponível"}">${lang.interface ? Icon(icons.check, { className: "inline-block w-4 h-4" }) : "–"}</td>
-                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Legendas: ${lang.subtitles ? "disponível" : "não disponível"}">${lang.subtitles ? Icon(icons.check, { className: "inline-block w-4 h-4" }) : "–"}</td>
-                            <td class="py-2 text-center text-[var(--color-accent-400)]" aria-label="Áudio: ${lang.audio ? "disponível" : "não disponível"}">${lang.audio ? Icon(icons.check, { className: "inline-block w-4 h-4" }) : "–"}</td>
-                          </tr>
-                        `
-                          )
-                          .join("")}
-                      </tbody>
-                    </table>
-                  </div>
-                `,
+                body: renderLanguages(game.languages),
               })
             : ""
         }
