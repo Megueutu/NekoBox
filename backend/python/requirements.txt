@@ -1,0 +1,18 @@
+# Core LLM / Agent
+langchain-core>=0.3.0
+langchain-google-genai>=2.0.0
+langgraph>=0.2.0
+
+# API Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.0.0
+
+# Database
+psycopg2-binary>=2.9.9
+
+# Config
+python-dotenv>=1.0.0
+
+# Observability (opcional — para LangSmith tracing)
+# langsmith>=0.1.0
