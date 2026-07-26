@@ -1,0 +1,85 @@
+import {
+  ArrowLeft,
+  Check,
+  CircleCheck,
+  CloudOff,
+  Copy,
+  Eye,
+  EyeOff,
+  Gamepad2,
+  Gift,
+  Heart,
+  Library,
+  LayoutDashboard,
+  LockKeyhole,
+  LogIn,
+  LogOut,
+  Mail,
+  Menu,
+  Play,
+  Plus,
+  Pencil,
+  RotateCcw,
+  Search,
+  Settings,
+  ShieldCheck,
+  ShoppingCart,
+  Star,
+  Trash2,
+  User,
+  Users,
+  Wallet,
+  X,
+  createElement,
+} from "lucide";
+
+export const icons = Object.freeze({
+  arrowLeft: ArrowLeft,
+  check: Check,
+  circleCheck: CircleCheck,
+  cloudOff: CloudOff,
+  copy: Copy,
+  dashboard: LayoutDashboard,
+  eye: Eye,
+  eyeOff: EyeOff,
+  gamepad: Gamepad2,
+  gift: Gift,
+  heart: Heart,
+  library: Library,
+  lock: LockKeyhole,
+  logIn: LogIn,
+  logOut: LogOut,
+  mail: Mail,
+  menu: Menu,
+  play: Play,
+  plus: Plus,
+  pencil: Pencil,
+  reset: RotateCcw,
+  search: Search,
+  settings: Settings,
+  shieldCheck: ShieldCheck,
+  shoppingCart: ShoppingCart,
+  star: Star,
+  trash: Trash2,
+  user: User,
+  users: Users,
+  wallet: Wallet,
+  x: X,
+});
+
+export function Icon(
+  icon,
+  { className = "w-5 h-5", label, strokeWidth = 2, fill = "none" } = {}
+) {
+  const accessibilityAttributes = label
+    ? { role: "img", "aria-label": label }
+    : { "aria-hidden": "true" };
+
+  return createElement(icon, {
+    class: className,
+    fill,
+    "stroke-width": strokeWidth,
+    focusable: "false",
+    ...accessibilityAttributes,
+  }).outerHTML;
+}

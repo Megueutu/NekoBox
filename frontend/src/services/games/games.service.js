@@ -1,41 +1,34 @@
-import { mockGames } from "../../mocks/games.mock";
+import { ApiClient } from "../api/api.client";
+import { normalizeGame, normalizeGames } from "./game.normalizer";
+import { auditCatalogMedia } from "./catalog-media.audit";
+
+let catalogMediaAudit = null;
 
 export const GamesService = {
   async getAll() {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve([...mockGames]), 100)
-    );
+    const response = await ApiClient.get("/api/games?size=100");
+    const games = normalizeGames(response.content);
+    catalogMediaAudit ||= auditCatalogMedia(games);
+    return catalogMediaAudit;
   },
 
   async getBySlug(slug) {
-    return new Promise((resolve) => {
-      const game = mockGames.find((g) => g.slug === slug);
-      setTimeout(() => resolve(game ? { ...game } : null), 80);
-    });
+    try {
+      const game = normalizeGame(await ApiClient.get(`/api/games/${encodeURIComponent(slug)}`));
+      return (await auditCatalogMedia([game]))[0];
+    } catch (error) {
+      if (error.status === 404) return null;
+      throw error;
+    }
   },
 
   async getByCategory(category) {
-    return new Promise((resolve) => {
-      const games = mockGames.filter((g) =>
-        g.categories.some(
-          (c) => c.toLowerCase() === category.toLowerCase()
-        )
-      );
-      setTimeout(() => resolve([...games]), 100);
-    });
+    const games = await this.getAll();
+    return games.filter((game) => game.categories.some((item) => item.toLowerCase() === category.toLowerCase()));
   },
 
   async search(query) {
-    return new Promise((resolve) => {
-      const q = query.toLowerCase();
-      const games = mockGames.filter(
-        (g) =>
-          g.title.toLowerCase().includes(q) ||
-          g.short_description.toLowerCase().includes(q) ||
-          g.categories.some((c) => c.toLowerCase().includes(q)) ||
-          g.tags.some((t) => t.toLowerCase().includes(q))
-      );
-      setTimeout(() => resolve([...games]), 80);
-    });
+    const response = await ApiClient.get(`/api/games?size=100&search=${encodeURIComponent(query)}`);
+    return normalizeGames(response.content);
   },
 };

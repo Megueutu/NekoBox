@@ -4,14 +4,20 @@ import { SidebarAccount } from "../../components/layout/SidebarAccount";
 
 export function PrivateLayout(content) {
   return `
-    <div class="min-h-screen flex flex-col">
+    <div class="app-shell app-shell--private min-h-screen flex flex-col">
+      <div class="app-ambient" aria-hidden="true">
+        <span class="app-ambient__blob app-ambient__blob--one"></span>
+        <span class="app-ambient__blob app-ambient__blob--two"></span>
+        <span class="app-ambient__grid"></span>
+      </div>
+      <a href="#main-content" class="skip-link">Pular para o conteúdo</a>
       ${Navbar()}
-      <main class="flex-1 bg-zinc-950">
-        <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div class="md:col-span-1">
+      <main id="main-content" tabindex="-1" class="flex-1 bg-transparent">
+        <div class="site-container account-shell">
+          <div class="account-sidebar">
             ${SidebarAccount()}
           </div>
-          <div class="md:col-span-3">
+          <div class="account-content">
             ${content}
           </div>
         </div>

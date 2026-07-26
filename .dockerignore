@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+.vscode
+**/.DS_Store
+**/*.log
+.env
+backend/api/target
+frontend/coverage
+frontend/dist
+frontend/node_modules
+frontend/src.zip

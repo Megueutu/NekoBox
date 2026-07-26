@@ -1,4 +1,4 @@
-export function navigate(url) {
+export function navigate(url, { focusTarget = "#main-content" } = {}) {
   window.history.pushState({}, "", url);
-  window.dispatchEvent(new CustomEvent("rerender"));
+  window.dispatchEvent(new CustomEvent("rerender", { detail: { focusTarget } }));
 }

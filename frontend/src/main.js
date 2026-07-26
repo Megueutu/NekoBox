@@ -1,5 +1,10 @@
-import "@/styles/style.css";
+import "@/style.css";
 import { Router } from "@/app/router/router";
+import { applyPreferences } from "@/app/preferences/preferences";
+import { setupWalletDialog } from "@/components/wallet/WalletDialog";
+import { setupMediaFallbacks } from "@/utils/media-fallback";
 
-// Inicializa o roteador — ponto de entrada da aplicação
+applyPreferences();
+setupWalletDialog();
+setupMediaFallbacks();
 Router.inicializar();

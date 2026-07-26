@@ -21,7 +21,6 @@ const defaultState = {
 
 export const Store = createStore(loadPersistedState() || defaultState);
 
-// Sincroniza automaticamente no localStorage a cada mudança de estado
 Store.subscribe((state) => {
   localStorage.setItem(STATE_PERSIST_KEY, JSON.stringify(state));
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { matchRoute } from "../app/router/matchRoute";
+import { routes } from "../app/router/routes";
 
 describe("Suíte de Testes de Engenharia: Roteamento SPA Vanilla", () => {
   it("Deve validar o casamento exato de caminhos estáticos sem parâmetros", () => {
@@ -35,5 +36,29 @@ describe("Suíte de Testes de Engenharia: Roteamento SPA Vanilla", () => {
     const params = matchRoute("/", "/");
     expect(params).not.toBeNull();
     expect(Object.keys(params).length).toBe(0);
+  });
+});
+
+describe("Landing page route", () => {
+  it("should render the storefront at the root path instead of redirecting", () => {
+    const rootRoute = routes.find((route) => route.path === "/");
+
+    expect(rootRoute.redirect).toBeUndefined();
+  });
+});
+
+describe("Accessibility page route", () => {
+  it("should expose the accessibility statement as a public route", () => {
+    const accessibilityRoute = routes.find((route) => route.path === "/acessibilidade");
+
+    expect(accessibilityRoute.private).toBe(false);
+  });
+});
+
+describe("Settings page route", () => {
+  it("should expose visual preferences without requiring authentication", () => {
+    const settingsRoute = routes.find((route) => route.path === "/configuracoes");
+
+    expect(settingsRoute.private).toBe(false);
   });
 });
