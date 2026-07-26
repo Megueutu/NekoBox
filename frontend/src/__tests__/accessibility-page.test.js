@@ -24,6 +24,7 @@ describe("Accessibility page", () => {
     expect(hero?.querySelector(".accessibility-hero__backdrop")?.getAttribute("aria-hidden")).toBe("true");
     expect(hero?.querySelector(".accessibility-hero__image")?.getAttribute("alt")).toBe("");
     expect(hero?.querySelector("h1")?.textContent).toContain("experiências para todos");
+    expect(hero?.querySelector(".accessibility-hero__meta dd")?.textContent).toContain("WCAG 2.2");
   });
 
   it("should keep the page sections addressable from its shortcut navigation", async () => {
@@ -36,6 +37,25 @@ describe("Accessibility page", () => {
 
     expect(targets).toEqual(["#premissa", "#principios", "#normas", "#recursos", "#evolucao"]);
     expect(targets.every((target) => container.querySelector(target))).toBe(true);
+  });
+
+  it("should structure the informational content as readable editorial sections", async () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = await AccessibilityPage();
+
+    expect(container.querySelectorAll(".accessibility-content > section")).toHaveLength(5);
+    expect(container.querySelectorAll(".accessibility-principles article")).toHaveLength(4);
+    expect(container.querySelector("#premissa blockquote")).not.toBeNull();
+  });
+
+  it("should pair the premise content with decorative game artwork", async () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = await AccessibilityPage();
+
+    const image = container.querySelector("#premissa .accessibility-intro__media img");
+    expect(image?.getAttribute("alt")).toBe("");
   });
 
   it("should keep the local fallback when the catalog is unavailable", async () => {

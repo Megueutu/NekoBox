@@ -60,3 +60,23 @@ export function getGameBannerRotation(
 export function getRandomBannerUrl(games, options) {
   return getRandomGameBanner(games, options)?.url || null;
 }
+
+export async function resolveRandomBannerUrls(
+  loadGames,
+  { fallbackUrl = "/mocks/callofduty.png", limit = 1, ...options } = {}
+) {
+  try {
+    const urls = getGameBannerRotation(await loadGames(), { ...options, limit })
+      .map(({ url }) => url);
+    return urls.length ? urls : [fallbackUrl];
+  } catch {
+    return [fallbackUrl];
+  }
+}
+
+export async function resolveRandomBannerUrl(
+  loadGames,
+  options = {}
+) {
+  return (await resolveRandomBannerUrls(loadGames, options))[0];
+}

@@ -33,6 +33,10 @@ export default async function LandingPage() {
     { label: "Ação sem pausa", description: "Combate preciso e aventuras que começam em alta velocidade.", game: games.find((game) => game.slug === "red-dead-redemption-2") || games[2] },
     { label: "Indies essenciais", description: "Ideias autorais que transformaram a forma de jogar.", game: games.find((game) => game.slug === "hollow-knight") || games[3] },
   ];
+  const membershipGame =
+    games.find((game) => game.slug === "hades") ||
+    highlights[0] ||
+    featuredGame;
 
   const totalGames = games.length;
   const genreCount = new Set(games.flatMap((game) => game.categories || [])).size;
@@ -159,15 +163,28 @@ export default async function LandingPage() {
         </section>
 
         <section class="landing-membership glass-panel glass-panel--glow" aria-labelledby="membership-title" data-reveal>
-          <div>
+          <div class="landing-membership__copy">
             <p class="section-heading__eyebrow mb-2">Sua coleção, do seu jeito</p>
             <h2 id="membership-title" class="font-display text-3xl sm:text-5xl font-bold">Salve. Escolha. Jogue.</h2>
             <p>Crie sua lista de desejos, organize sua biblioteca e encontre seu próximo jogo sem sair do NekoBox.</p>
+            <ul class="landing-membership__benefits" aria-label="Recursos da sua conta">
+              <li>Lista de desejos</li>
+              <li>Biblioteca organizada</li>
+              <li>Acesso 24/7</li>
+            </ul>
+            <div class="landing-membership__actions">
+              <a href="/login" data-link class="button-neon px-5 py-3">Criar conta</a>
+              <a href="/hub" data-link class="button-glass px-5 py-3">Explorar catálogo</a>
+            </div>
           </div>
-          <div class="storefront-actions">
-            <a href="/login" data-link class="button-neon px-5 py-3">Criar conta</a>
-            <a href="/hub" data-link class="button-glass px-5 py-3">Conhecer a loja</a>
-          </div>
+          <figure class="landing-membership__art" aria-hidden="true">
+            <img src="${getBannerUrl(membershipGame)}" alt="" loading="lazy" />
+            <span class="landing-membership__shade" aria-hidden="true"></span>
+            <figcaption>
+              <span>Uma próxima aventura te espera</span>
+              <strong>${membershipGame.title}</strong>
+            </figcaption>
+          </figure>
         </section>
       </div>
     </div>

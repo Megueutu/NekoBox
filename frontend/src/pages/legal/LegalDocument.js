@@ -1,14 +1,19 @@
 import { PublicLayout } from "../../app/layouts/PublicLayout";
+import { GamesService } from "../../services/games/games.service";
+import { resolveRandomBannerUrl } from "../../utils/random-banner";
 
-export function LegalDocument({ eyebrow, title, introduction, updatedAt, sections }) {
+export async function LegalDocument({ eyebrow, title, introduction, updatedAt, sections }) {
+  const heroBannerUrl = await resolveRandomBannerUrl(() => GamesService.getAll());
   const shortcuts = sections
     .map(({ id, title: sectionTitle }) => `<a href="#${id}">${sectionTitle}</a>`)
     .join("");
 
   const content = `
     <div class="legal-page">
-      <header class="legal-hero" aria-labelledby="legal-title">
-        <div class="site-container legal-hero__content">
+      <header class="site-container legal-hero" aria-labelledby="legal-title">
+        <img src="${heroBannerUrl}" alt="" class="legal-hero__image" fetchpriority="high" />
+        <div class="legal-hero__backdrop" aria-hidden="true"></div>
+        <div class="legal-hero__content">
           <p class="section-heading__eyebrow">${eyebrow}</p>
           <h1 id="legal-title">${title}</h1>
           <p>${introduction}</p>

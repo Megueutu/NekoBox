@@ -5,6 +5,8 @@ import {
   getGameBannerRotation,
   getRandomBannerUrl,
   getRandomGameBanner,
+  resolveRandomBannerUrl,
+  resolveRandomBannerUrls,
 } from "../utils/random-banner";
 
 const game = (title, url, type = "banner") => ({
@@ -56,6 +58,33 @@ describe("Random game banner", () => {
     );
 
     expect(result).toBe("https://example.com/hades.jpg");
+  });
+
+  it("should resolve an async banner source with a local fallback", async () => {
+    const selected = await resolveRandomBannerUrl(
+      vi.fn().mockResolvedValue([game("Hades", "https://example.com/hades.jpg")]),
+      { random: () => 0 }
+    );
+    const fallback = await resolveRandomBannerUrl(
+      vi.fn().mockRejectedValue(new Error("offline"))
+    );
+
+    expect(selected).toBe("https://example.com/hades.jpg");
+    expect(fallback).toBe("/mocks/callofduty.png");
+  });
+
+  it("should resolve distinct banner URLs in a single rotation", async () => {
+    const games = [
+      game("Cyberpunk 2077", "https://example.com/cyberpunk.jpg"),
+      game("Hades", "https://example.com/hades.jpg"),
+    ];
+
+    const result = await resolveRandomBannerUrls(
+      vi.fn().mockResolvedValue(games),
+      { limit: 2, random: () => 0 }
+    );
+
+    expect(new Set(result).size).toBe(2);
   });
 
   it("should create a unique rotation limited to five games", () => {

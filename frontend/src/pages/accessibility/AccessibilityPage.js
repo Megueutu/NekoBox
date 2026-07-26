@@ -1,6 +1,6 @@
 import { PublicLayout } from "../../app/layouts/PublicLayout";
 import { GamesService } from "../../services/games/games.service";
-import { getRandomGameBanner } from "../../utils/random-banner";
+import { resolveRandomBannerUrls } from "../../utils/random-banner";
 
 const principles = [
   {
@@ -72,21 +72,17 @@ const implementedFeatures = [
 ];
 
 export default async function AccessibilityPage() {
-  let heroBannerUrl = "/mocks/callofduty.png";
-
-  try {
-    const randomBanner = getRandomGameBanner(await GamesService.getAll());
-    heroBannerUrl = randomBanner?.url || heroBannerUrl;
-  } catch {
-    // A declaração de acessibilidade continua disponível com a arte local.
-  }
+  const [heroBannerUrl, premiseBannerUrl = heroBannerUrl] = await resolveRandomBannerUrls(
+    () => GamesService.getAll(),
+    { limit: 2 }
+  );
 
   const content = `
     <div class="accessibility-page">
-      <header class="accessibility-hero noise-overlay" aria-labelledby="accessibility-title">
+      <header class="site-container accessibility-hero" aria-labelledby="accessibility-title">
         <img src="${heroBannerUrl}" alt="" class="accessibility-hero__image" fetchpriority="high" />
         <div class="accessibility-hero__backdrop" aria-hidden="true"></div>
-        <div class="site-container accessibility-hero__layout">
+        <div class="accessibility-hero__layout">
           <div class="accessibility-hero__content">
             <p class="section-heading__eyebrow mb-3">Acessibilidade no NekoBox</p>
             <h1 id="accessibility-title">Jogar e descobrir devem ser experiências para todos.</h1>
@@ -94,28 +90,37 @@ export default async function AccessibilityPage() {
               Acessibilidade não é uma etapa final do produto. É uma premissa de projeto que orienta conteúdo,
               interação, código e validação desde o início.
             </p>
-          </div>
-          <div class="accessibility-status" aria-label="Objetivo de conformidade">
-            <span>Objetivo atual</span>
-            <strong>WCAG 2.2 · Nível AA</strong>
-            <p>Aderência progressiva, testada continuamente e sem alegação de certificação formal.</p>
+            <dl class="accessibility-hero__meta" aria-label="Objetivo de conformidade">
+              <div>
+                <dt>Objetivo atual</dt>
+                <dd>WCAG 2.2 · Nível AA</dd>
+              </div>
+              <div>
+                <dt>Abordagem</dt>
+                <dd>Aderência progressiva e testes contínuos</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </header>
 
       <nav class="site-container accessibility-shortcuts" aria-label="Nesta página">
-        <span>Nesta página</span>
-        <a href="#premissa">Nossa premissa</a>
-        <a href="#principios">Princípios</a>
-        <a href="#normas">Normas</a>
-        <a href="#recursos">Recursos atuais</a>
-        <a href="#evolucao">Evolução</a>
+        <p>Nesta página</p>
+        <div>
+          <a href="#premissa">Nossa premissa</a>
+          <a href="#principios">Princípios</a>
+          <a href="#normas">Normas</a>
+          <a href="#recursos">Recursos atuais</a>
+          <a href="#evolucao">Evolução</a>
+        </div>
       </nav>
 
       <div class="site-container accessibility-content">
         <section id="premissa" class="accessibility-intro" aria-labelledby="premise-title">
-          <p class="accessibility-section-index" aria-hidden="true">01</p>
-          <div>
+          <figure class="accessibility-intro__media">
+            <img src="${premiseBannerUrl}" alt="" loading="lazy" />
+          </figure>
+          <div class="accessibility-intro__content">
             <p class="section-heading__eyebrow mb-2">Nossa premissa</p>
             <h2 id="premise-title">Acesso equivalente, não uma versão separada.</h2>
             <p>
@@ -144,9 +149,11 @@ export default async function AccessibilityPage() {
                 ({ number, title, description, examples }) => `
                   <article>
                     <span aria-hidden="true">${number}</span>
-                    <h3>${title}</h3>
-                    <p>${description}</p>
-                    <small>${examples}</small>
+                    <div>
+                      <h3>${title}</h3>
+                      <p>${description}</p>
+                      <small>${examples}</small>
+                    </div>
                   </article>
                 `
               )
@@ -167,8 +174,10 @@ export default async function AccessibilityPage() {
               .map(
                 ({ name, scope, description }) => `
                   <article>
-                    <p>${scope}</p>
-                    <h3>${name}</h3>
+                    <div>
+                      <p>${scope}</p>
+                      <h3>${name}</h3>
+                    </div>
                     <span>${description}</span>
                   </article>
                 `

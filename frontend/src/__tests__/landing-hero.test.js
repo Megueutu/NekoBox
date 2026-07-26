@@ -99,3 +99,25 @@ describe("Landing hero rotation", () => {
     expect(document.getElementById("landing-title").textContent).toBe(initialTitle);
   });
 });
+
+describe("Landing membership call to action", () => {
+  it("should pair the account invitation with decorative catalog artwork", async () => {
+    document.body.innerHTML = await LandingPage();
+
+    const art = document.querySelector(".landing-membership__art");
+
+    expect({
+      hidden: art?.getAttribute("aria-hidden"),
+      imageAlt: art?.querySelector("img")?.getAttribute("alt"),
+    }).toEqual({ hidden: "true", imageAlt: "" });
+  });
+
+  it("should preserve the account and catalog destinations", async () => {
+    document.body.innerHTML = await LandingPage();
+
+    const destinations = [...document.querySelectorAll(".landing-membership__actions a")]
+      .map((link) => link.getAttribute("href"));
+
+    expect(destinations).toEqual(["/login", "/hub"]);
+  });
+});
