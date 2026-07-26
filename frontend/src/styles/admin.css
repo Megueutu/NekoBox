@@ -12,9 +12,8 @@
   width: 16.5rem;
   padding: 1.4rem;
   flex-direction: column;
-  border-right: 1px solid color-mix(in srgb, white 8%, transparent);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: blur(24px);
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 
 .admin-brand {
@@ -169,11 +168,10 @@
 
 .admin-panel,
 .admin-kpis article {
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
-  border-radius: 1rem;
-  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: none;
 }
 
 .admin-panel { padding: clamp(1rem, 2vw, 1.5rem); }
@@ -447,7 +445,7 @@
   width: min(calc(100% - 2rem), 54rem);
 }
 
-.admin-dialog::backdrop { background: rgba(3, 3, 7, 0.76); backdrop-filter: blur(5px); }
+.admin-dialog::backdrop { background: rgba(3, 3, 7, 0.8); }
 
 .admin-dialog__frame {
   position: relative;
@@ -662,9 +660,7 @@
 .admin-game-preview__hero-shade {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(90deg, rgba(4, 3, 7, 0.94), rgba(4, 3, 7, 0.3) 72%, rgba(4, 3, 7, 0.08)),
-    linear-gradient(0deg, rgba(4, 3, 7, 0.88), transparent 70%);
+  background: rgba(4, 3, 7, 0.62);
 }
 
 .admin-game-preview__hero-content {

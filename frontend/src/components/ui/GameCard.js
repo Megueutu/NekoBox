@@ -14,16 +14,15 @@ export function GameCard(game, { variant = "catalog" } = {}) {
          class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover-glow group">
         <div class="game-card__media w-full bg-[var(--color-surface-3)] relative overflow-hidden">
           <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy"
-               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-          <div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/45 to-transparent pointer-events-none"></div>
+               class="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90" />
           ${
             game.categories?.[0]
-              ? `<span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-black/70 backdrop-blur-sm text-white">${game.categories[0]}</span>`
+              ? `<span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-black/80 text-white">${game.categories[0]}</span>`
               : ""
           }
           ${
             recRate !== null
-              ? `<span class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-black/70 backdrop-blur-sm ${recRate >= 70 ? "text-[var(--color-accent-400)]" : "text-[var(--color-muted)]"}">
+              ? `<span class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-black/80 ${recRate >= 70 ? "text-[var(--color-accent-400)]" : "text-[var(--color-muted)]"}">
                   ${Icon(icons.star, { className: "w-3 h-3", fill: "currentColor" })} ${recRate}%
                  </span>`
               : ""

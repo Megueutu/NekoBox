@@ -81,7 +81,7 @@ export default async function GamePage({ slug }) {
     <!-- Banner Hero -->
     <section class="hero-panel game-detail-hero"
          style="background-image: url('${banner ? getBannerUrl(game) : getCoverUrl(game)}')">
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/5"></div>
+      <div class="absolute inset-0 bg-black/60"></div>
       <div class="hero-panel__content">
         <div class="relative z-10 max-w-3xl">
           <p class="section-heading__eyebrow mb-2">${game.publisher?.name || ""}</p>

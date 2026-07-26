@@ -11,20 +11,18 @@
 }
 
 .app-shell .site-nav {
-  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
-  border-bottom-color: color-mix(in srgb, white 7%, transparent);
-  box-shadow: 0 8px 24px -22px rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(16px);
+  background: var(--color-bg);
+  border-bottom-color: var(--color-border);
+  box-shadow: none;
 }
 
 .app-shell .site-footer {
-  border-top: 1px solid color-mix(in srgb, white 7%, transparent);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 
 .app-shell .hero-panel {
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  border: 0;
   box-shadow: var(--shadow-elevated);
 }
 
@@ -39,25 +37,22 @@
 .app-shell .settings-control-list,
 .app-shell .accessibility-status,
 .app-shell .accessibility-features {
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
-  background: color-mix(in srgb, var(--color-surface) 84%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: none;
 }
 
 .app-shell .game-card {
-  border: 1px solid transparent;
+  border: 0;
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
   backdrop-filter: none;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease, background-color 0.22s ease;
+  transition: background-color 0.18s ease;
 }
 
 .app-shell .game-card:hover {
-  border-color: color-mix(in srgb, white 9%, transparent);
   background: var(--color-surface-2);
-  box-shadow: 0 18px 38px -28px rgba(0, 0, 0, 0.98);
-  transform: translateY(-2px);
+  box-shadow: none;
 }
 
 .app-shell .game-card__media::after {
@@ -65,11 +60,10 @@
 }
 
 .app-shell .game-section {
-  border: 1px solid color-mix(in srgb, white 7%, transparent);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(12px);
+  background: var(--color-surface);
+  box-shadow: none;
 }
 
 .app-shell .game-section > h2,
@@ -81,7 +75,7 @@
 
 .app-shell .purchase-card {
   overflow: hidden;
-  border-color: color-mix(in srgb, white 9%, transparent);
+  border-color: var(--color-border);
 }
 
 .app-shell .purchase-card::before {
@@ -91,26 +85,24 @@
 .app-shell .button-primary,
 .app-shell .button-accent {
   background: var(--color-brand-600);
-  box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.9);
-  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  box-shadow: none;
+  transition: background-color 0.18s ease;
 }
 
 .app-shell .button-primary:hover,
 .app-shell .button-accent:hover {
   background: var(--color-brand-500);
   filter: none;
-  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.95);
-  transform: translateY(-1px);
+  box-shadow: none;
 }
 
 .app-shell .button-secondary {
-  border: 1px solid color-mix(in srgb, white 10%, transparent);
-  background: color-mix(in srgb, var(--color-surface-2) 86%, transparent);
-  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
 }
 
 .app-shell .surface-chip {
-  border: 1px solid color-mix(in srgb, white 7%, transparent);
+  border: 1px solid var(--color-border);
   background: var(--color-surface-2);
   backdrop-filter: none;
 }
@@ -124,11 +116,11 @@
   position: relative;
   padding: clamp(1.25rem, 3vw, 2rem);
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(12px);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .app-shell .page-heading::after {
@@ -504,7 +496,7 @@
 .app-shell--private input,
 .app-shell--private textarea {
   border-color: var(--color-border);
-  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  background: var(--color-bg);
   box-shadow: none;
 }
 
@@ -527,14 +519,16 @@
 }
 
 .app-shell .accessibility-hero {
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: none;
+  border: 0;
+  box-shadow: var(--shadow-elevated);
 }
 
 .app-shell .accessibility-principles,
 .app-shell .accessibility-standards {
   gap: 1px;
+  overflow: hidden;
   border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
   background: var(--color-border);
   box-shadow: var(--shadow-card);
 }

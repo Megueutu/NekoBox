@@ -2,11 +2,11 @@
 
   --color-primary: #f7f5fb;
   --color-secondary: #0d0b12;
-  --color-bg: #0d0c10;
-  --color-surface: #151419;
-  --color-surface-2: #1c1a20;
-  --color-surface-3: #25222b;
-  --color-border: #2a2730;
+  --color-bg: #0c0c0d;
+  --color-surface: #151516;
+  --color-surface-2: #1d1d1f;
+  --color-surface-3: #27272a;
+  --color-border: #303033;
 
 
   --color-brand-100: #f2e6ff;
@@ -23,18 +23,38 @@
 
 
   --color-ink: #f7f5fb;
-  --color-muted: #b7adc6;
-  --color-muted-2: #8d829d;
+  --color-muted: #b7b7bd;
+  --color-muted-2: #8d8d96;
 
 
-  --radius-card: 0.875rem;
-  --radius-control: 0.625rem;
-  --shadow-card: 0 12px 30px -24px rgba(0, 0, 0, 0.95);
-  --shadow-elevated: 0 24px 60px -34px rgba(0, 0, 0, 0.98);
+  --radius-card: 0.75rem;
+  --radius-control: 0.5rem;
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.035);
+  --shadow-elevated: 0 16px 40px -28px rgba(0, 0, 0, 0.9);
   --spacing-page: 1.5rem;
 
   --font-display: "Plus Jakarta Sans", sans-serif;
   --font-body: "Plus Jakarta Sans", sans-serif;
+
+  --font-size-page-title: clamp(2.75rem, 6vw, 5.75rem);
+  --font-size-section-title: clamp(2rem, 4vw, 3.5rem);
+  --font-size-subtitle: clamp(1rem, 2vw, 1.18rem);
+  --font-size-card-title: clamp(1.25rem, 2.5vw, 1.65rem);
+  --font-size-body: 0.9rem;
+  --font-size-small: 0.78rem;
+  --font-size-caption: 0.75rem;
+  --font-size-eyebrow: 0.72rem;
+
+  --line-height-title: 1.05;
+  --line-height-body: 1.7;
+
+  --spacing-page-top: clamp(1rem, 2.5vw, 2rem);
+  --spacing-page-bottom: clamp(4rem, 8vw, 7rem);
+  --spacing-page-gap: clamp(2.75rem, 5vw, 4.5rem);
+  --spacing-section: clamp(2.75rem, 5vw, 4.5rem);
+  --spacing-layout-gap: clamp(2rem, 5vw, 5rem);
+  --spacing-heading-gap: clamp(1.5rem, 3vw, 2.5rem);
+  --spacing-text-gap: 1rem;
 }
 
 :root[data-base="midnight"] {
@@ -148,9 +168,8 @@ img {
 }
 
 .site-nav {
-  background: color-mix(in srgb, var(--color-bg) 94%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, white 6%, transparent);
-  backdrop-filter: blur(18px);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .site-nav__inner {
@@ -180,16 +199,15 @@ img {
   margin: auto;
   padding: 0;
   overflow: auto;
-  border: 1px solid color-mix(in srgb, var(--color-brand-400) 32%, var(--color-border));
+  border: 1px solid var(--color-border);
   border-radius: 1rem;
   color: var(--color-ink);
-  background: color-mix(in srgb, var(--color-surface) 94%, black);
-  box-shadow: 0 32px 90px -32px rgba(0, 0, 0, 0.95);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
 }
 
 .wallet-dialog::backdrop {
   background: rgba(4, 3, 7, 0.78);
-  backdrop-filter: blur(5px);
 }
 
 .wallet-dialog__header {
@@ -216,9 +234,9 @@ img {
 .wallet-balance {
   margin: 1.5rem;
   padding: 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--color-brand-400) 24%, var(--color-border));
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--color-brand-600) 10%, var(--color-surface-2));
+  background: var(--color-surface-2);
 }
 
 .wallet-balance p { color: var(--color-muted); font-size: 0.78rem; }
@@ -244,8 +262,8 @@ img {
 .page-stack {
   display: grid;
   min-width: 0;
-  gap: clamp(2.75rem, 5vw, 4.5rem);
-  padding-block: clamp(1rem, 2.5vw, 2rem) clamp(4rem, 8vw, 7rem);
+  gap: var(--spacing-page-gap);
+  padding-block: var(--spacing-page-top) var(--spacing-page-bottom);
 }
 
 .page-stack > *,
@@ -259,7 +277,7 @@ img {
   min-height: clamp(27rem, 46vw, 36rem);
   overflow: hidden;
   border: 0;
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   background-position: center;
   background-size: cover;
   box-shadow: var(--shadow-elevated);
@@ -288,13 +306,13 @@ img {
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-heading-gap);
+  margin-bottom: var(--spacing-heading-gap);
 }
 
 .section-heading__eyebrow {
   color: var(--color-accent-400);
-  font-size: 0.72rem;
+  font-size: var(--font-size-eyebrow);
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;

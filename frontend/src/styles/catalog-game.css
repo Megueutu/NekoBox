@@ -77,11 +77,11 @@
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
-.library-card:hover { border-color: color-mix(in srgb, var(--color-brand-400) 50%, var(--color-border)); transform: translateY(-2px); }
+.library-card:hover { border-color: var(--color-brand-400); }
 .library-card__cover { position: relative; min-height: 11.5rem; overflow: hidden; background: var(--color-surface-2); }
-.library-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
-.library-card:hover .library-card__cover img { transform: scale(1.035); }
-.library-card__owned { position: absolute; left: 0.6rem; bottom: 0.6rem; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.5rem; border-radius: 999px; color: white; background: rgba(13, 16, 24, 0.84); backdrop-filter: blur(10px); font-size: 0.65rem; font-weight: 700; }
+.library-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.18s ease; }
+.library-card:hover .library-card__cover img { opacity: 0.9; }
+.library-card__owned { position: absolute; left: 0.6rem; bottom: 0.6rem; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.5rem; border-radius: 999px; color: white; background: rgba(13, 16, 24, 0.9); font-size: 0.65rem; font-weight: 700; }
 .library-card__content { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem 1.5rem; padding: 1.15rem 1.25rem; }
 .library-card__eyebrow { margin-bottom: 0.3rem; color: var(--color-brand-400); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 .library-card h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 750; }
@@ -1166,10 +1166,10 @@
   position: sticky;
   top: 6rem;
   overflow: hidden;
-  border: 0;
-  border-radius: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
   background: var(--color-surface);
-  box-shadow: var(--shadow-elevated);
+  box-shadow: none;
 }
 
 .account-shell {
@@ -1190,10 +1190,10 @@
 }
 
 .panel {
-  border: 0;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
 }
 
 .page-heading { padding-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); }
