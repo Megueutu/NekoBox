@@ -193,7 +193,7 @@ export default async function HubPage() {
     </div>
   `;
 
-  return PublicLayout(content);
+  return PublicLayout(content, { showChatbot: true });
 }
 
 export async function afterRender() {

@@ -1,8 +1,9 @@
 import { Navbar } from "../../components/layout/Navbar";
 import { Footer } from "../../components/layout/Footer";
 import { renderAuthDialog } from "../../components/auth/AuthDialog";
+import { renderChatbot } from "../../components/chat/Chatbot";
 
-export function PublicLayout(content) {
+export function PublicLayout(content, { showChatbot = false } = {}) {
   return `
     <div class="app-shell app-shell--public min-h-screen flex flex-col">
       <div class="app-ambient" aria-hidden="true">
@@ -17,6 +18,7 @@ export function PublicLayout(content) {
       </main>
       ${Footer()}
       ${renderAuthDialog()}
+      ${showChatbot ? renderChatbot() : ""}
     </div>
   `;
 }

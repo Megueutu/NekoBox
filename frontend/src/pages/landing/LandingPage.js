@@ -190,7 +190,7 @@ export default async function LandingPage() {
     </div>
   `;
 
-  return PublicLayout(content);
+  return PublicLayout(content, { showChatbot: true });
 }
 
 export function afterRender() {
