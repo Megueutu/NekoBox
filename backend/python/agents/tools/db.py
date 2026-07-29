@@ -27,16 +27,25 @@ Uso:
 import logging
 import os
 from contextlib import contextmanager
+from pathlib import Path
 
 import psycopg2
 from psycopg2 import pool
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[4] / ".env")
 
 logger = logging.getLogger(__name__)
 
 _DATABASE_URL: str = os.getenv("DATABASE_URL", "")
+if not _DATABASE_URL:
+    _DATABASE_URL = (
+        "postgresql://"
+        f"{os.getenv('POSTGRES_USER', 'nekobox')}:"
+        f"{os.getenv('POSTGRES_PASSWORD', 'nekobox_local')}@"
+        f"localhost:{os.getenv('POSTGRES_PORT', '5433')}/"
+        f"{os.getenv('POSTGRES_DB', 'nekobox')}"
+    )
 
 # ---------------------------------------------------------------------------
 # Connection Pool (singleton)
