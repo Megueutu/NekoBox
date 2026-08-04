@@ -1,6 +1,7 @@
 .github
 .idea
 .vscode
+.secrets
 *.iml
 *.log
 
