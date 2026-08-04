@@ -100,7 +100,7 @@ function giftCardsSection(giftCards) {
           <div id="gift-card-result" class="admin-generated-code hidden" role="status" aria-live="polite"></div>
         </article>
         <aside class="admin-panel admin-security-note">
-          ${Icon(icons.shieldCheck, { className: "w-6 h-6" })}
+          ${Icon(icons.shieldCheck, { className: "w-5 h-5" })}
           <div><h2>Armazenamento seguro</h2><p>O NexusPlay salva apenas o hash SHA-256. Copie o código antes de sair desta tela: ele não poderá ser recuperado depois.</p></div>
         </aside>
       </div>
@@ -297,7 +297,7 @@ function openGameDialog(game = null) {
           <article class="admin-game-preview__hero">
             <div class="admin-game-preview__hero-media" data-preview-banner>
               <img data-preview-image alt="">
-              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-7 h-7" })}<span>Banner do jogo</span></div>
+              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-5 h-5" })}<span>Banner do jogo</span></div>
             </div>
             <div class="admin-game-preview__hero-shade" aria-hidden="true"></div>
             <div class="admin-game-preview__hero-content">
@@ -311,7 +311,7 @@ function openGameDialog(game = null) {
           <article class="admin-game-preview__card">
             <div class="admin-game-preview__cover" data-preview-cover>
               <img data-preview-image alt="">
-              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-7 h-7" })}<span>Capa do jogo</span></div>
+              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-5 h-5" })}<span>Capa do jogo</span></div>
             </div>
             <div class="admin-game-preview__card-body">
               <span>Prévia do catálogo</span>

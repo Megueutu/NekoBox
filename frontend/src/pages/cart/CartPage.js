@@ -178,7 +178,7 @@ export default async function CartPage() {
 
         <section id="checkout-confirmation" class="checkout-confirmation panel" tabindex="-1"
                  aria-labelledby="checkout-confirmation-title" role="status" aria-live="polite" hidden>
-          <span>${Icon(icons.circleCheck, { className: "w-7 h-7" })}</span>
+          <span>${Icon(icons.circleCheck, { className: "w-5 h-5" })}</span>
           <div>
             <p>Pedido confirmado</p>
             <h2 id="checkout-confirmation-title">Compra concluída com sucesso</h2>
