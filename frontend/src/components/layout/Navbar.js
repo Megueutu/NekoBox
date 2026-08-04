@@ -16,7 +16,7 @@ export function Navbar() {
     return `<a href="${href}" data-link ${isCurrent ? 'aria-current="page"' : ""}
       class="nav-icon-link ${className} ${isCurrent ? "nav-icon-link--current" : ""}"
       aria-label="${label}" title="${label}">
-        ${Icon(icon, { className: "w-5 h-5 sm:w-5.5 sm:h-5.5" })}
+        ${Icon(icon, { className: "w-4 h-4 sm:w-5 h-5" })}
       </a>`;
   };
 
@@ -26,7 +26,7 @@ export function Navbar() {
 
         <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NekoBox — Início">
           <span class="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center">
-            ${Icon(icons.gamepad, { className: "w-4.5 h-4.5 text-white", strokeWidth: 2.25 })}
+            ${Icon(icons.gamepad, { className: "w-4 h-4 text-white", strokeWidth: 2.25 })}
           </span>
           <span class="text-[var(--color-ink)]">Neko<span class="text-[var(--color-brand-400)]">Box</span></span>
         </a>
@@ -67,11 +67,11 @@ export function Navbar() {
             isCustomer
               ? `
                 <a href="${ACCOUNT_PATHS.wishlist}" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Lista de desejos" title="Lista de desejos">
-                  ${Icon(icons.heart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                  ${Icon(icons.heart, { className: "w-4 h-4 sm:w-4.5 sm:h-4.5" })}
                   ${wishlistCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-accent-400)] text-[var(--color-bg)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${wishlistCount}</span>` : ""}
                 </a>
                 <a href="${ACCOUNT_PATHS.cart}" data-link class="nav-icon-link hidden sm:flex relative" aria-label="Carrinho de compras" title="Carrinho de compras">
-                  ${Icon(icons.shoppingCart, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                  ${Icon(icons.shoppingCart, { className: "w-4 h-4 sm:w-4.5 sm:h-4.5" })}
                   ${cartCount > 0 ? `<span class="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-500)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">${cartCount}</span>` : ""}
                 </a>
               `
@@ -81,7 +81,7 @@ export function Navbar() {
           ${
             isCustomer
               ? `<button type="button" data-wallet-trigger class="nav-icon-link hidden sm:flex" aria-haspopup="dialog" aria-controls="wallet-dialog" aria-label="Abrir carteira">
-                  ${Icon(icons.wallet, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                  ${Icon(icons.wallet, { className: "w-4 h-4 sm:w-4.5 sm:h-4.5" })}
                 </button>`
               : ""
           }
@@ -98,7 +98,7 @@ export function Navbar() {
               : !isAuthenticated
                 ? `
                   <a href="/login" data-login-trigger class="nav-icon-link" aria-label="Entrar" aria-haspopup="dialog" aria-controls="auth-dialog">
-                    ${Icon(icons.logIn, { className: "w-5.5 h-5.5 sm:w-6 sm:h-6" })}
+                    ${Icon(icons.logIn, { className: "w-4 h-4 sm:w-4.5 sm:h-4.5" })}
                   </a>
                 `
                 : ""

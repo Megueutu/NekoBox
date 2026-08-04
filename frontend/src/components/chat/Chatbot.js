@@ -17,13 +17,13 @@ export function renderChatbot() {
   return `
     <aside class="chatbot" aria-label="Assistente GameBot" data-chatbot>
       <button class="chatbot__trigger" type="button" aria-expanded="false" aria-controls="chatbot-panel" data-chatbot-toggle>
-        ${Icon(icons.messageCircle, { className: "w-6 h-6" })}
+        ${Icon(icons.messageCircle, { className: "w-5 h-5" })}
         <span class="sr-only">Abrir assistente GameBot</span>
       </button>
       <section id="chatbot-panel" class="chatbot__panel" aria-label="Conversa com o GameBot" aria-hidden="true" hidden>
         <header class="chatbot__header">
           <div><p class="chatbot__eyebrow">Assistente NekoBox</p><h2>GameBot</h2></div>
-          <button class="chatbot__close" type="button" data-chatbot-close aria-label="Fechar assistente">${Icon(icons.x, { className: "w-5 h-5" })}</button>
+          <button class="chatbot__close" type="button" data-chatbot-close aria-label="Fechar assistente">${Icon(icons.x, { className: "w-4 h-4" })}</button>
         </header>
         <div class="chatbot__messages" data-chatbot-messages role="log" aria-live="polite" aria-relevant="additions">
           <p class="chatbot__message chatbot__message--bot">Oi! Posso ajudar a encontrar jogos, tirar dúvidas sobre o catálogo ou recomendar sua próxima aventura.</p>

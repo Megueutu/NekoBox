@@ -19,7 +19,7 @@ export function renderLoadError() {
       </div>
       <section class="error-page__card">
         <div class="error-page__icon" aria-hidden="true">
-          ${Icon(icons.reset, { className: "w-8 h-8", strokeWidth: 1.8 })}
+          ${Icon(icons.reset, { className: "w-5 h-5", strokeWidth: 1.8 })}
         </div>
         <p class="error-page__eyebrow">Falha de conexão</p>
         <h1 id="error-page-title">Não foi possível carregar esta página</h1>

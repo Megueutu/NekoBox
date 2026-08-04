@@ -75,7 +75,7 @@ export const icons = Object.freeze({
 
 export function Icon(
   icon,
-  { className = "w-4 h-4", label, strokeWidth = 2, fill = "none" } = {}
+  { className = "w-4 h-5", label, strokeWidth = 2, fill = "none" } = {}
 ) {
   const accessibilityAttributes = label
     ? { role: "img", "aria-label": label }
