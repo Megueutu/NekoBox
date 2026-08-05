@@ -1,0 +1,86 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Define os 3 serviços Docker do NekoBox (api, chatbot, frontend). O
+# banco de dados NÃO é declarado aqui: o projeto usa um Postgres externo
+# (Aiven), então BD_URL / DATABASE_URL devem ser preenchidas manualmente
+# no dashboard (ou via `render blueprint launch` com um .env) apontando
+# para essa instância.
+#
+# Segredos (senhas, API keys) usam `sync: false` — o Render pede o valor
+# no dashboard e nunca os grava na imagem, evitando que apareçam como
+# ARG no build do Dockerfile.
+
+services:
+  - type: web
+    name: nekobox-api
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./backend/api/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /api/games
+    envVars:
+      - key: BD_URL
+        sync: false
+      - key: BD_ADMIN
+        sync: false
+      - key: BD_SENHA
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: CLOUDINARY_MEDIA_ROOT
+        value: nekobox/games
+      - key: CLOUDINARY_SCREENSHOT_COUNT
+        value: "10"
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: GAME_GIFT_ENCRYPTION_KEY
+        sync: false
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: nekobox-chatbot
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./backend/python/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: nekobox-frontend
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_CHATBOT_API_URL
+        sync: false
+      - key: VITE_CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: VITE_CLOUDINARY_MEDIA_AUDIT
+        value: "true"
+      - key: VITE_FIREBASE_API_KEY
+        sync: false
+      - key: VITE_FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: VITE_FIREBASE_PROJECT_ID
+        sync: false
+      - key: VITE_FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: VITE_FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: VITE_FIREBASE_APP_ID
+        sync: false

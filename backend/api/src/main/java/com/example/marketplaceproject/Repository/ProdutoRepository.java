@@ -23,6 +23,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
 
     List<Produto> findAllByOrderByIdAsc();
 
+    List<Produto> findByUsuario_IdOrderByIdDesc(Integer usuarioId);
+
     long countByStatus(String status);
 
     @Query("""

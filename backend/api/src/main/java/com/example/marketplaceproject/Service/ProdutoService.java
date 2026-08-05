@@ -129,6 +129,10 @@ public class ProdutoService {
         return produtoRepository.buscar(tituloBusca, categoriaId, precoMinimo, precoMaximo, pageable);
     }
 
+    public List<Produto> listarPorVendedor(Integer vendedorId) {
+        return produtoRepository.findByUsuario_IdOrderByIdDesc(vendedorId);
+    }
+
     public List<Categoria> listarCategoriasDoProduto(Integer produtoId) {
         buscarPorId(produtoId);
         return produtoCategoriaRepository.findByProduto_Id(produtoId).stream()

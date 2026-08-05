@@ -6,6 +6,7 @@ export const ACCOUNT_PATHS = Object.freeze({
   library: "/conta/biblioteca",
   gifts: "/conta/presentes",
   wishlist: "/conta/desejos",
+  games: "/conta/jogos",
 });
 
 export const accountRoutes = [
@@ -16,6 +17,7 @@ export const accountRoutes = [
   { path: ACCOUNT_PATHS.library, page: () => import("../../pages/library/LibraryPage") },
   { path: ACCOUNT_PATHS.gifts, page: () => import("../../pages/gifts/GiftsPage") },
   { path: ACCOUNT_PATHS.wishlist, page: () => import("../../pages/wishlist/WishlistPage") },
+  { path: ACCOUNT_PATHS.games, page: () => import("../../pages/my-games/MyGamesPage") },
 ].map((route) => ({ ...route, private: true }));
 
 export const legacyAccountRoutes = [

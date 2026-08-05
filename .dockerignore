@@ -6,6 +6,10 @@
 **/*.log
 .env
 backend/api/target
+backend/python/**/__pycache__
+backend/python/.venv
+backend/python/venv
+**/*.pyc
 frontend/coverage
 frontend/dist
 frontend/node_modules

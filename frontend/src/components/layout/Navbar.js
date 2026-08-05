@@ -35,6 +35,7 @@ export function Navbar() {
           ${navIcon("/", "Início", icons.home)}
           ${navIcon("/hub", "Catálogo", icons.search)}
           ${isCustomer ? navIcon(ACCOUNT_PATHS.library, "Minha Biblioteca", icons.library, "hidden sm:flex") : ""}
+          ${isCustomer ? navIcon(ACCOUNT_PATHS.games, "Lançar Jogo", icons.gamepad, "hidden sm:flex") : ""}
           ${isAdmin ? navIcon("/admin", "Administração", icons.dashboard, "hidden sm:flex") : ""}
           ${navIcon("/acessibilidade", "Acessibilidade", icons.accessibility, "hidden sm:flex")}
 
@@ -51,6 +52,7 @@ export function Navbar() {
                   ? `
                     <a href="${ACCOUNT_PATHS.settings}" data-link ${currentPath === ACCOUNT_PATHS.settings ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
                     <a href="${ACCOUNT_PATHS.library}" data-link ${currentPath === ACCOUNT_PATHS.library ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+                    <a href="${ACCOUNT_PATHS.games}" data-link ${currentPath === ACCOUNT_PATHS.games ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meus Jogos</a>
                     <a href="${ACCOUNT_PATHS.wishlist}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
                     <a href="${ACCOUNT_PATHS.cart}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
                     <button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>

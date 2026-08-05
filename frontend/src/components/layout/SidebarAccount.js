@@ -35,6 +35,7 @@ export function SidebarAccount() {
       <!-- Links de Navegação -->
       <nav class="account-nav" aria-label="Área da conta">
         ${navItem(ACCOUNT_PATHS.profile, "Meu Perfil", Icon(icons.user, { className: "w-4 h-4 shrink-0" }))}
+        ${navItem(ACCOUNT_PATHS.games, "Meus Jogos", Icon(icons.gamepad, { className: "w-4 h-4 shrink-0" }))}
         ${navItem(ACCOUNT_PATHS.gifts, "Presentes", Icon(icons.gift, { className: "w-4 h-4 shrink-0" }))}
         ${navItem(ACCOUNT_PATHS.library, "Minha Biblioteca", Icon(icons.library, { className: "w-4 h-4 shrink-0" }))}
         ${navItem(ACCOUNT_PATHS.wishlist, "Lista de Desejos", Icon(icons.heart, { className: "w-4 h-4 shrink-0" }))}

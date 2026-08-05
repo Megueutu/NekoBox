@@ -21,12 +21,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.marketplaceproject.Entity.Enuns.TipoFoto;
+import com.example.marketplaceproject.Entity.Foto;
 import com.example.marketplaceproject.Entity.Produto;
 import com.example.marketplaceproject.Service.AvaliacaoService;
 import com.example.marketplaceproject.Service.FotoService;
 import com.example.marketplaceproject.Service.ProdutoAuthorizationService;
 import com.example.marketplaceproject.Service.ProdutoService;
 import com.example.marketplaceproject.Service.SessaoService;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -65,6 +68,25 @@ public class ProdutoController {
             Integer id, String titulo, String descricaoCurta, String descricaoLonga, BigDecimal preco,
             VendedorResumo vendedor, Map<String, Object> fotos, List<CategoriaResumo> categorias,
             double notaMedia) {
+    }
+
+    public record MeuMidiaResumo(Integer id, String url, String tipo) {
+    }
+
+    public record MeuJogoResponse(
+            Integer id, String titulo, String slug, String descricaoCurta, String descricaoLonga,
+            BigDecimal preco, LocalDate releaseDate, String status, List<String> tags,
+            String capaUrl, List<MeuMidiaResumo> midias) {
+    }
+
+    @GetMapping("/meus")
+    public ResponseEntity<List<MeuJogoResponse>> listarMeus(
+            @RequestHeader("Authorization") String authorization) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
+        List<MeuJogoResponse> jogos = produtoService.listarPorVendedor(usuarioId).stream()
+                .map(this::paraMeuJogo)
+                .toList();
+        return ResponseEntity.ok(jogos);
     }
 
     @GetMapping
@@ -146,6 +168,30 @@ public class ProdutoController {
             return objectMapper.writeValueAsString(value == null ? List.of() : value);
         } catch (Exception exception) {
             throw new IllegalArgumentException("Os dados estruturados do jogo sao invalidos.");
+        }
+    }
+
+    private MeuJogoResponse paraMeuJogo(Produto produto) {
+        List<Foto> fotos = fotoService.listarFotosDoProduto(produto.getId());
+        String capa = fotos.stream()
+                .filter(foto -> foto.getTipo() == TipoFoto.COVER)
+                .map(Foto::getUrl)
+                .findFirst()
+                .orElse(null);
+        List<MeuMidiaResumo> midias = fotos.stream()
+                .map(foto -> new MeuMidiaResumo(foto.getId(), foto.getUrl(), foto.getTipo().getValor()))
+                .toList();
+        return new MeuJogoResponse(
+                produto.getId(), produto.getTitulo(), produto.getSlug(), produto.getDescricaoCurta(),
+                produto.getDescricaoLonga(), produto.getPreco(), produto.getDataLancamento(),
+                produto.getStatus(), parseTags(produto.getTagsJson()), capa, midias);
+    }
+
+    private List<String> parseTags(String json) {
+        try {
+            return objectMapper.readValue(json == null ? "[]" : json, new TypeReference<>() { });
+        } catch (Exception exception) {
+            return List.of();
         }
     }
 
