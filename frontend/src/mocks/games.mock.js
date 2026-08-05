@@ -1,4 +1,6 @@
-export const mockGames = [
+import { seedCatalogGames, seedMediaBySlug } from "./seed-catalog.mock";
+
+const baseMockGames = [
   {
     id: "d3b07384-d113-4e4e-a57e-7977b3b3a60a",
     owner_id: "usr_admin_system_001",
@@ -381,4 +383,21 @@ export const mockGames = [
       { id: "r13", username: "CrimeKing", recommended: true, review_text: "Ainda inigualável. O mundo de Los Santos é simplesmente vivo.", created_at: "2024-02-28", votes: 567 },
     ],
   },
+];
+
+const withSeedMedia = (game) => ({
+  ...game,
+  media: [
+    ...(seedMediaBySlug[game.slug] || game.media),
+    { type: "poster", url: `https://picsum.photos/seed/nekobox-poster-${game.slug}/640/640`, position: 1 },
+  ].filter((media, index, items) => media.type !== "poster" || items.findIndex((item) => item.type === "poster") === index)
+    .map((media, index) => ({
+      ...media,
+      id: media.id || `${game.slug}-${media.type}-${media.position || index + 1}`,
+    })),
+});
+
+export const mockGames = [
+  ...baseMockGames.map(withSeedMedia),
+  ...seedCatalogGames.map(withSeedMedia),
 ];

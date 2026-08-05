@@ -1,6 +1,7 @@
 import { clearSessionState } from "../../store/store";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
+const USE_MOCK_API = import.meta.env.MODE === "development" && Boolean(import.meta.env.VITE_USE_MOCK_API);
 
 export class ApiError extends Error {
   constructor(message, status, body) {
@@ -12,6 +13,11 @@ export class ApiError extends Error {
 }
 
 async function request(path, { body, headers = {}, ...options } = {}) {
+  if (USE_MOCK_API) {
+    const { mockApiRequest } = await import("../../mocks/api.mock");
+    return mockApiRequest(path, { body, headers, ...options });
+  }
+
   const token = localStorage.getItem("access_token");
   const isFormData = body instanceof FormData;
   const response = await fetch(`${API_BASE_URL}${path}`, {
