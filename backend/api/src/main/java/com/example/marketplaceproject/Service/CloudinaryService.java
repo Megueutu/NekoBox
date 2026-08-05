@@ -17,6 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
@@ -26,7 +27,8 @@ public class CloudinaryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudinaryService.class);
     private static final long TAMANHO_MAXIMO = 10L * 1024L * 1024L;
-    private static final Set<String> TIPOS_PERMITIDOS = Set.of("image/jpeg", "image/png", "image/gif");
+    private static final Set<String> TIPOS_PERMITIDOS = Set.of("image/jpeg", "image/jpg", "image/png", "image/gif");
+    private static final Set<String> EXTENSOES_PERMITIDAS = Set.of("jpg", "jpeg", "png", "gif");
 
     private final Cloudinary cloudinary;
     private final HttpClient httpClient;
@@ -59,7 +61,7 @@ public class CloudinaryService {
             throw new RegraNegocioException("O arquivo enviado esta vazio.");
         }
         try {
-            if (arquivo.getSize() > TAMANHO_MAXIMO || !TIPOS_PERMITIDOS.contains(arquivo.getContentType())) {
+            if (arquivo.getSize() > TAMANHO_MAXIMO || !ehTipoDeImagemPermitido(arquivo)) {
                 throw new RegraNegocioException("Envie uma imagem JPEG, PNG ou GIF de ate 10 MB.");
             }
             byte[] bytes = arquivo.getBytes();
@@ -75,6 +77,18 @@ public class CloudinaryService {
             registrarFalha("upload", exception);
             throw new RegraNegocioException("Falha ao enviar o arquivo.");
         }
+    }
+
+    private boolean ehTipoDeImagemPermitido(MultipartFile arquivo) {
+        String contentType = arquivo.getContentType();
+        if (contentType != null && TIPOS_PERMITIDOS.contains(contentType.toLowerCase(Locale.ROOT))) {
+            return true;
+        }
+
+        String filename = arquivo.getOriginalFilename();
+        int extensionStart = filename == null ? -1 : filename.lastIndexOf('.');
+        return extensionStart >= 0
+                && EXTENSOES_PERMITIDAS.contains(filename.substring(extensionStart + 1).toLowerCase(Locale.ROOT));
     }
 
     public void remover(String publicId) {

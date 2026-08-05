@@ -146,7 +146,7 @@ class AdminFlowTests {
                         "https://res.cloudinary.com/demo/image/upload/generated.jpg",
                         "generated-public-id"));
         MockMultipartFile image = new MockMultipartFile(
-                "arquivo", "cover.png", MediaType.IMAGE_PNG_VALUE, new byte[] { 1, 2, 3 });
+                "arquivo", "cover.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[] { 1, 2, 3 });
 
         mockMvc.perform(multipart("/api/admin/jogos/" + gameId + "/midias")
                         .file(image)
@@ -159,10 +159,50 @@ class AdminFlowTests {
         org.junit.jupiter.api.Assertions.assertEquals(
                 1, fotoRepository.findByProduto_IdAndTipo(gameId, TipoFoto.COVER).size());
 
+        mockMvc.perform(multipart("/api/admin/jogos/" + gameId + "/midias")
+                        .file(new MockMultipartFile(
+                                "arquivo", "poster.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[] { 4, 5, 6 }))
+                        .param("tipo", "poster")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.tipo").value("poster"));
+
+        org.junit.jupiter.api.Assertions.assertEquals(
+                1, fotoRepository.findByProduto_IdAndTipo(gameId, TipoFoto.POSTER).size());
+
         when(cloudinaryService.existe(anyString())).thenReturn(CompletableFuture.completedFuture(true));
         mockMvc.perform(get("/api/games/media-audit"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.disponiveis[0].public_id").value("generated-public-id"));
+    }
+
+    @Test
+    void shouldLimitGameScreenshotsToTen() throws Exception {
+        String adminToken = login(ADMIN_EMAIL, ADMIN_PASSWORD);
+        Integer gameId = createGame(adminToken);
+        when(cloudinaryService.upload(any(), anyString()))
+                .thenReturn(new CloudinaryService.ResultadoUpload(
+                        "https://res.cloudinary.com/demo/image/upload/screenshot.jpg",
+                        "screenshot-public-id"));
+
+        for (int index = 0; index < 10; index++) {
+            MockMultipartFile screenshot = new MockMultipartFile(
+                    "arquivo", "screenshot-" + index + ".jpg", MediaType.IMAGE_JPEG_VALUE, new byte[] { 1, 2, 3 });
+            mockMvc.perform(multipart("/api/admin/jogos/" + gameId + "/midias")
+                            .file(screenshot)
+                            .param("tipo", "screenshot")
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isCreated());
+        }
+
+        MockMultipartFile extraScreenshot = new MockMultipartFile(
+                "arquivo", "screenshot-10.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[] { 1, 2, 3 });
+        mockMvc.perform(multipart("/api/admin/jogos/" + gameId + "/midias")
+                        .file(extraScreenshot)
+                        .param("tipo", "screenshot")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value("Cada jogo pode ter no máximo 10 capturas de tela."));
     }
 
     private String registerAndLogin() throws Exception {

@@ -96,6 +96,7 @@ public class CatalogMediaAuditService {
         List<MediaEsperada> medias = new ArrayList<>();
         medias.add(new MediaEsperada(slug, "cover", 1, mediaRoot + "/" + slug + "/cover"));
         medias.add(new MediaEsperada(slug, "banner", 1, mediaRoot + "/" + slug + "/banner"));
+        medias.add(new MediaEsperada(slug, "poster", 1, mediaRoot + "/" + slug + "/poster"));
         for (int posicao = 1; posicao <= screenshotCount; posicao++) {
             medias.add(new MediaEsperada(
                     slug, "screenshot", posicao,

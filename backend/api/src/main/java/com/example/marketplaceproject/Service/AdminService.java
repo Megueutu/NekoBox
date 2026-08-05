@@ -36,6 +36,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AdminService {
 
+    private static final int MAX_SCREENSHOTS = 10;
+
     private static final String CATALOGO_EMAIL = "catalog@nekobox.local";
 
     private final SessaoService sessaoService;
@@ -253,6 +255,10 @@ public class AdminService {
         exigirAdmin(authorization);
         produtoService.buscarPorId(jogoId);
         TipoFoto tipo = TipoFoto.deValor(tipoInformado);
+        if (tipo == TipoFoto.SCREENSHOT
+                && fotoRepository.findByProduto_IdAndTipo(jogoId, tipo).size() >= MAX_SCREENSHOTS) {
+            throw new RegraNegocioException("Cada jogo pode ter no máximo 10 capturas de tela.");
+        }
         CloudinaryService.ResultadoUpload upload = cloudinaryService.upload(
                 arquivo, "nekobox/admin/games/" + jogoId);
 

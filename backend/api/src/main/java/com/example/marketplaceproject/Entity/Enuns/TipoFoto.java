@@ -8,6 +8,7 @@ import java.util.Arrays;
 public enum TipoFoto {
     BANNER("banner", false),
     COVER("cover", false),
+    POSTER("poster", false),
     SCREENSHOT("screenshot", true);
 
     private final String valor;
