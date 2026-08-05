@@ -129,7 +129,7 @@ export default async function LibraryPage() {
           ${orderedLibrary.map(LibraryCard).join("")}
         </div>
         <div id="library-no-results" class="collection-no-results" role="status" hidden>
-          ${Icon(icons.search, { className: "w-8 h-8" })}
+          ${Icon(icons.search, { className: "w-5 h-5" })}
           <h2>Nenhum jogo encontrado</h2>
           <p>Tente buscar por outro título, gênero ou publicadora.</p>
         </div>

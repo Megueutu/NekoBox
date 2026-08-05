@@ -75,7 +75,7 @@ export default async function GiftsPage() {
       })}
 
       <section class="gifts-intro panel" aria-labelledby="gifts-intro-title">
-        <span>${Icon(icons.gift, { className: "w-6 h-6" })}</span>
+        <span>${Icon(icons.gift, { className: "w-5 h-5" })}</span>
         <div>
           <p>Seus presentes</p>
           <h2 id="gifts-intro-title">Envie o código para quem vai receber o jogo</h2>
