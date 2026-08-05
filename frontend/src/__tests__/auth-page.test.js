@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   renderAuthPage,
   resolvePostLoginTarget,
+  bindAuthInteractions,
 } from "../pages/auth/LoginPage";
 import { renderAuthDialog, setupAuthDialog } from "../components/auth/AuthDialog";
 
@@ -29,14 +30,17 @@ describe("Authentication page", () => {
     expect(toggle?.getAttribute("aria-pressed")).toBe("false");
   });
 
-  it("should render registration with password guidance", () => {
+  it("should render registration guidance as accessible tooltips", () => {
     const container = document.createElement("div");
 
     container.innerHTML = renderAuthPage("register");
 
-    const hints = [...container.querySelectorAll("#register-form .auth-form__hint")];
-    expect(hints[0]?.textContent).toContain("sem espaços");
-    expect(hints[1]?.textContent).toContain("minúscula");
+    const tooltips = [...container.querySelectorAll("#register-form .field-tooltip")];
+    expect(tooltips[0]?.getAttribute("aria-label")).toContain("sem espaços");
+    expect(tooltips[1]?.getAttribute("aria-label")).toContain("minúscula");
+    expect(container.querySelector("#register-form .auth-form__hint")).toBeNull();
+    expect(container.querySelector("#input-reg-username")?.getAttribute("pattern")).toBe("^[a-zA-Z0-9_]{3,50}$");
+    expect(container.querySelector("#input-reg-password")?.getAttribute("minlength")).toBe("8");
     expect(container.querySelector("#input-reg-password")?.getAttribute("autocomplete")).toBe("new-password");
     expect(container.querySelector("#input-reg-username")?.getAttribute("autocomplete")).toBe("username");
   });
@@ -47,6 +51,24 @@ describe("Authentication page", () => {
     container.innerHTML = renderAuthPage("forgot");
 
     expect(container.querySelector('#forgot-form input[type="email"]')).not.toBeNull();
+  });
+
+  it("should mark password confirmation invalid until both values match", () => {
+    document.body.innerHTML = renderAuthPage("register");
+    bindAuthInteractions();
+    const password = document.querySelector("#input-reg-password");
+    const confirmation = document.querySelector("#input-reg-confirm");
+
+    password.value = "Secure1!Pass";
+    confirmation.value = "Different1!Pass";
+    confirmation.dispatchEvent(new Event("input", { bubbles: true }));
+
+    expect(confirmation.validity.customError).toBe(true);
+
+    confirmation.value = "Secure1!Pass";
+    confirmation.dispatchEvent(new Event("input", { bubbles: true }));
+
+    expect(confirmation.validity.valid).toBe(true);
   });
 
   it("should not render the removed authentication protection message", () => {

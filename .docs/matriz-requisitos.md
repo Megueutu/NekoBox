@@ -23,7 +23,7 @@ Para nota 10 são necessárias duas adicionais completas, com ao menos uma do Gr
 | --- | --- | --- | --- |
 | A | Autenticação com sessão persistente | Atende | [`AuthController.java`](../backend/api/src/main/java/com/example/marketplaceproject/Controller/AuthController.java), [`SessaoService.java`](../backend/api/src/main/java/com/example/marketplaceproject/Service/SessaoService.java) |
 | A | Área administrativa de produtos | Atende | [`AdminPage.js`](../frontend/src/pages/admin/AdminPage.js), [`AdminController.java`](../backend/api/src/main/java/com/example/marketplaceproject/Controller/AdminController.java) |
-| A | API externa funcional | Parcial/condicional | Firebase e Cloudinary dependem das credenciais do ambiente |
+| A | API externa funcional | Parcial/condicional | Cloudinary e o GameBot dependem das credenciais do ambiente |
 | A | Histórico de pedidos | Não atende | A biblioteca não substitui histórico de pedidos |
 | B | Avaliações/comentários | Parcial | A API e a exibição existem; confirmar fluxo de criação na interface |
 | B | Modo claro/escuro persistente | Não atende | Há preferências de tema escuro, sem modo claro completo |

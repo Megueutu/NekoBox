@@ -48,7 +48,7 @@ Não criar novas cores arbitrárias em páginas sem antes verificar se um token 
 - O catálogo `icons` centraliza os ícones aprovados, e `Icon` padroniza `viewBox`, traço, alinhamento e atributos de acessibilidade.
 - O tamanho padrão é `1.25rem` (`w-5 h-5`) e o traço padrão é `2`; variações devem acompanhar a escala visual do componente.
 - Ícones ao lado de texto são decorativos e usam `aria-hidden`. Ações somente com ícone devem manter nome acessível no botão ou link.
-- Logos de terceiros, como Google, podem preservar o SVG oficial fora do Lucide.
+- Logos de terceiros podem preservar o SVG oficial fora do Lucide.
 
 ## Sistema de layout
 

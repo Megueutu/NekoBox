@@ -30,7 +30,6 @@ A biblioteca contém os objetos de jogo transferidos pelo checkout. Não há lic
 Há três fluxos de interface:
 
 - Login com e-mail e senha.
-- Login com Google via Firebase quando configurado.
 - Cadastro e recuperação de senha.
 
 No modo mock, login/cadastro aceitam dados não vazios, cadastro exige senha com pelo menos seis caracteres e geram um token local. A confirmação de senha é validada na página. Ao autenticar, o usuário volta para `redirect_target` ou `/hub`.

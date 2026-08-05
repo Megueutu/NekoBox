@@ -15,7 +15,7 @@ Esta documentação descreve o comportamento observado no frontend atual. Quando
 
 ## Estado atual em uma frase
 
-É uma SPA (Single Page Application) em JavaScript vanilla, compilada pelo Vite, que renderiza HTML por templates, usa um store observável próprio e executa autenticação e catálogo com Firebase/mocks.
+É uma SPA (Single Page Application) em JavaScript vanilla, compilada pelo Vite, que renderiza HTML por templates, usa um store observável próprio e executa autenticação e catálogo por API ou mocks locais.
 
 ## Termos do domínio
 

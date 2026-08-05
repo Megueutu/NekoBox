@@ -9,7 +9,7 @@ Marketplace de jogos digitais desenvolvido como MVP da disciplina Desenvolviment
 - banco: PostgreSQL 16;
 - ambiente: Docker e Docker Compose;
 - testes: Vitest no frontend e JUnit/Spring MockMvc no backend;
-- integrações opcionais: Firebase para login Google e Cloudinary para mídias.
+- integrações opcionais: Cloudinary para mídias e GameBot com Google AI.
 
 ```text
 Navegador → SPA JavaScript → API REST Spring Boot → PostgreSQL
@@ -56,7 +56,7 @@ No Prompt de Comando, use `copy .env.example .env` no lugar do `Copy-Item`.
 O `.env` é ignorado pelo Git. Os valores de exemplo permitem executar o catálogo e o login local, mas as integrações externas exigem credenciais próprias:
 
 - Cloudinary: substitua `CLOUDINARY_URL` e `VITE_CLOUDINARY_CLOUD_NAME`;
-- Google/Firebase: preencha `FIREBASE_API_KEY` e as variáveis `VITE_FIREBASE_*`.
+- GameBot: preencha `GOOGLE_API_KEY` e mantenha `VITE_CHATBOT_API_URL` apontando para o serviço Python.
 
 `CLOUDINARY_URL` contém o segredo da API e é enviada somente ao backend. Variáveis `VITE_*` são incorporadas ao JavaScript público do navegador e nunca devem conter senhas ou `API_SECRET`.
 
@@ -219,9 +219,9 @@ docker compose up --build -d postgres
 
 O script de seed é idempotente e roda a cada inicialização do container, sem apagar o volume.
 
-### Login com Google ou upload de imagem falha
+### GameBot ou upload de imagem falha
 
-Esses recursos dependem das credenciais opcionais de Firebase e Cloudinary no `.env`. O login local por e-mail e senha e a navegação pelo catálogo continuam disponíveis sem elas.
+O GameBot depende de `GOOGLE_API_KEY` e o upload de imagem depende das credenciais opcionais do Cloudinary no `.env`. O login local por e-mail e senha e a navegação pelo catálogo continuam disponíveis sem elas.
 
 ### Falha de certificado durante o build
 

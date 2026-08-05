@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../core/firebase/firebase", () => ({
-  auth: null,
-  googleProvider: null,
-}));
-
 vi.mock("../services/api/api.client", () => ({
   ApiClient: {
     post: vi.fn(),

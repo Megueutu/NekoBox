@@ -10,7 +10,6 @@ import com.example.marketplaceproject.Entity.Usuario;
 import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Service.UsuarioService;
 import com.example.marketplaceproject.Service.SessaoService;
-import com.example.marketplaceproject.Service.FirebaseTokenService;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import lombok.RequiredArgsConstructor;
@@ -22,12 +21,8 @@ public class AuthController {
 
     private final UsuarioService usuarioService;
     private final SessaoService sessaoService;
-    private final FirebaseTokenService firebaseTokenService;
 
     public record LoginRequest(String email, String senha) {
-    }
-
-    public record FirebaseLoginRequest(String idToken) {
     }
 
     public record UserResponse(
@@ -41,15 +36,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         Usuario usuario = usuarioService.autenticar(request.email(), request.senha());
-        SessaoService.NovaSessao sessao = sessaoService.criar(usuario);
-        return ResponseEntity.ok(new LoginResponse(sessao.token(), "Bearer", sessao.expiresIn(), toUser(usuario)));
-    }
-
-    @PostMapping("/firebase")
-    public ResponseEntity<LoginResponse> loginFirebase(@RequestBody FirebaseLoginRequest request) {
-        FirebaseTokenService.FirebaseUser firebaseUser = firebaseTokenService.validar(request.idToken());
-        Usuario usuario = usuarioService.autenticarExterno(
-                firebaseUser.email(), firebaseUser.displayName(), firebaseUser.photoUrl());
         SessaoService.NovaSessao sessao = sessaoService.criar(usuario);
         return ResponseEntity.ok(new LoginResponse(sessao.token(), "Bearer", sessao.expiresIn(), toUser(usuario)));
     }

@@ -13,7 +13,7 @@ main.js
        │    └── componentes reutilizáveis
        ├── services (auth, games)
        ├── Store + Actions
-       └── core (Firebase, Cloudinary)
+       └── core (Cloudinary)
 ```
 
 ## Camadas
@@ -47,8 +47,6 @@ A rota `/` renderiza a vitrine editorial da loja. O catálogo completo permanece
 
 ### Integrações
 
-- Firebase Auth é inicializado quando `VITE_FIREBASE_API_KEY` existe.
-- Sem configuração válida, o serviço de autenticação usa respostas mock.
 - Cloudinary otimiza mídias que possuam `public_id`; caso contrário, a aplicação usa `url` ou uma imagem fallback.
 - O catálogo atual é fornecido exclusivamente por `src/mocks/games.mock.js`.
 

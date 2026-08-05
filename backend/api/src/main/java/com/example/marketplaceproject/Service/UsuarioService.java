@@ -2,9 +2,6 @@ package com.example.marketplaceproject.Service;
 
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
-import java.text.Normalizer;
-import java.util.Locale;
-import java.util.UUID;
 import java.net.URI;
 import java.util.Set;
 import java.util.List;
@@ -84,37 +81,6 @@ public class UsuarioService {
             throw new CredenciaisInvalidasException("Email ou senha invalidos.");
         }
         return usuario;
-    }
-
-    public Usuario autenticarExterno(String email, String nome, String avatarUrl) {
-        return usuarioRepository.findByEmailIgnoreCase(email).map(usuario -> {
-            if (usuario.getPapel() == PapelUsuario.ADMIN) {
-                throw new CredenciaisInvalidasException(
-                        "A conta administrativa exige autenticacao com email e senha.");
-            }
-            return usuario;
-        }).orElseGet(() -> {
-            String base = Normalizer.normalize(nome == null || nome.isBlank() ? email.split("@")[0] : nome,
-                            Normalizer.Form.NFD)
-                    .replaceAll("\\p{M}", "")
-                    .toLowerCase(Locale.ROOT)
-                    .replaceAll("[^a-z0-9_]", "_")
-                    .replaceAll("_+", "_");
-            if (base.length() < 3) base = "player";
-            if (base.length() > 42) base = base.substring(0, 42);
-            String username = base;
-            int suffix = 2;
-            while (usuarioRepository.findByNomeUsuarioIgnoreCase(username).isPresent()) {
-                username = base + "_" + suffix++;
-            }
-            Usuario usuario = cadastrar(Usuario.builder()
-                    .nomeUsuario(username)
-                    .email(email)
-                    .senha("Aa1!" + UUID.randomUUID().toString().replace("-", ""))
-                    .build());
-            usuario.setUrlAvatar(avatarUrl == null || avatarUrl.isBlank() ? null : avatarUrl);
-            return usuarioRepository.saveAndFlush(usuario);
-        });
     }
 
     public Usuario buscarPorId(Integer usuarioId) {

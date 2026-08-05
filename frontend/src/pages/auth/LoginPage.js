@@ -1,7 +1,7 @@
-import { AuthService } from "../../services/auth/auth.service";
 import { navigate } from "../../app/router/navigate";
 import { FormField } from "../../components/ui/FormField";
 import { Icon, icons } from "../../components/ui/Icon";
+import { AuthService, PASSWORD_PATTERN, USERNAME_PATTERN } from "../../services/auth/auth.service";
 
 let activeTab = "login";
 
@@ -41,25 +41,16 @@ export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
       <button id="btn-login-email" type="submit" class="button-primary auth-submit">
         Entrar
       </button>
-      <div class="auth-separator" aria-hidden="true">
-        <span>ou continue com</span>
-      </div>
-      <button id="btn-google-login" type="button" class="button-secondary auth-submit">
-        ${Icon(icons.logIn, { className: "w-4 h-4" })}
-        Google
-      </button>
       <p id="login-error" class="auth-feedback auth-feedback--error hidden" role="alert"></p>
     </form>
   `;
 
   const registerForm = `
     <form id="register-form" class="auth-form">
-      ${FormField({ id: "input-reg-username", label: "Nome de usuário", type: "text", placeholder: "jogador123", autocomplete: "username" })}
-      <p class="auth-form__hint">Use de 3 a 50 letras, números ou _ (sem espaços).</p>
+      ${FormField({ id: "input-reg-username", label: "Nome de usuário", type: "text", placeholder: "jogador123", autocomplete: "username", pattern: USERNAME_PATTERN.source, minLength: 3, maxLength: 50, helpText: "De 3 a 50 letras, números ou _, sem espaços." })}
       ${FormField({ id: "input-reg-email", label: "E-mail", type: "email", placeholder: "seu@email.com" })}
-      ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "Crie uma senha segura", autocomplete: "new-password" })}
+      ${FormField({ id: "input-reg-password", label: "Senha", type: "password", placeholder: "Crie uma senha segura", autocomplete: "new-password", pattern: PASSWORD_PATTERN.source, minLength: 8, helpText: "Mínimo de 8 caracteres, incluindo maiúscula, minúscula, número e um símbolo: @ $ ! % * ? &." })}
       ${FormField({ id: "input-reg-confirm", label: "Confirmar Senha", type: "password", placeholder: "Repita a senha", autocomplete: "new-password" })}
-      <p class="auth-form__hint">Use 8 ou mais caracteres, com maiúscula, minúscula, número e um símbolo: @ $ ! % * ? &.</p>
       <button id="btn-register" type="submit" class="button-primary auth-submit">
         Criar Conta
       </button>
@@ -191,23 +182,15 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
   find("#btn-forgot-tab")?.addEventListener("click", () => showView("forgot", "#input-forgot-email"));
   find("#btn-back-login")?.addEventListener("click", () => showView("login", "#btn-forgot-tab"));
 
-  find("#btn-google-login")?.addEventListener("click", async () => {
-    const btn = find("#btn-google-login");
-    const idleContent = btn.innerHTML;
-    btn.textContent = "Autenticando...";
-    btn.disabled = true;
-    try {
-      const usuario = await AuthService.loginComGoogle();
-      redirecionarAposLogin(usuario);
-    } catch {
-      const err = find("#login-error");
-      if (err) {
-        err.textContent = "Falha ao autenticar com Google. Tente novamente.";
-        err.classList.remove("hidden");
-      }
-      btn.disabled = false;
-      btn.innerHTML = idleContent;
-    }
+  const registerForm = find("#register-form");
+  const validatePasswordConfirmation = () => {
+    const password = find("#input-reg-password");
+    const confirmation = find("#input-reg-confirm");
+    if (!password || !confirmation) return;
+    confirmation.setCustomValidity(confirmation.value && password.value !== confirmation.value ? "As senhas não coincidem." : "");
+  };
+  registerForm?.querySelectorAll("#input-reg-password, #input-reg-confirm").forEach((input) => {
+    input.addEventListener("input", validatePasswordConfirmation);
   });
 
   find("#login-form")?.addEventListener("submit", async (event) => {
@@ -229,6 +212,7 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
 
   find("#register-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    validatePasswordConfirmation();
     const username = find("#input-reg-username")?.value;
     const email = find("#input-reg-email")?.value;
     const password = find("#input-reg-password")?.value;
