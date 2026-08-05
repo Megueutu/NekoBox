@@ -1,7 +1,75 @@
 import { formatDate, money } from "./admin-format";
 
-export function filesToUpload(file, type) {
-  return file instanceof File && file.size > 0 ? [{ file, type }] : [];
+const MAX_SCREENSHOTS = 10;
+const mediaSelections = new WeakMap();
+
+function getSelection(form) {
+  if (!mediaSelections.has(form)) {
+    mediaSelections.set(form, { cover: [], banner: [], poster: [], screenshots: [] });
+  }
+  return mediaSelections.get(form);
+}
+
+function existingScreenshotCount(form) {
+  return form.querySelectorAll('[data-existing-media][data-media-type="screenshot"]').length;
+}
+
+function formatFileSize(size) {
+  return size < 1024 * 1024
+    ? `${Math.ceil(size / 1024)} KB`
+    : `${(size / (1024 * 1024)).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
+}
+
+function updateMediaStatus(form, message = "") {
+  const selected = getSelection(form);
+  const screenshotCount = existingScreenshotCount(form) + selected.screenshots.length;
+  const count = form.querySelector("[data-screenshot-count]");
+  const status = form.querySelector("[data-media-selection-status]");
+
+  if (count) count.textContent = `${screenshotCount} / ${MAX_SCREENSHOTS} capturas`;
+  if (status) status.textContent = message;
+}
+
+export function selectMediaFiles(form, input) {
+  const selection = getSelection(form);
+  const files = Array.from(input.files || []).filter((file) => file instanceof File && file.size > 0);
+  if (!files.length) return;
+
+  if (input.name === "screenshots") {
+    const remaining = Math.max(0, MAX_SCREENSHOTS - existingScreenshotCount(form) - selection.screenshots.length);
+    selection.screenshots.push(...files.slice(0, remaining));
+    updateMediaStatus(
+      form,
+      files.length > remaining
+        ? `Só é possível manter até ${MAX_SCREENSHOTS} capturas por jogo.`
+        : ""
+    );
+  } else if (["cover", "banner", "poster"].includes(input.name)) {
+    selection[input.name] = files.slice(-1);
+    updateMediaStatus(form);
+  }
+
+  input.value = "";
+  renderSelectedMedia(form);
+}
+
+export function removeSelectedMedia(form, type, index) {
+  const selection = getSelection(form);
+  const files = selection[type];
+  if (!files || index < 0 || index >= files.length) return;
+  files.splice(index, 1);
+  updateMediaStatus(form);
+  renderSelectedMedia(form);
+}
+
+export function getSelectedMediaUploads(form) {
+  const selection = getSelection(form);
+  return [
+    ...selection.cover.map((file) => ({ file, type: "cover" })),
+    ...selection.banner.map((file) => ({ file, type: "banner" })),
+    ...selection.poster.map((file) => ({ file, type: "poster" })),
+    ...selection.screenshots.map((file) => ({ file, type: "screenshot" })),
+  ];
 }
 
 function selectedMediaUrls(form, type) {
@@ -34,7 +102,7 @@ export function updateGamePreview(form) {
   const description = form.elements.descricao_curta.value.trim()
     || "Uma breve descrição vai aparecer aqui.";
   const price = Number(form.elements.preco.value || 0);
-  const formattedPrice = money.format(Number.isFinite(price) ? price : 0);
+  const formattedPrice = price === 0 ? "Gratuito" : money.format(Number.isFinite(price) ? price : 0);
   const releaseDate = form.elements.data_lancamento.value;
   const status = form.elements.status.value;
   const statusLabels = { draft: "Rascunho", published: "Publicado", archived: "Arquivado" };
@@ -43,8 +111,8 @@ export function updateGamePreview(form) {
     .map((tag) => tag.trim())
     .filter(Boolean)
     .slice(0, 4);
-  const coverUrl = selectedMediaUrls(form, "cover")[0] || "";
   const bannerUrl = selectedMediaUrls(form, "banner")[0] || "";
+  const posterUrl = selectedMediaUrls(form, "poster")[0] || "";
   const screenshots = selectedMediaUrls(form, "screenshot");
 
   preview.querySelector("[data-preview-title]").textContent = title;
@@ -68,7 +136,7 @@ export function updateGamePreview(form) {
     return chip;
   }));
 
-  setPreviewImage(preview.querySelector("[data-preview-cover]"), coverUrl, `Capa de ${title}`);
+  setPreviewImage(preview.querySelector("[data-preview-poster]"), posterUrl, `Pôster de ${title}`);
   setPreviewImage(preview.querySelector("[data-preview-banner]"), bannerUrl, `Banner de ${title}`);
 
   const screenshotsContainer = preview.querySelector("[data-preview-screenshots]");
@@ -98,26 +166,37 @@ export function renderSelectedMedia(form) {
     URL.revokeObjectURL(item.querySelector("img").src);
     item.remove();
   });
-  const data = new FormData(form);
+  const selection = getSelection(form);
   const selections = [
-    ...filesToUpload(data.get("cover"), "cover"),
-    ...filesToUpload(data.get("banner"), "banner"),
-    ...Array.from(data.getAll("screenshots"))
-      .flatMap((file) => filesToUpload(file, "screenshot")),
+    ...selection.cover.map((file, index) => ({ file, type: "cover", index })),
+    ...selection.banner.map((file, index) => ({ file, type: "banner", index })),
+    ...selection.poster.map((file, index) => ({ file, type: "poster", index })),
+    ...selection.screenshots.map((file, index) => ({ file, type: "screenshots", index })),
   ];
-  selections.forEach(({ file, type }) => {
+  selections.forEach(({ file, type, index }) => {
     const figure = document.createElement("figure");
     figure.className = "admin-media-item admin-media-item--selected";
     figure.dataset.selectedMedia = "";
-    figure.dataset.mediaType = type;
+    figure.dataset.mediaType = type === "screenshots" ? "screenshot" : type;
     const image = document.createElement("img");
     image.src = URL.createObjectURL(file);
-    image.alt = "";
+    image.alt = `Prévia de ${file.name}`;
     const caption = document.createElement("figcaption");
-    caption.textContent = `${type === "screenshot" ? "Screenshot" : type} — ${file.name}`;
+    const details = document.createElement("span");
+    const typeLabel = type === "screenshots" ? `Captura ${index + 1}` : ({ cover: "Capa", banner: "Banner", poster: "Pôster" }[type]);
+    details.textContent = `${typeLabel} · ${formatFileSize(file.size)}`;
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.dataset.removeSelectedMedia = "";
+    remove.dataset.mediaType = type;
+    remove.dataset.mediaIndex = String(index);
+    remove.setAttribute("aria-label", `Remover ${file.name}`);
+    remove.textContent = "Remover";
+    caption.append(details, remove);
     figure.append(image, caption);
     preview.append(figure);
   });
+  updateMediaStatus(form);
   updateGamePreview(form);
 }
 
@@ -125,4 +204,6 @@ export function cleanupSelectedMedia(dialog) {
   dialog.querySelectorAll("[data-selected-media] img").forEach((image) => {
     URL.revokeObjectURL(image.src);
   });
+  const form = dialog.querySelector("[data-kind='game']");
+  if (form) mediaSelections.delete(form);
 }

@@ -7,16 +7,26 @@ import { escapeHtml } from "../../utils/escape";
 import { dateTime, formatDate, money } from "./admin-format";
 import {
   cleanupSelectedMedia,
-  filesToUpload,
+  getSelectedMediaUploads,
+  removeSelectedMedia,
   renderSelectedMedia,
+  selectMediaFiles,
   updateGamePreview,
 } from "./admin-game-preview";
 
 let activeSection = "dashboard";
 let adminState = { dashboard: null, giftCards: [], users: [], games: [] };
 
+function fieldLabel(id, label, { help = "", required = false } = {}) {
+  return `<span class="admin-field__label"><label for="${id}">${label}${required ? '<span class="field-required" aria-hidden="true">*</span>' : ""}</label>${help ? `<button class="field-tooltip" type="button" aria-label="${label}: ${help}" data-tooltip="${help}">${Icon(icons.help, { className: "w-3.5 h-3.5" })}</button>` : ""}</span>`;
+}
+
 function emptyRow(columns, message) {
   return `<tr><td colspan="${columns}" class="admin-empty">${message}</td></tr>`;
+}
+
+function dashboardEmptyState(title, description, icon = icons.dashboard) {
+  return `<div class="admin-empty-state"><span>${Icon(icon, { className: "w-5 h-5" })}</span><div><strong>${title}</strong><p>${description}</p></div></div>`;
 }
 
 function pageHeader(eyebrow, title, description, action = "") {
@@ -58,7 +68,7 @@ function dashboardSection(dashboard) {
                     </li>`;
                   }).join("")}
                 </ol>`
-              : '<div class="admin-placeholder">As vendas aprovadas aparecerão aqui.</div>'
+              : dashboardEmptyState("A evolução começa na primeira venda", "Quando um pagamento for aprovado, a receita diária aparecerá aqui.")
           }
         </article>
         <article class="admin-panel">
@@ -66,7 +76,7 @@ function dashboardSection(dashboard) {
           <ol class="admin-ranking">
             ${(dashboard.mais_vendidos || []).map((game, index) => `
               <li><span>${String(index + 1).padStart(2, "0")}</span><div><strong>${escapeHtml(game.titulo)}</strong><small>${game.vendas} vendas</small></div><b>${money.format(game.receita)}</b></li>
-            `).join("") || '<li class="admin-placeholder">Nenhuma venda aprovada.</li>'}
+            `).join("") || `<li class="admin-ranking__empty">${dashboardEmptyState("O ranking será montado aqui", "Os jogos com mais compras aprovadas aparecem neste espaço.", icons.gamepad)}</li>`}
           </ol>
         </article>
       </div>
@@ -77,7 +87,7 @@ function dashboardSection(dashboard) {
           <tbody>
             ${(dashboard.vendas_recentes || []).map((sale) => `
               <tr><td>${formatDate(sale.criado_em, dateTime)}</td><td>${escapeHtml(sale.usuario)}</td><td>${escapeHtml(sale.jogo)}</td><td><strong>${money.format(sale.valor)}</strong></td></tr>
-            `).join("") || emptyRow(4, "Nenhuma venda aprovada.")}
+            `).join("") || `<tr><td colspan="4">${dashboardEmptyState("Ainda não há vendas recentes", "As compras aprovadas aparecerão nesta lista assim que acontecerem.", icons.circleCheck)}</td></tr>`}
           </tbody>
         </table></div>
       </article>
@@ -94,7 +104,7 @@ function giftCardsSection(giftCards) {
           <div class="admin-panel__heading"><div><p>Novo código</p><h2>Gerar gift card</h2></div></div>
           <form id="gift-card-form">
             <label for="gift-card-value">Valor do crédito</label>
-            <div class="admin-money-input"><span>R$</span><input id="gift-card-value" name="valor" type="number" min="1" max="10000" step="0.01" value="50.00" required></div>
+            <div class="admin-money-input"><span>R$</span><input id="gift-card-value" class="ui-control" name="valor" type="number" min="1" max="10000" step="0.01" value="50.00" required></div>
             <button class="button-primary" type="submit">${Icon(icons.gift, { className: "w-4 h-4" })} Gerar código</button>
           </form>
           <div id="gift-card-result" class="admin-generated-code hidden" role="status" aria-live="polite"></div>
@@ -235,11 +245,10 @@ function openUserDialog(user = null) {
   content.innerHTML = `
     <header><p>${user ? "Editar conta" : "Nova conta"}</p><h2 id="admin-dialog-title">${user ? escapeHtml(user.nome_usuario) : "Criar usuário"}</h2></header>
     <form id="admin-resource-form" data-kind="user" data-resource-id="${user?.id || ""}" class="admin-resource-form">
-      <label>Nome de usuário<input name="nome_usuario" minlength="3" maxlength="50" value="${escapeHtml(user?.nome_usuario || "")}" required></label>
-      <label>E-mail<input name="email" type="email" value="${escapeHtml(user?.email || "")}" required></label>
-      <label>${user ? "Nova senha (opcional)" : "Senha"}<input name="senha" type="password" ${user ? "" : "required"} autocomplete="new-password"></label>
-      <label>Saldo<input name="saldo" type="number" min="0" step="0.01" value="${user?.saldo ?? "1000.00"}" required></label>
-      <p class="admin-form-hint">Senha: 8+ caracteres, maiúscula, minúscula, número e símbolo.</p>
+      <label>Nome de usuário <span class="field-required" aria-hidden="true">*</span><input class="ui-control" name="nome_usuario" minlength="3" maxlength="50" value="${escapeHtml(user?.nome_usuario || "")}" required></label>
+      <label>E-mail <span class="field-required" aria-hidden="true">*</span><input class="ui-control" name="email" type="email" value="${escapeHtml(user?.email || "")}" required></label>
+      <label>${user ? "Nova senha (opcional)" : 'Senha <span class="field-required" aria-hidden="true">*</span>'}<input class="ui-control" name="senha" type="password" ${user ? "" : "required"} autocomplete="new-password"></label>
+      <label>Saldo <span class="field-required" aria-hidden="true">*</span><input class="ui-control" name="saldo" type="number" min="0" step="0.01" value="${user?.saldo ?? "1000.00"}" required></label>
       <button class="button-primary admin-form-wide" type="submit">${user ? "Salvar alterações" : "Criar usuário"}</button>
       <p class="admin-form-error admin-form-wide hidden" role="alert"></p>
     </form>`;
@@ -255,25 +264,84 @@ function openGameDialog(game = null) {
     <header><p>${game ? "Editar catálogo" : "Novo catálogo"}</p><h2 id="admin-dialog-title">${game ? escapeHtml(game.titulo) : "Cadastrar jogo"}</h2></header>
     <form id="admin-resource-form" data-kind="game" data-resource-id="${game?.id || ""}" class="admin-resource-form">
       <div class="admin-form-section-heading admin-form-wide">
-        <p>Informações e mídias</p>
+        <p>Cadastro do catálogo</p>
         <h3>Dados do jogo</h3>
-        <span>Preencha os campos e acompanhe a apresentação no catálogo.</span>
+        <span>Comece pelo conteúdo que aparece para quem está navegando pela loja.</span>
       </div>
-      <label>Título<input name="titulo" maxlength="255" value="${escapeHtml(game?.titulo || "")}" required></label>
-      <label>Descrição curta<input name="descricao_curta" maxlength="300" value="${escapeHtml(game?.descricao_curta || "")}"></label>
-      <label class="admin-form-wide">Descrição completa<textarea name="descricao_longa" rows="4">${escapeHtml(game?.descricao_longa || "")}</textarea></label>
-      <label>Preço<input name="preco" type="number" min="0" step="0.01" value="${game?.preco ?? ""}" required></label>
-      <label>Data de lançamento<input name="data_lancamento" type="date" value="${game?.data_lancamento || ""}"></label>
-      <label>Status<select name="status"><option value="draft" ${game?.status === "draft" ? "selected" : ""}>Rascunho</option><option value="published" ${game?.status === "published" ? "selected" : ""}>Publicado</option><option value="archived" ${game?.status === "archived" ? "selected" : ""}>Arquivado</option></select></label>
-      <label>Tags<input name="tags" value="${escapeHtml((game?.tags || []).join(", "))}" placeholder="RPG, Ação, Indie"></label>
+      <section class="admin-form-group admin-form-wide" aria-labelledby="admin-game-content-title">
+        <div class="admin-form-group__heading">
+          <span>01</span>
+          <div><h3 id="admin-game-content-title">Conteúdo do catálogo</h3><p>É o que vai apresentar o jogo na loja.</p></div>
+        </div>
+        <div class="admin-form-grid">
+          <div class="admin-field admin-field--wide">
+            ${fieldLabel("admin-game-title", "Título", { required: true, help: "Use o nome pelo qual o jogo é conhecido." })}
+            <input id="admin-game-title" class="ui-control" name="titulo" maxlength="255" value="${escapeHtml(game?.titulo || "")}" placeholder="Ex.: Hades II" required>
+          </div>
+          <div class="admin-field admin-field--wide">
+            ${fieldLabel("admin-game-short-description", "Descrição curta", { help: "Resumo exibido nos cards e nos resultados de busca." })}
+            <input id="admin-game-short-description" class="ui-control" name="descricao_curta" maxlength="300" value="${escapeHtml(game?.descricao_curta || "")}" placeholder="Uma frase que desperta interesse no catálogo">
+          </div>
+          <div class="admin-field admin-field--wide">
+            ${fieldLabel("admin-game-long-description", "Descrição completa", { help: "Explique a experiência para ajudar na decisão de compra." })}
+            <textarea id="admin-game-long-description" class="ui-control ui-control--area" name="descricao_longa" rows="5" placeholder="Apresente a proposta, mecânicas e o que torna o jogo especial.">${escapeHtml(game?.descricao_longa || "")}</textarea>
+          </div>
+        </div>
+      </section>
+      <section class="admin-form-group admin-form-wide" aria-labelledby="admin-game-publication-title">
+        <div class="admin-form-group__heading">
+          <span>02</span>
+          <div><h3 id="admin-game-publication-title">Publicação e descoberta</h3><p>Defina preço, disponibilidade e como o jogo será encontrado.</p></div>
+        </div>
+        <div class="admin-form-grid">
+          <div class="admin-field">
+            ${fieldLabel("admin-game-price", "Preço", { required: true, help: "Informe 0 para disponibilizar o jogo gratuitamente." })}
+            <span class="admin-input-prefix">${Icon(icons.circleDollar, { className: "w-4 h-4" })}<input id="admin-game-price" class="ui-control" name="preco" type="number" min="0" step="0.01" inputmode="decimal" value="${game?.preco ?? ""}" placeholder="0,00" required></span>
+          </div>
+          <div class="admin-field">
+            ${fieldLabel("admin-game-release-date", "Data de lançamento", { help: "Opcional. Você pode definir essa data depois." })}
+            <input id="admin-game-release-date" class="ui-control" name="data_lancamento" type="date" value="${game?.data_lancamento || ""}">
+          </div>
+          <div class="admin-field">
+            ${fieldLabel("admin-game-status", "Status", { help: "Rascunhos não aparecem na vitrine." })}
+            <select id="admin-game-status" class="ui-control" name="status"><option value="draft" ${game?.status === "draft" ? "selected" : ""}>Rascunho</option><option value="published" ${game?.status === "published" ? "selected" : ""}>Publicado</option><option value="archived" ${game?.status === "archived" ? "selected" : ""}>Arquivado</option></select>
+          </div>
+          <div class="admin-field">
+            ${fieldLabel("admin-game-tags", "Tags", { help: "Separe os termos por vírgula." })}
+            <input id="admin-game-tags" class="ui-control" name="tags" value="${escapeHtml((game?.tags || []).join(", "))}" placeholder="RPG, Ação, Indie">
+          </div>
+        </div>
+      </section>
       <fieldset class="admin-media-fields admin-form-wide">
         <legend>Mídias do jogo</legend>
-        <p>JPEG, PNG ou GIF de até 10 MB. Capa e banner substituem a imagem atual.</p>
+        <p>JPG, JPEG, PNG ou GIF de até 10 MB. Capa, banner e pôster substituem a imagem atual; inclua até 10 capturas.</p>
         <div class="admin-media-inputs">
-          <label>Capa<input name="cover" type="file" accept="image/jpeg,image/png,image/gif"></label>
-          <label>Banner<input name="banner" type="file" accept="image/jpeg,image/png,image/gif"></label>
-          <label>Capturas de tela<input name="screenshots" type="file" accept="image/jpeg,image/png,image/gif" multiple></label>
+          <label class="admin-media-picker">
+            <input name="cover" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+            <span class="admin-media-picker__icon">${Icon(icons.upload, { className: "w-4 h-4" })}</span>
+            <span><strong>Capa</strong><small>Enviar imagem</small></span>
+            <span class="admin-media-picker__action">Selecionar</span>
+          </label>
+          <label class="admin-media-picker">
+            <input name="banner" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+            <span class="admin-media-picker__icon">${Icon(icons.upload, { className: "w-4 h-4" })}</span>
+            <span><strong>Banner</strong><small>Enviar imagem</small></span>
+            <span class="admin-media-picker__action">Selecionar</span>
+          </label>
+          <label class="admin-media-picker">
+            <input name="poster" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+            <span class="admin-media-picker__icon">${Icon(icons.upload, { className: "w-4 h-4" })}</span>
+            <span><strong>Pôster</strong><small>Imagem quadrada do catálogo</small></span>
+            <span class="admin-media-picker__action">Selecionar</span>
+          </label>
+          <label class="admin-media-picker admin-media-picker--screenshots">
+            <input name="screenshots" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" multiple>
+            <span class="admin-media-picker__icon">${Icon(icons.upload, { className: "w-4 h-4" })}</span>
+            <span><strong>Capturas de tela</strong><small>Selecione várias imagens</small></span>
+            <output class="admin-media-picker__count" data-screenshot-count>0 / 10 capturas</output>
+          </label>
         </div>
+        <p class="admin-media-selection-status" data-media-selection-status role="status" aria-live="polite"></p>
         <div class="admin-media-preview" data-media-preview aria-live="polite">
           ${(game?.midias || []).map((media) => `
             <figure class="admin-media-item" data-existing-media="${media.id}" data-media-type="${media.tipo}">
@@ -305,19 +373,19 @@ function openGameDialog(game = null) {
               <h4 data-preview-title>Título do jogo</h4>
               <p data-preview-description>Uma breve descrição vai aparecer aqui.</p>
               <div data-preview-tags></div>
-              <strong data-preview-price>R$ 0,00</strong>
+              <strong data-preview-price>Gratuito</strong>
             </div>
           </article>
           <article class="admin-game-preview__card">
-            <div class="admin-game-preview__cover" data-preview-cover>
+            <div class="admin-game-preview__poster" data-preview-poster>
               <img data-preview-image alt="">
-              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-5 h-5" })}<span>Capa do jogo</span></div>
+              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-5 h-5" })}<span>Pôster do jogo</span></div>
             </div>
             <div class="admin-game-preview__card-body">
               <span>Prévia do catálogo</span>
               <h4 data-preview-card-title>Título do jogo</h4>
               <p data-preview-card-description>Jogo digital</p>
-              <strong data-preview-card-price>R$ 0,00</strong>
+              <strong data-preview-card-price>Gratuito</strong>
             </div>
           </article>
         </div>
@@ -367,11 +435,7 @@ async function submitResourceForm(form) {
       const savedGame = id
         ? await AdminService.updateGame(id, payload)
         : await AdminService.createGame(payload);
-      const uploads = [
-        ...filesToUpload(data.get("cover"), "cover"),
-        ...filesToUpload(data.get("banner"), "banner"),
-        ...Array.from(data.getAll("screenshots")).flatMap((file) => filesToUpload(file, "screenshot")),
-      ];
+      const uploads = getSelectedMediaUploads(form);
       for (const upload of uploads) {
         await AdminService.uploadGameMedia(savedGame.id, upload.type, upload.file);
       }
@@ -473,7 +537,7 @@ export function afterRender() {
   });
 
   document.getElementById("admin-dialog")?.addEventListener("change", (event) => {
-    if (event.target.type === "file") renderSelectedMedia(event.target.form);
+    if (event.target.type === "file") selectMediaFiles(event.target.form, event.target);
     else if (event.target.form?.dataset.kind === "game") updateGamePreview(event.target.form);
   });
 
@@ -486,13 +550,20 @@ export function afterRender() {
   });
 
   document.getElementById("admin-dialog")?.addEventListener("click", async (event) => {
+    const selectedMedia = event.target.closest("[data-remove-selected-media]");
+    if (selectedMedia) {
+      const form = selectedMedia.closest("form");
+      removeSelectedMedia(form, selectedMedia.dataset.mediaType, Number(selectedMedia.dataset.mediaIndex));
+      return;
+    }
+
     const button = event.target.closest("[data-admin-delete-media]");
     if (!button) return;
     button.disabled = true;
     try {
       await AdminService.deleteGameMedia(button.dataset.gameId, button.dataset.adminDeleteMedia);
       button.closest("[data-existing-media]")?.remove();
-      updateGamePreview(button.form);
+      renderSelectedMedia(button.closest("form"));
       showToast("Mídia removida.");
     } catch (error) {
       button.disabled = false;
