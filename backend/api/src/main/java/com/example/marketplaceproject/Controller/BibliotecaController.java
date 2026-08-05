@@ -79,6 +79,15 @@ public class BibliotecaController {
                 codigoJogoPresenteService.resgatar(usuarioId, request.codigo())));
     }
 
+    @PostMapping("/licencas-gratuitas/{produtoId}")
+    public ResponseEntity<Map<String, Object>> adquirirLicencaGratuita(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Integer produtoId) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
+        BibliotecaUsuario item = bibliotecaUsuarioService.adquirirProdutoGratuito(usuarioId, produtoId);
+        return ResponseEntity.ok(paraJogoAdquirido(item));
+    }
+
     private ItemResponse paraResponse(BibliotecaUsuario item) {
         return new ItemResponse(
                 item.getProduto().getId(), item.getProduto().getTitulo(),

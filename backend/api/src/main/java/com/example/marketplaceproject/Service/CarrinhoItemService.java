@@ -31,6 +31,11 @@ public class CarrinhoItemService {
         Carrinho carrinho = carrinhoService.obterOuCriarCarrinho(usuarioId);
         Produto produto = produtoService.buscarPorId(produtoId);
 
+        if (produto.getPreco().signum() == 0) {
+            throw new RegraNegocioException(
+                    "Jogos gratuitos devem ser adquiridos diretamente na biblioteca.");
+        }
+
         if (produto.getUsuario().getId().equals(usuarioId)) {
             throw new RegraNegocioException(
                     "O vendedor nao pode adicionar o proprio produto ao carrinho.");

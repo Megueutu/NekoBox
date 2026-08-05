@@ -18,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -58,6 +59,23 @@ public class BibliotecaUsuarioService {
     public BibliotecaUsuario adicionarProdutoPresente(Usuario usuario, Produto produto) {
         return salvarNaBiblioteca(
                 new BibliotecaUsuarioId(usuario.getId(), produto.getId()), usuario, produto);
+    }
+
+    public BibliotecaUsuario adquirirProdutoGratuito(Integer usuarioId, Integer produtoId) {
+        if (usuarioId == null || usuarioId <= 0 || produtoId == null || produtoId <= 0) {
+            throw new CampoInvalidoException("O identificador informado deve ser valido.");
+        }
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario nao encontrado."));
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto nao encontrado."));
+        if (produto.getPreco().compareTo(BigDecimal.ZERO) != 0) {
+            throw new RegraNegocioException("Apenas jogos gratuitos podem ser adquiridos sem custo.");
+        }
+
+        BibliotecaUsuarioId id = new BibliotecaUsuarioId(usuarioId, produtoId);
+        return bibliotecaUsuarioRepository.findById(id).orElseGet(() -> salvarNaBiblioteca(id, usuario, produto));
     }
 
     public List<BibliotecaUsuario> listarBiblioteca(Integer usuarioId) {

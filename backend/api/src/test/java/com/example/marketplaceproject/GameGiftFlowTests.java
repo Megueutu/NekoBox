@@ -194,6 +194,34 @@ class GameGiftFlowTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void shouldAcquireFreeGameDirectlyAndRejectItAsAGift() throws Exception {
+        Produto freeGame = produtoRepository.saveAndFlush(Produto.builder()
+                .usuario(game.getUsuario())
+                .titulo("Free Quest " + suffix())
+                .slug("free-quest-" + suffix())
+                .descricaoCurta("A free game used to validate license acquisition.")
+                .preco(BigDecimal.ZERO)
+                .status("published")
+                .build());
+        String buyerToken = registerAndLogin("free");
+
+        mockMvc.perform(post("/api/biblioteca/licencas-gratuitas/{produtoId}", freeGame.getId())
+                        .header("Authorization", bearer(buyerToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(String.valueOf(freeGame.getId())));
+
+        mockMvc.perform(post("/api/carrinho/itens")
+                        .header("Authorization", bearer(buyerToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"produto_id":%d,"para_presente":true}
+                                """.formatted(freeGame.getId())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Jogos gratuitos devem ser adquiridos diretamente na biblioteca."));
+    }
+
     private void addGiftToCart(String token) throws Exception {
         mockMvc.perform(post("/api/carrinho/itens")
                         .header("Authorization", bearer(token))
