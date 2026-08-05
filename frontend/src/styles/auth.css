@@ -110,12 +110,16 @@
 }
 
 .auth-field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   color: var(--color-muted);
   font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.01em;
   transition: color 0.18s ease;
 }
+.auth-field__heading { display: flex; align-items: center; gap: 0.35rem; }
 
 .auth-field__control {
   position: relative;
@@ -142,7 +146,7 @@
 .auth-field__control:focus-within {
   border-color: var(--app-neon-soft);
   background: color-mix(in srgb, var(--color-surface-2) 82%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-neon-primary) 16%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-neon-primary) 46%, transparent);
   transform: none;
 }
 
@@ -177,6 +181,8 @@
   caret-color: var(--color-brand-400);
   outline: none;
 }
+.auth-field__input:focus,
+.auth-field__input:focus-visible { box-shadow: none; outline: 0; }
 
 .auth-field__input--password {
   padding-right: 3rem;
@@ -212,7 +218,7 @@
 
 .auth-field:has(.auth-field__input:user-invalid) .auth-field__control {
   border-color: color-mix(in srgb, #fb7185 72%, var(--color-border));
-  box-shadow: 0 0 0 3px color-mix(in srgb, #fb7185 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #fb7185 42%, transparent);
 }
 
 .auth-field__input:-webkit-autofill,
@@ -227,8 +233,6 @@
 .auth-form__assist { margin-top: -0.4rem; text-align: right; }
 .auth-form__assist button, .auth-back { color: var(--color-muted-2); font-size: 0.75rem; font-weight: 650; }
 .auth-form__assist button:hover, .auth-back:hover { color: var(--color-accent-400); }
-.auth-form__hint { margin-top: -0.4rem; color: var(--color-muted-2); font-size: 0.68rem; line-height: 1.5; }
-
 .auth-submit { width: 100%; min-height: 3rem; gap: 0.5rem; font-size: 0.82rem; }
 
 .auth-separator {
@@ -481,50 +485,6 @@ sub {
 }
 .card-hover-glow:hover {
   background: var(--color-surface-2);
-}
-
-.button-primary,
-.button-accent,
-.button-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-control);
-  font-weight: 700;
-  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
-}
-
-.button-primary {
-  background: var(--color-brand-600);
-  color: white;
-}
-
-.button-primary:hover {
-  background: var(--color-brand-500);
-}
-
-.button-accent {
-  background: var(--color-accent-400);
-  color: #17110a;
-}
-
-.button-accent:hover {
-  background: var(--color-accent-300);
-}
-
-.button-secondary {
-  background: var(--color-surface-2);
-  color: var(--color-ink);
-}
-
-.button-secondary:hover {
-  background: var(--color-surface-3);
-}
-
-.button-primary:active,
-.button-accent:active,
-.button-secondary:active {
-  transform: translateY(1px);
 }
 
 .surface-chip {

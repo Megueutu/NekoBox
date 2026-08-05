@@ -66,7 +66,7 @@
   box-shadow: none;
 }
 
-.app-shell .game-section > h2,
+.app-shell .game-section h2,
 .app-shell .page-heading h1,
 .app-shell .accessibility-heading h2,
 .app-shell .settings-section__heading h2 {
@@ -504,7 +504,7 @@
 .app-shell--private input:focus,
 .app-shell--private textarea:focus {
   border-color: var(--app-neon-soft);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-neon-primary) 18%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-neon-primary) 44%, transparent);
 }
 
 .app-shell .accent-option,

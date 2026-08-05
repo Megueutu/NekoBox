@@ -34,7 +34,7 @@ export function WalletDialog() {
       <form id="gift-card-form" class="gift-card-form">
         <label for="gift-card-code">Código do gift card</label>
         <div class="gift-card-form__controls">
-          <input id="gift-card-code" name="codigo" type="text" maxlength="64" autocomplete="off"
+          <input id="gift-card-code" class="ui-control" name="codigo" type="text" maxlength="64" autocomplete="off"
                  autocapitalize="characters" spellcheck="false" placeholder="NEKO-XXXX-XXXX" required />
           <button type="submit" class="button-primary">Resgatar</button>
         </div>

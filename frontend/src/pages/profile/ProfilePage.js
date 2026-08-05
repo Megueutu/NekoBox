@@ -41,7 +41,7 @@ export default async function ProfilePage() {
 
           <div class="profile-field">
             <label for="input-username">Nome de usuário</label>
-            <input id="input-username" name="username" type="text"
+            <input id="input-username" class="ui-control" name="username" type="text"
                    value="${user?.username || ""}"
                    placeholder="seu_usuario"/>
           </div>
@@ -49,7 +49,7 @@ export default async function ProfilePage() {
           <div id="avatar-url-editor" class="profile-avatar-url-editor" hidden>
             <div class="profile-field">
               <label for="input-avatar-url">URL do avatar</label>
-              <input id="input-avatar-url" name="avatar_url" type="url"
+              <input id="input-avatar-url" class="ui-control" name="avatar_url" type="url"
                      value="${user?.avatar_url || ""}"
                      placeholder="https://..."
                      aria-describedby="avatar-url-hint"/>
@@ -60,14 +60,14 @@ export default async function ProfilePage() {
 
         <div class="profile-field profile-field--full">
           <label for="input-profile-email">E-mail</label>
-          <input id="input-profile-email" name="email" type="email" value="${user?.email || ""}" disabled
+          <input id="input-profile-email" class="ui-control" name="email" type="email" value="${user?.email || ""}" disabled
                  aria-describedby="profile-email-hint"/>
           <small id="profile-email-hint">O e-mail da conta não pode ser alterado.</small>
         </div>
 
         <div class="profile-field profile-field--full">
           <label for="input-bio">Bio</label>
-          <textarea id="input-bio" name="bio" rows="4"
+          <textarea id="input-bio" class="ui-control ui-control--area" name="bio" rows="4"
                     placeholder="Conte um pouco sobre seus jogos, gêneros e experiências favoritas.">${user?.bio || ""}</textarea>
         </div>
 

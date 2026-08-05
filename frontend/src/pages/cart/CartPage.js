@@ -130,7 +130,7 @@ export default async function CartPage() {
 
                 <div class="checkout-field">
                   <label for="checkout-name">Nome completo</label>
-                  <input id="checkout-name" name="name" type="text" minlength="3" maxlength="80"
+                  <input id="checkout-name" class="ui-control" name="name" type="text" minlength="3" maxlength="80"
                          autocomplete="name" value="${user?.username || ""}"
                          aria-describedby="checkout-name-error" required />
                   <small id="checkout-name-error" role="alert" hidden></small>
@@ -138,7 +138,7 @@ export default async function CartPage() {
 
                 <div class="checkout-field">
                   <label for="checkout-email">E-mail</label>
-                  <input id="checkout-email" name="email" type="email" maxlength="255"
+                  <input id="checkout-email" class="ui-control" name="email" type="email" maxlength="255"
                          autocomplete="email" value="${user?.email || ""}"
                          aria-describedby="checkout-email-error" required />
                   <small id="checkout-email-error" role="alert" hidden></small>
@@ -146,7 +146,7 @@ export default async function CartPage() {
 
                 <div class="checkout-field">
                   <label for="checkout-payment-method">Forma de pagamento</label>
-                  <select id="checkout-payment-method" name="paymentMethod"
+                  <select id="checkout-payment-method" class="ui-control" name="paymentMethod"
                           aria-describedby="checkout-payment-method-hint checkout-payment-method-error" required>
                     <option value="balance">Saldo NekoBox</option>
                   </select>

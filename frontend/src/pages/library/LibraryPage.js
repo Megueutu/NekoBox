@@ -83,7 +83,7 @@ export default async function LibraryPage() {
         </div>
         <form id="game-code-form" novalidate>
           <label class="sr-only" for="game-code-input">Código de jogo</label>
-          <input id="game-code-input" name="code" type="text" maxlength="32"
+          <input id="game-code-input" class="ui-control" name="code" type="text" maxlength="32"
                  autocomplete="off" spellcheck="false" placeholder="NEKO-GAME-XXXX-XXXX-XXXX"
                  aria-describedby="game-code-status" required />
           <button type="submit" class="button-primary">Resgatar</button>
@@ -112,11 +112,11 @@ export default async function LibraryPage() {
           <label class="collection-search">
             <span class="sr-only">Buscar na biblioteca</span>
             ${Icon(icons.search, { className: "w-4 h-4" })}
-            <input id="library-search" type="search" placeholder="Buscar por jogo, gênero ou publicadora" autocomplete="off" />
+            <input id="library-search" class="ui-control" type="search" placeholder="Buscar por jogo, gênero ou publicadora" autocomplete="off" />
           </label>
           <label class="collection-sort">
             <span>Ordenar por</span>
-            <select id="library-sort">
+            <select id="library-sort" class="ui-control">
               <option value="recent">Adicionados recentemente</option>
               <option value="title">Título (A–Z)</option>
               <option value="playtime">Mais jogados</option>
