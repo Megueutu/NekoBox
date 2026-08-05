@@ -4,11 +4,11 @@ import { GamesService } from "../../services/games/games.service";
 import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
 import { navigate } from "../../app/router/navigate";
-import { formatPrice, formatDate } from "../../utils/format";
+import { formatPrice, formatDate, isFreeGame } from "../../utils/format";
 import { getCoverUrl, getBannerUrl } from "../../utils/media";
 import { Section } from "../../components/ui/Section";
 import { Icon, icons } from "../../components/ui/Icon";
-import { renderScreenshotGallery } from "./game-gallery";
+import { renderScreenshotControls, renderScreenshotGallery } from "./game-gallery";
 import {
   renderAboutGame,
   renderLanguages,
@@ -42,15 +42,22 @@ export default async function GamePage({ slug }) {
   const minReq = game.system_requirements?.find((r) => r.type === "minimum");
   const recReq = game.system_requirements?.find((r) => r.type === "recommended");
 
-  const { cart, wishlist, library } = Store.getState();
+  const { user, cart, wishlist, library } = Store.getState();
   const inLibrary = library.some((g) => g.id === game.id);
   const inCart = cart.some((g) => g.id === game.id && !g.for_gift);
   const giftInCart = cart.some((g) => g.id === game.id && g.for_gift);
   const inWishlist = wishlist.some((g) => g.id === game.id);
+  const freeGame = isFreeGame(game);
+  const ownsGame = library.some((item) => String(item.id) === String(game.id));
+  const hasOwnReview = game.reviews?.some((review) => review.username === user?.username);
 
   const buyButton = inLibrary
     ? `<button disabled class="w-full py-3 bg-[var(--color-surface-2)] text-[var(--color-muted-2)] font-bold rounded-lg cursor-not-allowed text-sm">
          Disponível na sua Biblioteca
+       </button>`
+    : freeGame
+    ? `<button id="btn-acquire-free-license" class="button-primary w-full py-3 text-sm">
+         Adquirir licença gratuitamente
        </button>`
     : inCart
     ? `<a href="${ACCOUNT_PATHS.cart}" data-link class="block w-full py-3 bg-[var(--color-surface-3)] text-white font-bold rounded-lg text-center text-sm hover:bg-[var(--color-brand-700)]/50 transition-colors">
@@ -60,7 +67,11 @@ export default async function GamePage({ slug }) {
          Adicionar ao Carrinho
        </button>`;
 
-  const giftButton = giftInCart
+  const giftButton = freeGame
+    ? `<button disabled aria-disabled="true" title="Jogos gratuitos não podem ser presenteados." class="button-secondary purchase-gift-action__button w-full py-2.5 text-sm gap-2 cursor-not-allowed opacity-50">
+         ${Icon(icons.gift, { className: "w-4 h-4" })} Presentear indisponível
+       </button>`
+    : giftInCart
     ? `<a href="${ACCOUNT_PATHS.cart}" data-link class="button-secondary purchase-gift-action__button w-full py-2.5 text-sm gap-2">
          ${Icon(icons.gift, { className: "w-4 h-4" })} Presente no carrinho — Ver sacola
        </a>`
@@ -78,8 +89,9 @@ export default async function GamePage({ slug }) {
 
   const content = `
     <div class="site-container page-stack">
-    <!-- Banner Hero -->
-    <section class="hero-panel game-detail-hero"
+    <div class="game-primary">
+      <!-- Banner Hero -->
+      <section class="hero-panel game-detail-hero"
          style="background-image: url('${banner ? getBannerUrl(game) : getCoverUrl(game)}')">
       <div class="absolute inset-0 bg-black/60"></div>
       <div class="hero-panel__content">
@@ -94,8 +106,8 @@ export default async function GamePage({ slug }) {
       </div>
     </section>
 
-    <!-- Corpo Principal -->
-    <div class="game-layout">
+      <!-- Conteúdo e compra -->
+      <div class="game-layout">
 
       <!-- Coluna Principal (Detalhes + Mídias) -->
       <div class="game-content">
@@ -109,6 +121,7 @@ export default async function GamePage({ slug }) {
         <!-- Screenshots -->
         ${Section({
           title: "Capturas de Tela",
+          actions: screenshots.length ? renderScreenshotControls() : "",
           body: renderScreenshotGallery(game.title, screenshots),
         })}
 
@@ -118,74 +131,6 @@ export default async function GamePage({ slug }) {
             ? Section({
                 title: "Requisitos de Sistema",
                 body: renderSystemRequirements(minReq, recReq),
-              })
-            : ""
-        }
-
-        <!-- Idiomas -->
-        ${
-          game.languages?.length
-            ? Section({
-                title: "Idiomas Suportados",
-                body: renderLanguages(game.languages),
-              })
-            : ""
-        }
-
-        <!-- Atualizações -->
-        ${
-          game.updates?.length
-            ? Section({
-                title: "Histórico de Atualizações",
-                body: `
-                  <div class="space-y-3">
-                    ${game.updates
-                      .map(
-                        (u) => `
-                      <div class="bg-surface rounded-lg p-4">
-                        <div class="flex items-center gap-2 mb-1">
-                          <span class="text-xs font-bold bg-[var(--color-brand-500)]/25 text-[var(--color-brand-100)] px-2 py-0.5 rounded-full">${u.version}</span>
-                          <span class="font-semibold text-sm">${u.title}</span>
-                          <span class="text-[var(--color-muted-2)] text-xs ml-auto">${formatDate(u.created_at)}</span>
-                        </div>
-                        <p class="text-muted text-xs leading-relaxed">${u.content}</p>
-                      </div>
-                    `
-                      )
-                      .join("")}
-                  </div>
-                `,
-              })
-            : ""
-        }
-
-        <!-- Reviews -->
-        ${
-          game.reviews?.length
-            ? Section({
-                title: "Avaliações",
-                heading: `<span class="text-sm font-normal text-[var(--color-muted-2)] ml-2">(${game.reviews.length})</span>`,
-                body: `
-                  <div class="space-y-4">
-                    ${game.reviews
-                      .map(
-                        (r) => `
-                      <div class="bg-surface rounded-lg p-4">
-                        <div class="flex items-center gap-2 mb-2">
-                          <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${r.recommended ? "bg-[var(--color-accent-500)]/20 text-[var(--color-accent-400)]" : "bg-red-500/15 text-red-400"}">
-                            ${Icon(r.recommended ? icons.check : icons.x, { className: "w-3 h-3" })} ${r.recommended ? "Recomenda" : "Não Recomenda"}
-                          </span>
-                          <span class="font-semibold text-sm">${r.username}</span>
-                          <span class="text-[var(--color-muted-2)] text-xs ml-auto">${formatDate(r.created_at)}</span>
-                        </div>
-                        <p class="text-muted text-sm leading-relaxed">${r.review_text}</p>
-                        <p class="text-[var(--color-muted-2)] text-xs mt-2">${r.votes} pessoas acharam útil</p>
-                      </div>
-                    `
-                      )
-                      .join("")}
-                  </div>
-                `,
               })
             : ""
         }
@@ -211,7 +156,7 @@ export default async function GamePage({ slug }) {
             ${buyButton}
             <div class="purchase-gift-action">
               ${giftButton}
-              <p>Você recebe um código para enviar a um amigo. <a href="${ACCOUNT_PATHS.gifts}" data-link>Ver meus códigos</a></p>
+              <p>${freeGame ? "Jogos gratuitos não podem ser presenteados." : `Você recebe um código para enviar a um amigo. <a href="${ACCOUNT_PATHS.gifts}" data-link>Ver meus códigos</a>`}</p>
             </div>
             ${!inLibrary ? wishlistButton : ""}
           </div>
@@ -228,6 +173,116 @@ export default async function GamePage({ slug }) {
         </div>
       </aside>
 
+      </div>
+    </div>
+
+    <div class="game-details-fullwidth">
+      ${Section({
+        title: "Sua avaliação",
+        body: !user
+          ? `<p class="text-muted text-sm">Entre na sua conta para avaliar este jogo.</p>`
+          : !ownsGame
+          ? `<p class="text-muted text-sm">Você poderá avaliar este jogo quando ele estiver na sua biblioteca.</p>`
+          : hasOwnReview
+          ? `<p class="text-muted text-sm">Você já enviou uma avaliação para este jogo.</p>`
+          : `
+            <form class="game-review-form" data-review-form>
+              <div class="game-review-form__fields">
+                <label>
+                  <span>Nota</span>
+                  <select class="ui-control" name="rating" required>
+                    <option value="">Selecione</option>
+                    <option value="5">5 — Excelente</option>
+                    <option value="4">4 — Muito bom</option>
+                    <option value="3">3 — Bom</option>
+                    <option value="2">2 — Regular</option>
+                    <option value="1">1 — Não gostei</option>
+                  </select>
+                </label>
+                <fieldset>
+                  <legend>Você recomenda?</legend>
+                  <div class="game-review-form__recommendation">
+                    <label><input type="radio" name="recommended" value="true" required> Recomendo</label>
+                    <label><input type="radio" name="recommended" value="false" required> Não recomendo</label>
+                  </div>
+                </fieldset>
+              </div>
+              <label>
+                <span>Conte como foi sua experiência <small>(opcional)</small></span>
+                <textarea class="ui-control" name="reviewText" rows="4" placeholder="O que você gostou ou não gostou?"></textarea>
+              </label>
+              <div class="game-review-form__footer">
+                <p data-review-feedback role="status" aria-live="polite"></p>
+                <button type="submit" class="button-primary">Publicar avaliação</button>
+              </div>
+            </form>
+          `,
+      })}
+
+      ${
+        game.languages?.length
+          ? Section({
+              title: "Idiomas Suportados",
+              body: renderLanguages(game.languages),
+            })
+          : ""
+      }
+
+      ${
+        game.updates?.length
+          ? Section({
+              title: "Histórico de Atualizações",
+              body: `
+                <div class="game-detail-rail game-detail-rail--updates" aria-label="Histórico de atualizações">
+                  ${game.updates
+                    .map(
+                      (u) => `
+                    <article class="game-update-card">
+                      <header>
+                        <span>${u.version}</span>
+                        <time datetime="${u.created_at}">${formatDate(u.created_at)}</time>
+                      </header>
+                      <h3>${u.title}</h3>
+                      <p>${u.content}</p>
+                    </article>
+                  `
+                    )
+                    .join("")}
+                </div>
+              `,
+            })
+          : ""
+      }
+
+      ${
+        game.reviews?.length
+          ? Section({
+              title: "Avaliações",
+              heading: `<span class="text-sm font-normal text-[var(--color-muted-2)] ml-2">(${game.reviews.length})</span>`,
+              body: `
+                <div class="game-detail-rail game-detail-rail--reviews" aria-label="Avaliações de jogadores">
+                  ${game.reviews
+                    .map(
+                      (r) => `
+                    <article class="game-review-card">
+                      <header>
+                        <span class="game-review-card__recommendation ${r.recommended ? "is-recommended" : "is-not-recommended"}">
+                          ${Icon(r.recommended ? icons.check : icons.x, { className: "w-3 h-3" })} ${r.recommended ? "Recomenda" : "Não recomenda"}
+                        </span>
+                        <time datetime="${r.created_at}">${formatDate(r.created_at)}</time>
+                      </header>
+                      <h3>${r.username}</h3>
+                      <p>${r.review_text || "Sem comentário adicional."}</p>
+                      <small>${r.votes} pessoas acharam útil</small>
+                    </article>
+                  `
+                    )
+                    .join("")}
+                </div>
+              `,
+            })
+          : ""
+      }
     </div>
     </div>
   `;
@@ -238,6 +293,11 @@ export default async function GamePage({ slug }) {
 export async function afterRender({ slug }) {
   const game = await GamesService.getBySlug(slug);
   if (!game) return;
+
+  document.getElementById("btn-acquire-free-license")?.addEventListener("click", async () => {
+    await Actions.adquirirLicencaGratuita(game);
+    navigate(`/game/${slug}`);
+  });
 
   // Adicionar ao Carrinho
   document.getElementById("btn-add-cart")?.addEventListener("click", async () => {
@@ -254,6 +314,29 @@ export async function afterRender({ slug }) {
   document.getElementById("btn-wishlist")?.addEventListener("click", async () => {
     await Actions.alternarListaDesejos(game);
     navigate(`/game/${slug}`);
+  });
+
+  document.querySelector("[data-review-form]")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+
+    const feedback = form.querySelector("[data-review-feedback]");
+    const submit = form.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    feedback.textContent = "Publicando avaliação…";
+
+    try {
+      await GamesService.createReview(game.id, {
+        rating: Number(form.elements.rating.value),
+        recommended: form.elements.recommended.value === "true",
+        reviewText: form.elements.reviewText.value.trim(),
+      });
+      navigate(`/game/${slug}`);
+    } catch (error) {
+      feedback.textContent = error.message || "Não foi possível publicar sua avaliação.";
+      submit.disabled = false;
+    }
   });
 
   document.querySelectorAll("[data-screenshot-carousel]").forEach((carousel) => {

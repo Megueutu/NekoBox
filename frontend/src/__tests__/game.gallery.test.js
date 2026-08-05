@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderScreenshotGallery } from "../pages/game/GamePage";
+import { renderScreenshotControls, renderScreenshotGallery } from "../pages/game/game-gallery";
 import { MISSING_MEDIA_URL, setupMediaFallbacks } from "../utils/media-fallback";
 
 const screenshots = (count) =>
@@ -40,12 +40,13 @@ describe("Game screenshot gallery", () => {
     );
   });
 
-  it("should render up to four screenshots as a grid", () => {
+  it("should render up to four screenshots as a horizontal carousel", () => {
     const container = document.createElement("div");
 
     container.innerHTML = renderScreenshotGallery("Hades", screenshots(4));
 
-    expect(container.querySelectorAll(".screenshot-grid .screenshot-card")).toHaveLength(4);
+    expect(container.querySelector("[data-screenshot-carousel]")).not.toBeNull();
+    expect(container.querySelectorAll(".screenshot-carousel__rail .screenshot-card")).toHaveLength(4);
   });
 
   it("should render five or more screenshots as a horizontal carousel", () => {
@@ -54,6 +55,15 @@ describe("Game screenshot gallery", () => {
     container.innerHTML = renderScreenshotGallery("Hades", screenshots(5));
 
     expect(container.querySelector("[data-screenshot-carousel]")).not.toBeNull();
+  });
+
+  it("should render carousel controls independently from the gallery rail", () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = renderScreenshotControls();
+
+    expect(container.querySelectorAll("[data-carousel-direction]")).toHaveLength(2);
+    expect(container.querySelector("[data-screenshot-carousel]")).toBeNull();
   });
 
   it("should display no more than ten screenshots", () => {

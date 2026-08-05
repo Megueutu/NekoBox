@@ -82,13 +82,20 @@
     grid-column: 2;
   }
 
-  .screenshot-grid {
-    grid-template-columns: 1fr;
-  }
-
   .screenshot-carousel__rail {
     grid-auto-columns: 90%;
   }
+
+  .game-languages,
+  .game-detail-rail {
+    grid-auto-columns: min(86%, 23rem);
+  }
+
+  .game-review-form__fields { grid-template-columns: 1fr; }
+  .game-review-form__footer { align-items: stretch; flex-direction: column; }
+  .game-review-form__footer .button-primary { justify-content: center; }
+
+  .game-section__heading { align-items: flex-start; }
 
   .storefront-hero,
   .storefront-hero__content {

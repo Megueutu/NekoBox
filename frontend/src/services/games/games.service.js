@@ -31,4 +31,12 @@ export const GamesService = {
     const response = await ApiClient.get(`/api/games?size=100&search=${encodeURIComponent(query)}`);
     return normalizeGames(response.content);
   },
+
+  createReview(gameId, { rating, recommended, reviewText }) {
+    return ApiClient.post(`/api/produtos/${encodeURIComponent(gameId)}/avaliacoes`, {
+      nota: rating,
+      recomenda: recommended,
+      textoAvaliacao: reviewText || null,
+    });
+  },
 };

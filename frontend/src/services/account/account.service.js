@@ -3,6 +3,8 @@ import { normalizeGame, normalizeGames } from "../games/game.normalizer";
 import { escapeHtml } from "../../utils/escape";
 
 const productId = (id) => encodeURIComponent(String(id));
+const payloadProductId = (id) =>
+  import.meta.env.MODE === "development" && Boolean(import.meta.env.VITE_USE_MOCK_API) ? String(id) : Number(id);
 const normalizeUser = (user) => ({
   ...user,
   id: String(user.id),
@@ -42,7 +44,7 @@ export const AccountService = {
 
   async addToCart(id, forGift = false) {
     const response = await ApiClient.post("/api/carrinho/itens", {
-      produto_id: Number(id),
+      produto_id: payloadProductId(id),
       para_presente: Boolean(forGift),
     });
     return normalizeGames(response.items);
@@ -76,6 +78,10 @@ export const AccountService = {
 
   async getLibrary() {
     return normalizeGames(await ApiClient.get("/api/biblioteca"));
+  },
+
+  async acquireFreeLicense(id) {
+    return normalizeGame(await ApiClient.post(`/api/biblioteca/licencas-gratuitas/${productId(id)}`));
   },
 
   async redeemGameCode(codigo) {

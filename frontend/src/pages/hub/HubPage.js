@@ -47,12 +47,30 @@ function updateCatalogResults(games) {
   }
   if (grid) {
     grid.innerHTML = filteredGames
-      .map((game) => GameCard(game, { variant: "catalog" }))
+      .map((game) => GameCard(game, { variant: "poster" }))
       .join("");
   }
   if (noResults) {
     noResults.hidden = filteredGames.length > 0;
   }
+}
+
+function coverRail(eyebrow, title, description, games) {
+  if (!games.length) return "";
+  return `
+    <section class="catalog-showcase">
+      <div class="section-heading">
+        <div>
+          <p class="section-heading__eyebrow mb-1">${eyebrow}</p>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold">${title}</h2>
+        </div>
+        <span class="text-muted text-sm">${description}</span>
+      </div>
+      <div class="horizontal-rail">
+        ${games.map((game) => `<div>${GameCard(game, { variant: "catalog" })}</div>`).join("")}
+      </div>
+    </section>
+  `;
 }
 
 export function bindCatalogSearch(games) {
@@ -77,6 +95,13 @@ export default async function HubPage() {
     .sort((a, b) => b.rate - a.rate)
     .slice(0, 5)
     .map((g) => g.game);
+
+  const latestReleases = [...allGames]
+    .filter((game) => game.release_date)
+    .sort((a, b) => b.release_date.localeCompare(a.release_date))
+    .slice(0, 8);
+  const freeToPlay = allGames.filter((game) => Number(game.price) === 0).slice(0, 8);
+  const rolePlaying = allGames.filter((game) => game.categories.includes("RPG")).slice(0, 8);
 
   const filteredGames = filterCatalogGames(allGames, searchQuery, activeCategory);
 
@@ -113,29 +138,10 @@ export default async function HubPage() {
       </div>
     </section>
 
-      <!-- Em Alta: fila horizontal com os títulos mais bem avaliados -->
-      ${
-        trending.length > 0
-          ? `
-        <section>
-          <div class="section-heading">
-            <div>
-              <p class="section-heading__eyebrow mb-1">Descubra</p>
-              <h2 class="font-display text-2xl sm:text-3xl font-bold">Em alta agora</h2>
-            </div>
-            <span class="text-muted text-sm">Mais recomendados pela comunidade</span>
-          </div>
-          <div class="horizontal-rail">
-            ${trending
-              .map(
-                (game) => `<div>${GameCard(game, { variant: "catalog" })}</div>`
-              )
-              .join("")}
-          </div>
-        </section>
-      `
-          : ""
-      }
+      ${coverRail("Lançamentos", "Novos no catálogo", "Adicionados recentemente", latestReleases)}
+      ${coverRail("Jogue sem custo", "Gratuitos para começar", "Títulos disponíveis agora", freeToPlay)}
+      ${coverRail("Para sua próxima aventura", "RPGs para explorar", "Histórias, mundos e escolhas", rolePlaying)}
+      ${coverRail("Descubra", "Em alta agora", "Mais recomendados pela comunidade", trending)}
 
       <!-- Busca, contagem e filtros -->
       <section class="space-y-6">
@@ -147,12 +153,13 @@ export default async function HubPage() {
           <p id="catalog-results-count" class="text-muted text-sm shrink-0" aria-live="polite">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
         </div>
         <div class="catalog-toolbar">
-          <div class="relative w-full sm:max-w-lg">
-            ${Icon(icons.search, { className: "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted-2)]" })}
-            <input id="search-input" type="text" placeholder="Buscar jogos..."
+          <label class="catalog-search w-full sm:max-w-lg">
+            <span class="sr-only">Buscar jogos</span>
+            ${Icon(icons.search, { className: "w-4 h-4" })}
+            <input id="search-input" class="ui-control" type="search" placeholder="Buscar jogos..."
                    value="${searchQuery}"
-                   class="w-full pl-9 pr-3 py-2.5 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:border-transparent transition-all"/>
-          </div>
+                   />
+          </label>
 
         <div class="flex gap-2 flex-nowrap overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-label="Filtrar por categoria">
           ${ALL_CATEGORIES.map(
@@ -178,7 +185,7 @@ export default async function HubPage() {
         <div id="catalog-grid" class="catalog-grid">
           ${
             filteredGames.length > 0
-              ? filteredGames.map((game) => GameCard(game, { variant: "catalog" })).join("")
+              ? filteredGames.map((game) => GameCard(game, { variant: "poster" })).join("")
               : ""
           }
         </div>
@@ -193,7 +200,7 @@ export default async function HubPage() {
     </div>
   `;
 
-  return PublicLayout(content, { showChatbot: true });
+  return PublicLayout(content);
 }
 
 export async function afterRender() {

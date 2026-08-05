@@ -1,10 +1,11 @@
-import { getCoverUrl } from "../../utils/media";
-import { formatPrice, getRecommendationRate } from "../../utils/format";
+import { getCoverUrl, getPosterUrl } from "../../utils/media";
+import { formatPrice, getRecommendationRate, isFreeGame } from "../../utils/format";
 import { Icon, icons } from "./Icon";
 
 /**
  * Card de jogo reutilizável.
- * variant: "catalog" (grid do Hub) | "library" (Minha Biblioteca) | "wishlist" (Lista de Desejos)
+ * variant: "catalog" (cards de capa no Hub) | "poster" (grade de Todos os jogos) |
+ * "library" (Minha Biblioteca) | "wishlist" (Lista de Desejos)
  */
 export function GameCard(game, { variant = "catalog" } = {}) {
   if (variant === "catalog") {
@@ -37,6 +38,15 @@ export function GameCard(game, { variant = "catalog" } = {}) {
     `;
   }
 
+  if (variant === "poster") {
+    return `
+      <a href="/game/${game.slug}" data-link
+         class="catalog-poster group" aria-label="Ver ${game.title}">
+        <img src="${getPosterUrl(game)}" alt="Pôster de ${game.title}" loading="lazy" />
+      </a>
+    `;
+  }
+
   if (variant === "library") {
     return `
       <div class="game-card bg-surface rounded-xl overflow-hidden card-hover-glow">
@@ -57,6 +67,7 @@ export function GameCard(game, { variant = "catalog" } = {}) {
   }
 
   // variant === "wishlist"
+  const freeGame = isFreeGame(game);
   return `
     <div class="game-card bg-surface rounded-xl overflow-hidden card-hover-glow group">
       <a href="/game/${game.slug}" data-link class="block">
@@ -67,9 +78,9 @@ export function GameCard(game, { variant = "catalog" } = {}) {
         <p class="font-semibold text-sm truncate">${game.title}</p>
         <p class="font-bold text-sm text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
         <div class="flex gap-2">
-          <button data-add-cart="${game.id}"
+          <button ${freeGame ? `data-acquire-free-license="${game.id}"` : `data-add-cart="${game.id}"`}
                   class="button-primary flex-1 py-1.5 text-xs gap-1.5">
-            ${Icon(icons.shoppingCart, { className: "w-3.5 h-3.5" })} Carrinho
+            ${Icon(freeGame ? icons.library : icons.shoppingCart, { className: "w-3.5 h-3.5" })} ${freeGame ? "Adquirir licença" : "Carrinho"}
           </button>
           <button data-remove-wishlist="${game.id}" aria-label="Remover ${game.title} da lista de desejos"
                   class="px-2.5 py-1.5 border border-red-400/50 text-red-400 text-xs rounded-lg hover:bg-red-500/10 transition-colors">

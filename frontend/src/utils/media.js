@@ -62,6 +62,16 @@ export function getBannerUrl(game) {
   });
 }
 
+export function getPosterUrl(game) {
+  const poster = game.media?.find((media) => media.type === "poster");
+  const seed = encodeURIComponent(game.slug || game.id || "nekobox-game");
+  return resolveMediaUrl(poster, {
+    width: 640,
+    height: 640,
+    fallback: `https://picsum.photos/seed/nekobox-poster-${seed}/640/640`,
+  });
+}
+
 export function getScreenshotUrl(mediaItem) {
   return resolveMediaUrl(mediaItem, {
     width: 800,

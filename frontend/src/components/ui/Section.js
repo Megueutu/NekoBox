@@ -3,12 +3,15 @@
  * Usado nas páginas de detalhe (ex.: GamePage) para evitar repetir a mesma
  * estrutura de <section><h2>...</h2>...</section> em cada bloco de conteúdo.
  */
-export function Section({ title, heading = "", body }) {
+export function Section({ title, heading = "", actions = "", body }) {
   return `
     <section class="game-section space-y-4">
-      <h2 class="font-display text-xl font-semibold">
-        ${title}${heading}
-      </h2>
+      <div class="game-section__heading">
+        <h2 class="font-display text-xl font-semibold">
+          ${title}${heading}
+        </h2>
+        ${actions}
+      </div>
       ${body}
     </section>
   `;

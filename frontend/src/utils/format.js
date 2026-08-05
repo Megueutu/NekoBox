@@ -1,5 +1,10 @@
 export function formatPrice(price) {
-  return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  if (Number(price) === 0) return "Gratuito";
+  return Number(price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export function isFreeGame(game) {
+  return Number(game?.price) === 0;
 }
 
 export function formatDate(dateStr) {

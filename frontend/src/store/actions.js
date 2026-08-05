@@ -21,6 +21,16 @@ export const Actions = {
     Store.setState((state) => ({ ...state, cart }));
   },
 
+  async adquirirLicencaGratuita(game) {
+    const acquiredGame = await AccountService.acquireFreeLicense(game.id);
+    Store.setState((state) => ({
+      ...state,
+      library: state.library.some((item) => String(item.id) === String(acquiredGame.id))
+        ? state.library
+        : [...state.library, acquiredGame],
+    }));
+  },
+
   async removerDoCarrinho(gameId, forGift = false) {
     const cart = await AccountService.removeFromCart(gameId, forGift);
     Store.setState((state) => ({ ...state, cart }));

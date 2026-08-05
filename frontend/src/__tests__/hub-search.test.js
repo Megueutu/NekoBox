@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bindCatalogSearch, filterCatalogGames } from "../pages/hub/HubPage";
+import { GameCard } from "../components/ui/GameCard";
 
 const games = [
   {
@@ -57,8 +58,29 @@ describe("Hub catalog search", () => {
 
     expect(document.activeElement).toBe(search);
     expect(document.getElementById("catalog-results-count").textContent).toBe("1 título");
-    expect(document.getElementById("catalog-grid").textContent).toContain("Hades");
-    expect(document.getElementById("catalog-grid").textContent).not.toContain("Outer Wilds");
+    expect(document.querySelector("#catalog-grid img")?.alt).toBe("Pôster de Hades");
+    expect(document.querySelectorAll("#catalog-grid img")).toHaveLength(1);
     expect(dispatchEvent).not.toHaveBeenCalled();
+  });
+
+  it("should render poster cards as image-only links", () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = GameCard(games[0], { variant: "poster" });
+
+    expect(container.querySelector(".catalog-poster img")?.src)
+      .toContain("nekobox-poster-hades/640/640");
+    expect(container.querySelector(".catalog-poster img")?.alt).toBe("Pôster de Hades");
+    expect(container.querySelector(".game-card__body")).toBeNull();
+  });
+
+  it("should render catalog cards with vertical covers", () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = GameCard(games[0], { variant: "catalog" });
+
+    expect(container.querySelector(".game-card__media img")?.alt).toBe("Capa de Hades");
+    expect(container.querySelector(".game-card__body")?.textContent).toContain("Hades");
+    expect(container.querySelector(".catalog-poster")).toBeNull();
   });
 });

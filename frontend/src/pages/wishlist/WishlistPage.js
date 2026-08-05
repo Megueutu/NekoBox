@@ -69,6 +69,18 @@ export async function afterRender() {
     });
   });
 
+  document.querySelectorAll("[data-acquire-free-license]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const gameId = btn.getAttribute("data-acquire-free-license");
+      const { wishlist } = Store.getState();
+      const game = wishlist.find((g) => g.id === gameId);
+      if (game) {
+        await Actions.adquirirLicencaGratuita(game);
+        navigate(`/game/${game.slug}`);
+      }
+    });
+  });
+
   // Logout da sidebar
   document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
     await AuthService.logout();

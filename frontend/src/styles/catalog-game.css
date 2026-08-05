@@ -14,6 +14,30 @@
   gap: clamp(1rem, 2vw, 1.5rem);
 }
 
+@media (min-width: 1024px) {
+  .catalog-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.catalog-showcase { min-width: 0; }
+.catalog-poster {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-2);
+  aspect-ratio: 1;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.catalog-poster:hover { border-color: var(--color-brand-400); transform: translateY(-2px); }
+.catalog-poster:focus-visible { outline: 2px solid var(--color-brand-400); outline-offset: 3px; }
+.catalog-poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.24s ease; }
+.catalog-poster:hover img { transform: scale(1.035); }
+.catalog-search { position: relative; display: grid; align-items: center; }
+.catalog-search > svg { position: absolute; z-index: 1; left: 0.85rem; color: var(--color-muted-2); pointer-events: none; }
+.catalog-search .ui-control { padding-left: 2.65rem; }
+
 .library-overview {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -52,19 +76,14 @@
   color: var(--color-muted-2);
 }
 
-.collection-search input,
-.collection-sort select {
+.collection-search .ui-control,
+.collection-sort .ui-control {
   width: 100%;
-  min-height: 2.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.7rem;
-  color: var(--color-ink);
-  background: var(--color-surface-2);
 }
 
-.collection-search input { padding: 0.65rem 0.85rem; }
+.collection-search .ui-control { padding-left: 0.85rem; }
 .collection-sort { display: grid; gap: 0.35rem; color: var(--color-muted-2); font-size: 0.72rem; }
-.collection-sort select { min-width: 13.5rem; padding: 0.65rem 2rem 0.65rem 0.75rem; font-size: 0.8rem; }
+.collection-sort .ui-control { min-width: 13.5rem; padding-right: 2rem; }
 .collection-grid { display: grid; gap: 1rem; }
 
 .library-card {
@@ -304,22 +323,15 @@
   font-weight: 700;
 }
 
-.checkout-field input,
-.checkout-field select {
+.checkout-field .ui-control {
   width: 100%;
   max-width: 100%;
-  min-height: 2.75rem;
-  padding: 0.7rem 0.8rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  color: var(--color-ink);
-  background: var(--color-surface-2);
 }
 
 .checkout-field [aria-invalid="true"],
 .checkout-terms [aria-invalid="true"] {
   border-color: #fb7185;
-  box-shadow: 0 0 0 3px color-mix(in srgb, #fb7185 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #fb7185 42%, transparent);
 }
 
 .checkout-field small,
@@ -910,6 +922,13 @@
   min-height: clamp(25rem, 40vw, 33rem);
 }
 
+.game-primary,
+.game-details-fullwidth {
+  display: grid;
+  gap: clamp(2.25rem, 4vw, 3.5rem);
+  min-width: 0;
+}
+
 .game-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 23rem);
@@ -931,12 +950,30 @@
   background: transparent;
 }
 
-.game-requirements,
-.game-languages {
+.game-requirements {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
   gap: 1rem;
   min-width: 0;
+}
+
+.game-languages,
+.game-detail-rail {
+  display: grid;
+  grid-auto-columns: minmax(min(100%, 19rem), 23rem);
+  grid-auto-flow: column;
+  gap: 1rem;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 0.15rem 0.15rem 0.85rem;
+  scroll-snap-type: x proximity;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+
+.game-languages > *,
+.game-detail-rail > * {
+  scroll-snap-align: start;
 }
 
 .game-requirement-card,
@@ -1075,11 +1112,90 @@
   color: var(--color-accent-300);
 }
 
-.screenshot-grid {
+.game-update-card,
+.game-review-card {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 12.5rem;
+  padding: 1.1rem;
+  border: 1px solid color-mix(in srgb, white 9%, transparent);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--color-surface-2) 72%, var(--color-surface));
+  box-shadow: var(--shadow-card);
+}
+
+.game-update-card header,
+.game-review-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
 }
+
+.game-update-card header > span,
+.game-review-card__recommendation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.game-update-card header > span {
+  color: var(--color-brand-100);
+  background: color-mix(in srgb, var(--color-brand-500) 25%, transparent);
+}
+
+.game-update-card time,
+.game-review-card time,
+.game-review-card small {
+  color: var(--color-muted-2);
+  font-size: 0.68rem;
+}
+
+.game-update-card h3,
+.game-review-card h3 {
+  font-size: 0.9rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.game-update-card p,
+.game-review-card p {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.game-review-card small { margin-top: auto; }
+.game-review-card__recommendation.is-recommended { color: var(--color-accent-400); background: color-mix(in srgb, var(--color-accent-500) 20%, transparent); }
+.game-review-card__recommendation.is-not-recommended { color: #fb7185; background: color-mix(in srgb, #fb7185 15%, transparent); }
+
+.game-review-form,
+.game-review-form label,
+.game-review-form fieldset {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.game-review-form { gap: 1rem; }
+.game-review-form__fields { display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: 1rem; }
+.game-review-form label > span,
+.game-review-form legend { color: var(--color-ink); font-size: 0.78rem; font-weight: 700; }
+.game-review-form label small { color: var(--color-muted-2); font-weight: 500; }
+.game-review-form fieldset { padding: 0; border: 0; }
+.game-review-form__recommendation { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; }
+.game-review-form__recommendation label { display: inline-flex; grid-template-columns: auto 1fr; align-items: center; color: var(--color-muted); font-size: 0.78rem; }
+.game-review-form textarea { min-height: 7rem; resize: vertical; }
+.game-review-form__footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.game-review-form__footer p { min-height: 1.25rem; color: var(--color-muted); font-size: 0.75rem; }
 
 .screenshot-empty {
   display: grid;
@@ -1128,11 +1244,17 @@
   min-width: 0;
 }
 
+.game-section__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .screenshot-carousel__controls {
   display: flex;
-  justify-content: flex-end;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  flex: 0 0 auto;
 }
 
 .screenshot-carousel__controls button {
