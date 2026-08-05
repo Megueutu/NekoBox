@@ -824,7 +824,8 @@
   grid-template-rows: minmax(0, 1fr) auto;
 }
 
-.admin-game-preview__poster {
+.admin-game-preview__poster,
+.admin-game-preview__cover {
   aspect-ratio: 1;
   overflow: hidden;
   background: var(--color-surface-3);
@@ -974,7 +975,8 @@
     grid-template-columns: 8rem minmax(0, 1fr);
     grid-template-rows: none;
   }
-  .admin-game-preview__poster { min-height: 10rem; }
+  .admin-game-preview__poster,
+  .admin-game-preview__cover { min-height: 10rem; }
 }
 
 @media (max-width: 420px) {
