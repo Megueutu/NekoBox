@@ -4,7 +4,6 @@ import { getSelectedMediaUploads, selectMediaFiles } from "../pages/admin/admin-
 vi.mock("../services/admin/admin.service", () => ({
   AdminService: {
     getDashboard: vi.fn(),
-    getGiftCards: vi.fn(),
     getUsers: vi.fn(),
     getGames: vi.fn(),
   },
@@ -30,7 +29,6 @@ describe("Admin page", () => {
       mais_vendidos: [],
       vendas_recentes: [],
     });
-    AdminService.getGiftCards.mockResolvedValue([]);
     AdminService.getUsers.mockResolvedValue([
       {
         id: 1,
@@ -53,9 +51,9 @@ describe("Admin page", () => {
     const container = document.createElement("div");
     container.innerHTML = await AdminPage();
 
-    expect(container.querySelectorAll("[data-admin-section]")).toHaveLength(4);
+    expect(container.querySelectorAll("[data-admin-section]")).toHaveLength(3);
     expect(container.querySelector('[data-admin-panel="dashboard"]')).not.toBeNull();
-    expect(container.querySelector('[data-admin-panel="gift-cards"]')).not.toBeNull();
+    expect(container.querySelector('[data-admin-panel="credits"]')).toBeNull();
     expect(container.querySelector('[data-admin-panel="users"]')).not.toBeNull();
     expect(container.querySelector('[data-admin-panel="games"]')).not.toBeNull();
     expect(container.querySelector("footer")).toBeNull();

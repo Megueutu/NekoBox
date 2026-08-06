@@ -4,8 +4,6 @@ const resourceId = (id) => encodeURIComponent(String(id));
 
 export const AdminService = {
   getDashboard: () => ApiClient.get("/api/admin/dashboard"),
-  getGiftCards: () => ApiClient.get("/api/admin/gift-cards"),
-  generateGiftCard: (valor) => ApiClient.post("/api/admin/gift-cards", { valor }),
   getUsers: () => ApiClient.get("/api/admin/usuarios"),
   createUser: (user) => ApiClient.post("/api/admin/usuarios", user),
   updateUser: (id, user) => ApiClient.put(`/api/admin/usuarios/${resourceId(id)}`, user),

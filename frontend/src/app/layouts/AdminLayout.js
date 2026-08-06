@@ -13,13 +13,12 @@ export function AdminLayout(content, activeSection = "dashboard") {
     <div class="admin-shell">
       <a href="#admin-content" class="skip-link">Pular para o conteúdo</a>
       <aside class="admin-sidebar">
-        <a href="/admin" data-link class="admin-brand" aria-label="NexusPlay Admin — início">
-          <span>${Icon(icons.shieldCheck, { className: "w-5 h-5" })}</span>
-          <strong>NEXUS<em>ADMIN</em></strong>
+        <a href="/admin" data-link class="admin-brand" aria-label="NekoBox Admin — início">
+          <img src="/nekobox-mark.svg" class="admin-brand__mark" alt="" aria-hidden="true" />
+          <strong>NEKO<em>ADMIN</em></strong>
         </a>
         <nav class="admin-nav" aria-label="Administração">
           ${item("dashboard", "Dashboard", icons.dashboard)}
-          ${item("gift-cards", "Gift cards", icons.gift)}
           ${item("users", "Usuários", icons.users)}
           ${item("games", "Jogos", icons.gamepad)}
         </nav>
