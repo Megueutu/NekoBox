@@ -13,7 +13,6 @@ describe("Game API normalization", () => {
       quantity: 1,
       categories: [],
       media: [],
-      reviews: [],
     });
   });
 
@@ -26,11 +25,11 @@ describe("Game API normalization", () => {
     const game = normalizeGame({
       id: 1,
       title: '<img src=x onerror="alert(1)">',
-      reviews: [{ username: "attacker", review_text: "<script>steal()</script>" }],
+      updates: [{ title: "<script>steal()</script>" }],
     });
 
     expect(game.title).toBe("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
-    expect(game.reviews[0].review_text).toBe("&lt;script&gt;steal()&lt;/script&gt;");
+    expect(game.updates[0].title).toBe("&lt;script&gt;steal()&lt;/script&gt;");
   });
 
   it("should preserve library ownership metadata", () => {

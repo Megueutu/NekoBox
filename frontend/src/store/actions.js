@@ -16,8 +16,8 @@ export const Actions = {
     window.dispatchEvent(new CustomEvent("rerender"));
   },
 
-  async adicionarAoCarrinho(game, forGift = false) {
-    const cart = await AccountService.addToCart(game.id, forGift);
+  async adicionarAoCarrinho(game) {
+    const cart = await AccountService.addToCart(game.id);
     Store.setState((state) => ({ ...state, cart }));
   },
 
@@ -31,13 +31,8 @@ export const Actions = {
     }));
   },
 
-  async removerDoCarrinho(gameId, forGift = false) {
-    const cart = await AccountService.removeFromCart(gameId, forGift);
-    Store.setState((state) => ({ ...state, cart }));
-  },
-
-  async atualizarQuantidadeCarrinho(gameId, quantity) {
-    const cart = await AccountService.updateCartQuantity(gameId, quantity);
+  async removerDoCarrinho(gameId) {
+    const cart = await AccountService.removeFromCart(gameId);
     Store.setState((state) => ({ ...state, cart }));
   },
 
@@ -54,9 +49,9 @@ export const Actions = {
   },
 
   async finalizarCheckoutCarrinho() {
-    const { payments, giftCodes, library } = await AccountService.checkout();
+    const { payments, library } = await AccountService.checkout();
     Store.setState((state) => ({ ...state, library, cart: [] }));
-    return { payments, giftCodes };
+    return { payments };
   },
 
   async atualizarDadosPerfil(username, bio, avatarUrl) {

@@ -37,24 +37,27 @@ describe("Wallet dialog", () => {
     expect(dialog.showModal).toHaveBeenCalledOnce();
   });
 
-  it("should redeem a gift card and announce the credited value", async () => {
+  it("should add a freely chosen amount and announce the updated balance", async () => {
     vi.spyOn(AccountService, "getWallet").mockResolvedValue({ saldo: 1000 });
-    vi.spyOn(AccountService, "redeemGiftCard").mockResolvedValue({ valor_creditado: 50, saldo: 1050 });
+    vi.spyOn(AccountService, "addBalance").mockResolvedValue({ valor_adicionado: 50, saldo: 1050 });
     renderWallet();
     document.querySelector("[data-wallet-trigger]").click();
-    const form = document.getElementById("gift-card-form");
-    form.elements.codigo.value = "NEKO-50-DEMO";
+    const form = document.getElementById("wallet-topup-form");
+    form.elements.valor.value = "50";
 
     form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
 
     await vi.waitFor(() => expect(document.getElementById("wallet-status").textContent).toContain("R$ 50,00"));
   });
 
-  it("should explain why online payment is unavailable to keyboard users", () => {
+  it("should expose a positive-value field for a free-form top-up", () => {
     renderWallet();
 
-    const paymentButton = document.querySelector("[data-wallet-payment]");
+    const valueInput = document.getElementById("wallet-topup-value");
 
-    expect(paymentButton.getAttribute("aria-describedby")).toBe("payment-unavailable-hint");
+    expect(valueInput.min).toBe("0.01");
+    expect(valueInput.step).toBe("0.01");
+    expect(document.getElementById("wallet-dialog").getAttribute("aria-describedby")).toBe("wallet-description");
+    expect(document.querySelector(".wallet-dialog__title-icon svg")).not.toBeNull();
   });
 });

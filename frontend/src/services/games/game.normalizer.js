@@ -14,7 +14,6 @@ export function normalizeGame(game) {
     long_description: text(game.long_description),
     price: Number(game.price || 0),
     quantity: Math.min(10, Math.max(1, Number(game.quantity || 1))),
-    for_gift: Boolean(game.for_gift),
     playtime_minutes: Math.max(0, Number(game.playtime_minutes || 0)),
     acquired_at: text(game.acquired_at),
     categories: Array.isArray(game.categories) ? game.categories.map(text) : [],
@@ -40,9 +39,6 @@ export function normalizeGame(game) {
       : [],
     updates: Array.isArray(game.updates)
       ? game.updates.map((item) => ({ ...item, ...safeFields(item, ["version", "title", "content"]) }))
-      : [],
-    reviews: Array.isArray(game.reviews)
-      ? game.reviews.map((item) => ({ ...item, ...safeFields(item, ["username", "review_text"]) }))
       : [],
   };
 }

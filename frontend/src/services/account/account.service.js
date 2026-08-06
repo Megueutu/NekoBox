@@ -25,10 +25,10 @@ export const AccountService = {
     return { saldo: Number(wallet.saldo) };
   },
 
-  async redeemGiftCard(codigo) {
-    const result = await ApiClient.post("/api/carteira/gift-cards/resgates", { codigo });
+  async addBalance(valor) {
+    const result = await ApiClient.post("/api/carteira/recargas", { valor: Number(valor) });
     return {
-      valor_creditado: Number(result.valor_creditado),
+      valor_adicionado: Number(result.valor_adicionado),
       saldo: Number(result.saldo),
     };
   },
@@ -42,26 +42,14 @@ export const AccountService = {
     return normalizeGames(response.items);
   },
 
-  async addToCart(id, forGift = false) {
-    const response = await ApiClient.post("/api/carrinho/itens", {
-      produto_id: payloadProductId(id),
-      para_presente: Boolean(forGift),
-    });
+  async addToCart(id) {
+    const response = await ApiClient.post("/api/carrinho/itens", { produto_id: payloadProductId(id) });
     return normalizeGames(response.items);
   },
 
-  async removeFromCart(id, forGift = false) {
-    await ApiClient.delete(
-      `/api/carrinho/itens/${productId(id)}?paraPresente=${Boolean(forGift)}`
-    );
+  async removeFromCart(id) {
+    await ApiClient.delete(`/api/carrinho/itens/${productId(id)}`);
     return this.getCart();
-  },
-
-  async updateCartQuantity(id, quantity) {
-    const response = await ApiClient.patch(`/api/carrinho/itens/${productId(id)}`, {
-      quantidade: Number(quantity),
-    });
-    return normalizeGames(response.items);
   },
 
   async getWishlist() {
@@ -84,29 +72,11 @@ export const AccountService = {
     return normalizeGame(await ApiClient.post(`/api/biblioteca/licencas-gratuitas/${productId(id)}`));
   },
 
-  async redeemGameCode(codigo) {
-    return normalizeGame(await ApiClient.post("/api/biblioteca/resgates", { codigo }));
-  },
-
-  async getGameGiftCodes() {
-    const codes = await ApiClient.get("/api/presentes");
-    return codes.map((item) => ({
-      id: String(item.id),
-      productId: String(item.produto_id),
-      gameTitle: item.titulo_produto || "Jogo digital",
-      code: item.codigo || "",
-      redeemed: Boolean(item.resgatado),
-      createdAt: item.criado_em,
-      redeemedAt: item.resgatado_em || null,
-    }));
-  },
-
   async checkout() {
     const result = await ApiClient.post("/api/pagamentos/checkout");
     const library = await this.getLibrary();
     return {
       payments: result.pagamentos || [],
-      giftCodes: result.codigos_presente || [],
       library,
     };
   },

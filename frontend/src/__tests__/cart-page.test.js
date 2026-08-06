@@ -12,12 +12,10 @@ const { cart } = vi.hoisted(() => ({
       slug: "quantity-quest",
       short_description: "A cart test.",
       price: 49.9,
-      quantity: 2,
-      for_gift: true,
+      quantity: 1,
       categories: ["RPG"],
       tags: [],
       media: [],
-      reviews: [],
       publisher: { id: "2", name: "NekoBox Studios" },
     },
   ],
@@ -47,28 +45,13 @@ beforeEach(() => {
     },
     cart,
   }));
-  vi.spyOn(Actions, "atualizarQuantidadeCarrinho").mockResolvedValue();
   vi.spyOn(Actions, "removerDoCarrinho").mockResolvedValue();
   vi.spyOn(Actions, "finalizarCheckoutCarrinho").mockResolvedValue({
     payments: [
       {
         id: 10,
         produto_id: 7,
-        quantidade: 2,
-        para_presente: true,
-        valor_pago: 99.8,
-      },
-    ],
-    giftCodes: [
-      {
-        produto_id: 7,
-        titulo_produto: "Quantity Quest",
-        codigo: "NEKO-GAME-AAAA-BBBB-CCCC",
-      },
-      {
-        produto_id: 7,
-        titulo_produto: "Quantity Quest",
-        codigo: "NEKO-GAME-DDDD-EEEE-FFFF",
+        valor: 49.9,
       },
     ],
   });
@@ -83,24 +66,13 @@ afterEach(() => {
 });
 
 describe("Cart page", () => {
-  it("should render quantity controls and calculate the line total", async () => {
+  it("should render one direct purchase and calculate its line total", async () => {
     document.body.innerHTML = await CartPage();
 
     expect(document.querySelector(".cart-layout")).not.toBeNull();
     expect(document.querySelector(".checkout-summary__item")).not.toBeNull();
-    expect(document.querySelector('[data-quantity-input="7"]').value).toBe("2");
-    expect(document.querySelector(".cart-item__subtotal").textContent).toContain("99,80");
-  });
-
-  it("should persist a quantity change from the increment control", async () => {
-    document.body.innerHTML = await CartPage();
-    afterRender();
-
-    document.querySelector('[data-quantity-step="1"]').click();
-
-    await vi.waitFor(() => {
-      expect(Actions.atualizarQuantidadeCarrinho).toHaveBeenCalledWith("7", 3);
-    });
+    expect(document.querySelector("[data-quantity-input]")).toBeNull();
+    expect(document.querySelector(".cart-item__subtotal").textContent).toContain("49,90");
   });
 
   it("should focus the first invalid checkout field", async () => {
@@ -132,7 +104,7 @@ describe("Cart page", () => {
     });
     expect(document.getElementById("checkout-form").hidden).toBe(true);
     expect(document.activeElement).toBe(document.getElementById("checkout-confirmation"));
-    expect(document.querySelectorAll("#checkout-gift-code-list li")).toHaveLength(2);
+    expect(document.getElementById("checkout-confirmation-description").textContent).toContain("1 jogo adicionado");
   });
 
   it("should keep the checkout form available when the API rejects the purchase", async () => {

@@ -1,4 +1,4 @@
-import { seedCatalogGames, seedMediaBySlug } from "./seed-catalog.mock";
+import { seedCatalogGames, seedMediaBySlug, seedPosterBySlug } from "./seed-catalog.mock";
 
 const baseMockGames = [
   {
@@ -41,10 +41,6 @@ const baseMockGames = [
       { id: "u1", version: "v2.12", title: "Patch de Estabilidade", content: "Correções de crash e otimizações gerais de Ray Tracing.", created_at: "2024-02-20" },
       { id: "u2", version: "v2.0", title: "Phantom Liberty Overhaul", content: "Reformulação completa da árvore de habilidades e combate veicular.", created_at: "2023-09-21" },
     ],
-    reviews: [
-      { id: "r1", username: "GamerPro99", recommended: true, review_text: "Excelente jogo após as atualizações mais recentes! A versão 2.0 transformou completamente a experiência.", created_at: "2024-01-15", votes: 42 },
-      { id: "r2", username: "RetroPlayer", recommended: false, review_text: "Muito pesado para computadores intermediários. Bom jogo, mas exige hardware topo de linha.", created_at: "2023-11-02", votes: 5 },
-    ],
   },
   {
     id: "a4f18923-b224-4f5f-b67f-8988c4c4b71b",
@@ -74,9 +70,6 @@ const baseMockGames = [
       { name: "Inglês", interface: true, subtitles: true, audio: true },
     ],
     updates: [],
-    reviews: [
-      { id: "r3", username: "RPGLover", recommended: true, review_text: "Um dos melhores RPGs já criados. História e mundo incríveis.", created_at: "2023-12-01", votes: 78 },
-    ],
   },
   {
     id: "b5c29034-e335-4f6f-c78g-9099d5d5c82c",
@@ -108,9 +101,6 @@ const baseMockGames = [
     ],
     updates: [
       { id: "u3", version: "v1.31", title: "Atualização de Fevereiro", content: "Correções de bugs e melhorias gerais de estabilidade.", created_at: "2023-02-15" },
-    ],
-    reviews: [
-      { id: "r4", username: "CowboyFan", recommended: true, review_text: "Uma obra de arte interativa. Gráficos e narrativa de tirar o fôlego.", created_at: "2023-08-10", votes: 134 },
     ],
   },
   {
@@ -144,10 +134,6 @@ const baseMockGames = [
     updates: [
       { id: "u4", version: "v1.12", title: "Shadow of the Erdtree DLC", content: "Nova expansão com área massiva, novos bosses, armas e histórias.", created_at: "2024-06-21" },
     ],
-    reviews: [
-      { id: "r5", username: "SoulsMaster", recommended: true, review_text: "Game of the Year 2022. Desafiador, mas recompensador. Obra-prima.", created_at: "2023-05-20", votes: 211 },
-      { id: "r6", username: "CasualGamer", recommended: false, review_text: "Muito difícil para jogadores casuais. Não é para todos.", created_at: "2023-04-10", votes: 18 },
-    ],
   },
   {
     id: "d7e41256-g557-6h8h-e90i-1211f7f7e04e",
@@ -178,9 +164,6 @@ const baseMockGames = [
       { name: "Inglês", interface: true, subtitles: true, audio: true },
     ],
     updates: [],
-    reviews: [
-      { id: "r7", username: "NordicWarrior", recommended: true, review_text: "Supera o anterior em todos os aspectos. História emocionante e combate perfeito.", created_at: "2023-12-15", votes: 98 },
-    ],
   },
   {
     id: "e8f52367-h668-7i9i-f01j-2322g8g8f15f",
@@ -210,9 +193,6 @@ const baseMockGames = [
       { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
     ],
     updates: [],
-    reviews: [
-      { id: "r8", username: "IndieDevFan", recommended: true, review_text: "Obra-prima indie. Arte, música e gameplay perfeitos.", created_at: "2023-07-22", votes: 167 },
-    ],
   },
   {
     id: "f9g63478-i779-8j0j-g12k-3433h9h9g26g",
@@ -245,9 +225,6 @@ const baseMockGames = [
     updates: [
       { id: "u5", version: "Patch 7", title: "Epilogos e Melhorias", content: "Novos epilogos, melhorias de performance e correções de bugs.", created_at: "2024-01-10" },
     ],
-    reviews: [
-      { id: "r9", username: "TabletopLover", recommended: true, review_text: "GOTY 2023 merecido. Redefiniu o gênero de RPG por turnos.", created_at: "2024-01-05", votes: 203 },
-    ],
   },
   {
     id: "g0h74589-j880-9k1k-h23l-4544i0i0h37h",
@@ -278,9 +255,6 @@ const baseMockGames = [
     ],
     updates: [
       { id: "u6", version: "1.21", title: "Tricky Trials", content: "Novas masmorras de câmara de julgamento, novos mobs e novos itens.", created_at: "2024-06-13" },
-    ],
-    reviews: [
-      { id: "r10", username: "BlockBuilder", recommended: true, review_text: "Jogo eterno. Depois de 10 anos ainda consigo passar horas jogando.", created_at: "2024-03-20", votes: 445 },
     ],
   },
   {
@@ -313,9 +287,6 @@ const baseMockGames = [
     updates: [
       { id: "u7", version: "1.6", title: "Grande Atualização de Conteúdo", content: "Novos eventos, itens, e melhorias de QoL para multiplayer.", created_at: "2024-03-19" },
     ],
-    reviews: [
-      { id: "r11", username: "FarmingQueen", recommended: true, review_text: "O melhor jogo relaxante que existe. Perfeito para descansar.", created_at: "2024-04-01", votes: 312 },
-    ],
   },
   {
     id: "i2j96701-l002-1m3m-j45n-6766k2k2j59j",
@@ -345,9 +316,6 @@ const baseMockGames = [
       { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
     ],
     updates: [],
-    reviews: [
-      { id: "r12", username: "RogueRunner", recommended: true, review_text: "O melhor roguelike já feito. Narrativa e gameplay magistrais.", created_at: "2023-11-10", votes: 189 },
-    ],
   },
   {
     id: "j3k07812-m113-2n4n-k56o-7877l3l3k60k",
@@ -379,9 +347,6 @@ const baseMockGames = [
     updates: [
       { id: "u8", version: "v1.68", title: "Bottom Dollar Bounties", content: "Nova atividade de recompensas no GTA Online com missões de caça.", created_at: "2024-07-10" },
     ],
-    reviews: [
-      { id: "r13", username: "CrimeKing", recommended: true, review_text: "Ainda inigualável. O mundo de Los Santos é simplesmente vivo.", created_at: "2024-02-28", votes: 567 },
-    ],
   },
 ];
 
@@ -389,6 +354,9 @@ const withSeedMedia = (game) => ({
   ...game,
   media: [
     ...(seedMediaBySlug[game.slug] || game.media),
+    ...(seedPosterBySlug[game.slug]
+      ? [{ type: "poster", url: seedPosterBySlug[game.slug], position: 1 }]
+      : []),
     { type: "poster", url: `https://picsum.photos/seed/nekobox-poster-${game.slug}/640/640`, position: 1 },
   ].filter((media, index, items) => media.type !== "poster" || items.findIndex((item) => item.type === "poster") === index)
     .map((media, index) => ({

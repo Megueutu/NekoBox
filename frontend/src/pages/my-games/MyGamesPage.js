@@ -2,29 +2,19 @@ import { PrivateLayout } from "../../app/layouts/PrivateLayout";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Icon, icons } from "../../components/ui/Icon";
+import { GameResourceForm } from "../../components/game/GameResourceForm";
 import { MyGamesService } from "../../services/games/my-games.service";
 import { escapeHtml } from "../../utils/escape";
 import { formatDate, money } from "../admin/admin-format";
 import {
   cleanupSelectedMedia,
-  filesToUpload,
-  renderSelectedMedia,
+  getSelectedMediaUploads,
+  removeSelectedMedia,
+  selectMediaFiles,
   updateGamePreview,
-} from "./my-games-preview";
+} from "../admin/admin-game-preview";
 
 let myGames = [];
-
-function dateInput(value) {
-  if (!value) return "";
-  return /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : "";
-}
-
-function mediaLabel(tipo, index) {
-  if (tipo === "screenshot") return `Screenshot ${index + 1}`;
-  if (tipo === "cover") return "Capa";
-  if (tipo === "banner") return "Banner";
-  return tipo;
-}
 
 function emptyRow(columns, message) {
   return `<tr><td colspan="${columns}" class="admin-empty">${message}</td></tr>`;
@@ -119,86 +109,15 @@ function openGameDialog(game = null) {
   dialog.dataset.variant = "game";
   content.innerHTML = `
     <header><p>${game ? "Editar jogo" : "Novo lançamento"}</p><h2 id="my-games-dialog-title">${game ? escapeHtml(game.titulo) : "Lançar jogo"}</h2></header>
-    <form id="my-game-form" data-resource-id="${game?.id || ""}" class="admin-resource-form">
-      <div class="admin-form-section-heading admin-form-wide">
-        <p>Informações e mídias</p>
-        <h3>Dados do jogo</h3>
-        <span>Preencha os campos e acompanhe a apresentação no catálogo.</span>
-      </div>
-      <label>Título<input name="titulo" maxlength="255" value="${escapeHtml(game?.titulo || "")}" required></label>
-      <label>Descrição curta<input name="descricao_curta" maxlength="300" value="${escapeHtml(game?.descricao_curta || "")}"></label>
-      <label class="admin-form-wide">Descrição completa<textarea name="descricao_longa" rows="4">${escapeHtml(game?.descricao_longa || "")}</textarea></label>
-      <label>Preço<input name="preco" type="number" min="0" step="0.01" value="${game?.preco ?? ""}" required></label>
-      <label>Data de lançamento<input name="release_date" type="date" value="${dateInput(game?.release_date)}"></label>
-      <label>Status<select name="status">
-        <option value="draft" ${!game || game?.status === "draft" ? "selected" : ""}>Rascunho</option>
-        <option value="published" ${game?.status === "published" ? "selected" : ""}>Publicado</option>
-        <option value="archived" ${game?.status === "archived" ? "selected" : ""}>Arquivado</option>
-      </select></label>
-      <label>Tags<input name="tags" value="${escapeHtml((game?.tags || []).join(", "))}" placeholder="RPG, Ação, Indie"></label>
-      <fieldset class="admin-media-fields admin-form-wide">
-        <legend>Mídias do jogo</legend>
-        <p>JPEG, PNG ou GIF de até 10 MB. Capa e banner substituem a imagem atual.</p>
-        <div class="admin-media-inputs">
-          <label>Capa<input name="cover" type="file" accept="image/jpeg,image/png,image/gif"></label>
-          <label>Banner<input name="banner" type="file" accept="image/jpeg,image/png,image/gif"></label>
-          <label>Capturas de tela<input name="screenshots" type="file" accept="image/jpeg,image/png,image/gif" multiple></label>
-        </div>
-        <div class="admin-media-preview" data-media-preview aria-live="polite">
-          ${(game?.midias || []).map((media, index) => `
-            <figure class="admin-media-item" data-existing-media="${media.id}" data-media-type="${media.tipo}">
-              <img src="${escapeHtml(media.url)}" alt="">
-              <figcaption><span>${mediaLabel(media.tipo, index)}</span>
-                <button type="button" data-my-game-delete-media="${media.id}" data-game-id="${game.id}" aria-label="Remover ${mediaLabel(media.tipo, index)}">${Icon(icons.trash, { className: "w-4 h-4" })}</button>
-              </figcaption>
-            </figure>
-          `).join("")}
-        </div>
-      </fieldset>
-      <section class="admin-game-preview admin-form-wide" data-game-preview aria-labelledby="my-games-preview-title">
-        <div class="admin-game-preview__heading">
-          <div>
-            <p>Prévia ao vivo</p>
-            <h3 id="my-games-preview-title">Como o jogo vai aparecer</h3>
-          </div>
-          <span data-preview-status>Rascunho</span>
-        </div>
-        <div class="admin-game-preview__stage">
-          <article class="admin-game-preview__hero">
-            <div class="admin-game-preview__hero-media" data-preview-banner>
-              <img data-preview-image alt="">
-              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-7 h-7" })}<span>Banner do jogo</span></div>
-            </div>
-            <div class="admin-game-preview__hero-shade" aria-hidden="true"></div>
-            <div class="admin-game-preview__hero-content">
-              <span data-preview-release>Data a definir</span>
-              <h4 data-preview-title>Título do jogo</h4>
-              <p data-preview-description>Uma breve descrição vai aparecer aqui.</p>
-              <div data-preview-tags></div>
-              <strong data-preview-price>R$ 0,00</strong>
-            </div>
-          </article>
-          <article class="admin-game-preview__card">
-            <div class="admin-game-preview__cover" data-preview-cover>
-              <img data-preview-image alt="">
-              <div data-preview-placeholder>${Icon(icons.gamepad, { className: "w-7 h-7" })}<span>Capa do jogo</span></div>
-            </div>
-            <div class="admin-game-preview__card-body">
-              <span>Prévia do catálogo</span>
-              <h4 data-preview-card-title>Título do jogo</h4>
-              <p data-preview-card-description>Jogo digital</p>
-              <strong data-preview-card-price>R$ 0,00</strong>
-            </div>
-          </article>
-        </div>
-        <div class="admin-game-preview__screenshots">
-          <span>Capturas de tela</span>
-          <div data-preview-screenshots></div>
-        </div>
-      </section>
-      <button class="button-primary admin-form-wide" type="submit">${game ? "Salvar alterações" : "Lançar jogo"}</button>
-      <p class="admin-form-error admin-form-wide hidden" role="alert"></p>
-    </form>`;
+    ${GameResourceForm({
+      formId: "my-game-form",
+      idPrefix: "my-game",
+      game,
+      submitLabel: game ? "Salvar alterações" : "Lançar jogo",
+      introEyebrow: "Seu lançamento",
+      introDescription: "Preencha os dados e acompanhe como o jogo será apresentado no catálogo.",
+      mediaDeleteAttribute: "data-my-game-delete-media",
+    })}`;
   dialog.showModal();
   const form = content.querySelector("form");
   updateGamePreview(form);
@@ -219,7 +138,7 @@ async function submitGameForm(form) {
       descricao_curta: data.get("descricao_curta"),
       descricao_longa: data.get("descricao_longa"),
       preco: Number(data.get("preco")),
-      release_date: data.get("release_date") || null,
+      release_date: data.get("data_lancamento") || null,
       status: data.get("status"),
       tags: String(data.get("tags") || "").split(",").map((tag) => tag.trim()).filter(Boolean),
       system_requirements: [],
@@ -230,11 +149,7 @@ async function submitGameForm(form) {
     const savedGame = id
       ? await MyGamesService.updateGame(id, payload)
       : await MyGamesService.createGame(payload);
-    const uploads = [
-      ...filesToUpload(data.get("cover"), "cover"),
-      ...filesToUpload(data.get("banner"), "banner"),
-      ...Array.from(data.getAll("screenshots")).flatMap((file) => filesToUpload(file, "screenshot")),
-    ];
+    const uploads = getSelectedMediaUploads(form);
     for (const upload of uploads) {
       await MyGamesService.uploadGameMedia(savedGame.id, upload.type, upload.file);
     }
@@ -282,7 +197,7 @@ export function afterRender() {
   });
 
   dialog?.addEventListener("change", (event) => {
-    if (event.target.type === "file") renderSelectedMedia(event.target.form);
+    if (event.target.type === "file") selectMediaFiles(event.target.form, event.target);
     else if (event.target.form?.id === "my-game-form") updateGamePreview(event.target.form);
   });
 
@@ -295,6 +210,13 @@ export function afterRender() {
   });
 
   dialog?.addEventListener("click", async (event) => {
+    const selectedMedia = event.target.closest("[data-remove-selected-media]");
+    if (selectedMedia) {
+      const form = selectedMedia.closest("form");
+      removeSelectedMedia(form, selectedMedia.dataset.mediaType, Number(selectedMedia.dataset.mediaIndex));
+      return;
+    }
+
     const button = event.target.closest("[data-my-game-delete-media]");
     if (!button) return;
     button.disabled = true;

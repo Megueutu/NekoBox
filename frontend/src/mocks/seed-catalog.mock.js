@@ -1,8 +1,9 @@
 const MISSING_MEDIA_URL = "https://picsum.photos/seed/nekobox-missing-media/1200/675";
 
-const media = ({ cover, banner, screenshots = [] }) => [
+const media = ({ cover, banner, poster, screenshots = [] }) => [
   { type: "cover", url: cover || MISSING_MEDIA_URL, position: 1, is_placeholder: !cover },
   ...(banner ? [{ type: "banner", url: banner, position: 1 }] : []),
+  ...(poster ? [{ type: "poster", url: poster, position: 1 }] : []),
   ...screenshots.map((url, index) => ({ type: "screenshot", url, position: index + 1 })),
 ];
 
@@ -16,14 +17,18 @@ const catalogGame = ({ id, title, slug, description, price, releaseDate, categor
   price,
   release_date: releaseDate,
   status: "published",
-  media: seedMediaBySlug[slug],
+  media: [
+    ...(seedMediaBySlug[slug] || []),
+    ...(seedPosterBySlug[slug]
+      ? [{ type: "poster", url: seedPosterBySlug[slug], position: 1 }]
+      : []),
+  ],
   categories,
   tags,
   publisher: { id: publisher.toLowerCase().replace(/[^a-z0-9]+/g, "-"), name: publisher, logo_url: "" },
   system_requirements: systemRequirements,
   languages,
   updates: [],
-  reviews: [],
 });
 
 export const seedMediaBySlug = {
@@ -47,7 +52,7 @@ export const seedMediaBySlug = {
   "elden-ring": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/YMUoJUYNX0xWk6eTKuZLr5Iw_xpussk.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/M2IBVSWR2ao2oHizClzsUaYL_ksajdf.webp", screenshots: ["1fdf69c57c1ef3af7e137bf260510354b59870e71f7a6e8b_wwdkvv", "5c4a4ddd38c9db0fb0a0cf7c3cddee592c83bc7b180f9267_u20rae", "8dcbe67db4fe71d7cb71d0855ec2e5864fdeae7f177b884c_mzlryu", "335fda4e507ce5de650984ddd1638c45dc87c74c24ec8c24_rrfqqv", "621d598da03399e9788e3028aed34b9df33115e2156102fe_sitfsr", "a7a3c819e53f1427fa90f3062217bb6268696a0ebde47539_m3uosh", "fe7053cb00f45f480737a5cc170fc3f1e9ec47aca48c2475_d9llbk"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805986, 1785805987, 1785805989, 1785805991, 1785805991, 1785805993, 1785805997][index]}/${id}.avif`) }),
   "eldest-souls": media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/bOtJXHmvkx4iJCU21kFH1APZ_fdg4da.avif", screenshots: ["1sUjGLkgvlBbb6EU1egjgoYS_w1tnog", "7nyQkp1Pe6bHcri1T3LI0OYy_myivul", "R5uwFp2MAdNDWGRCxUlZWDNy_zg8xex"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805986, 1785805988, 1785806002][index]}/${id}.avif`) }),
   "hades-2": media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/93f66b17d66159f2a06f2f001b0e28cb485b524c9204797b_pqwyv8.avif", screenshots: ["1ddcec87d4be70acd848473572c14128024db5786ec46ee7_l3yyss", "2dff06b0be12903fbddbc2bd578bcdbe6136730ec2e18bac_ahtvuf", "08c5b674ef49cc0139791254f2ca1528a8239c3922842621_qp0qwg", "raGBM82s7S5GfCR1Kjh9eSop_vyeay0"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805986, 1785805987, 1785805989, 1785806002][index]}/${id}.avif`) }),
-  "call-of-duty-black-ops-7": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/63142285b9e04bc0ef3f6af46b665ecea4e47bfa311eb217_q4vfaa.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/972f277c6ca05ffd7b4f290ba34ebc0131bffc73e2a7548d_fpyvv4.avif", screenshots: ["6d9d0cb6602f3eb2b655e202e9b7b68114ff74505a20575e_vvrkfq", "6efef757dc2f5c06c3ffa95871cc5fc94523ee2739043c83_cbgblf", "ade65b9e9216d88cb89f864f445e52b5f3d7a6b6ae57b0ff_tfo9yq", "d21a425ed8dfc7ca0731b593de37ea8de40ee6c4b4d93891_rie37m"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805987, 1785805988, 1785805994, 1785805995][index]}/${id}.avif`) }),
+  "call-of-duty-modern-warfare-4": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/63142285b9e04bc0ef3f6af46b665ecea4e47bfa311eb217_q4vfaa.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/972f277c6ca05ffd7b4f290ba34ebc0131bffc73e2a7548d_fpyvv4.avif", screenshots: ["6d9d0cb6602f3eb2b655e202e9b7b68114ff74505a20575e_vvrkfq", "6efef757dc2f5c06c3ffa95871cc5fc94523ee2739043c83_cbgblf", "ade65b9e9216d88cb89f864f445e52b5f3d7a6b6ae57b0ff_tfo9yq", "d21a425ed8dfc7ca0731b593de37ea8de40ee6c4b4d93891_rie37m"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805987, 1785805988, 1785805994, 1785805995][index]}/${id}.avif`) }),
   "dragon-ball-sparking-zero": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/881aeea06b117a39f1724a4d7ebf66b152a088475e4467e4_nfucut.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/70bf2b0857ebc50a44d0e281d711cede69f592785da33d97_k5nozh.avif", screenshots: ["3b49de028249b81b51a531debf39f65aa6fc08c65f865101_rmk7re", "7de725f13584a8b7b4426cecefb30714801740b6365798ce_zhnrf2", "905d6d57a028928cc8f7f623643c339ab2bd2a2fc1183370_zjb4os", "bba7d02ae9cae5f4b87c87bc4e86a215eb28ae70a2908e14_i8x5ac"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805987, 1785805988, 1785805991, 1785805994][index]}/${id}.avif`) }),
   "the-witcher-3": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806002/TvcIHkYqqln1RGbaFqBeuFp6_l9ljke.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/IW5r8hLVZzf0ApOyiOuRnKUe_cvfqcd.jpg", screenshots: ["5DSZkROrbrlYN2PXGfDGedeM_wbjrnr", "iFujqkGQJZKBGjpw1kgAkjWe_flr6bl", "mfy0530smBKbptFC5oEIaEyi_lwpbw9"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805987, 1785805997, 1785805998][index]}/${id}.avif`) }),
   "cyberpunk-2077": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/bxSj4jO0KBqUgAbH3zuNjCje_hnuhwb.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/UjQ1pWQiHwymgQQ6q4pWQkMC_nlek1l.avif", screenshots: ["4afa4359de58e6c1fe2509b0bf19c3dded734f5d9f7be0ed_t4fubo", "PT2qWfNzcGncIlTB0SlzFYY9_loktv2", "To8WFTjfrMQtrX63D0GoCNRj_x4ujy6", "SWnz126faKV0CbPOVzCk2R3M_bsyghl"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805988, 1785806001, 1785806002, 1785806002][index]}/${id}.avif`) }),
@@ -57,9 +62,33 @@ export const seedMediaBySlug = {
   hades: media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806002/pYyqTYA34U1a7hv6BCrqgc24_zypcq1.webp", screenshots: ["327fb169e7af8eb759a72c0aba917194451047e1b3776758_z1lsp5", "CWACHJZ2R8OoZp52SH1UqlXl_qh0pwd", "h1Tmq8oRqHn1Hiyh8OozLpTi_omuiu9", "htIpeQrsndcAUvsQFcUnwlxQ_gzvngm", "nFLj8gGhCcJnSnUeK06Ns8qe_ae7hal"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805990, 1785805995, 1785805997, 1785805997, 1785805999][index]}/${id}.avif`) }),
   "demons-souls": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/lEQQ9AXMadW1BN8kruQbSy8S_ftno18.avif", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/brIXKBE5BqYgBSrsDn6Wo18O_gv8k0f.avif", screenshots: ["lK4tpxDNLfOxHly1yE5ceKNt_aule4d", "NE92EYZjGR8hU8ZcNDgEYEX1_dfe44s", "p3BNVCDOeLpb3bWAptk2Hi2t_xzqj7q", "OtTU8V9BfVqiy4jp0QhHp8ad_m7hywr", "s1gIFpXqw8t18gzshEHkv8r2_x4msa4", "sYFQ266gczqGyso9d8PjJ1Al_xxozqy"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805998, 1785805998, 1785805998, 1785805999, 1785806002, 1785806002][index]}/${id}.avif`) }),
   celeste: media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/hgqlI1LTcsd6zuL7YWVLQ8d00jkBmtCg_pdm532.avif", screenshots: ["https://res.cloudinary.com/meguitooooooo/image/upload/v1785806000/PREVIEW_SCREENSHOT2_161659_izqbbu.avif", "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806000/PREVIEW_SCREENSHOT3_161659_nuwcy3.avif"] }),
-  "dark-souls-saga": media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/zA0pyOR4JXOtGGIY7Jp2FJZP_p8ismg.avif", screenshots: ["PREVIEW_SCREENSHOT1_77921_ayuygk", "PREVIEW_SCREENSHOT2_77921_cmp1ja", "PREVIEW_SCREENSHOT1_109885_q6jtln", "PREVIEW_SCREENSHOT2_109885_jrb8ao", "PREVIEW_SCREENSHOT3_77921_naxrf1", "PREVIEW_SCREENSHOT3_109885_fhkz2m", "PREVIEW_SCREENSHOT4_77921_kmqse4", "PREVIEW_SCREENSHOT5_77921_twukh5", "PREVIEW_SCREENSHOT4_109885_h1vtbg", "PREVIEW_SCREENSHOT6_77921_oxg56e"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805999, 1785805999, 1785805999, 1785805999, 1785806000, 1785806000, 1785806001, 1785806001, 1785806000, 1785806001][index]}/${id}.avif`) }),
+  "dark-souls-3": media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/zA0pyOR4JXOtGGIY7Jp2FJZP_p8ismg.avif", screenshots: ["PREVIEW_SCREENSHOT1_77921_ayuygk", "PREVIEW_SCREENSHOT2_77921_cmp1ja", "PREVIEW_SCREENSHOT1_109885_q6jtln", "PREVIEW_SCREENSHOT2_109885_jrb8ao", "PREVIEW_SCREENSHOT3_77921_naxrf1", "PREVIEW_SCREENSHOT3_109885_fhkz2m", "PREVIEW_SCREENSHOT4_77921_kmqse4", "PREVIEW_SCREENSHOT5_77921_twukh5", "PREVIEW_SCREENSHOT4_109885_h1vtbg", "PREVIEW_SCREENSHOT6_77921_oxg56e"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805999, 1785805999, 1785805999, 1785805999, 1785806000, 1785806000, 1785806001, 1785806001, 1785806000, 1785806001][index]}/${id}.avif`) }),
   "red-dead-redemption-2": media({ cover: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/Hpl5MtwQgOVF9vJqlfui6SDB5Jl4oBSq_uweazv.jpg", banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806004/WyHa1BM3ISDVqYSEUMB9VZJs_bfe8u8.avif", screenshots: ["PREVIEW_SCREENSHOT1_166081_kvyqms", "PREVIEW_SCREENSHOT4_166081_c0bi3q", "PREVIEW_SCREENSHOT5_166081_lravql", "PREVIEW_SCREENSHOT7_166081_rq0mxs", "PREVIEW_SCREENSHOT10_166081_djlfoi", "PREVIEW_SCREENSHOT8_166081_f45khu", "PREVIEW_SCREENSHOT9_166081_kounmg"].map((id, index) => `https://res.cloudinary.com/meguitooooooo/image/upload/v${[1785805999, 1785806000, 1785806001, 1785806001, 1785806001, 1785806001, 1785806001][index]}/${id}.avif`) }),
   "stardew-valley": media({ banner: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/yPmlPNe9extT2AVsv90hOKmn_np3zpb.avif", screenshots: ["https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/PREVIEW_SCREENSHOT2_130501_jjz4a1.avif"] }),
+};
+
+export const seedPosterBySlug = {
+  "hollow-knight": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976547/hollow_fij6gq.avif",
+  "hollow-knight-silksong": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976546/silk_mbrzoi.avif",
+  "assassins-creed-black-flag-remake": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976546/blackflag_ns2rvc.avif",
+  "grand-theft-auto-vi": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976548/gtavi_rerqc6.avif",
+  "elden-ring-nightreign": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976545/night_aiiepe.avif",
+  "elden-ring": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976545/elden_ybyqim.webp",
+  "eldest-souls": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976544/eldest_c72xw6.webp",
+  "hades-2": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976543/hades2_aexewa.avif",
+  "call-of-duty-modern-warfare-4": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976542/modernwar4_nsgjew.avif",
+  "dragon-ball-sparking-zero": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976541/sparkign_wdn07w.avif",
+  "the-witcher-3": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976541/witcher_hmrpgu.avif",
+  "cyberpunk-2077": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976540/cyber_qoorlm.avif",
+  minecraft: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976539/mine_a464rw.avif",
+  "marvel-rivals": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976539/Marvel_Rivals_ogypwa.avif",
+  "halo-campaign-evolved": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976352/halo_iijmgv.avif",
+  hades: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976543/hades_fk6xfc.webp",
+  "demons-souls": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976352/demons_souls_h4tlbj.webp",
+  celeste: "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/celeste_lrby4w.avif",
+  "dark-souls-3": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/darksouls_a2x95o.jpg",
+  "red-dead-redemption-2": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/red_ctn8d7.avif",
+  "stardew-valley": "https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/stardew_f9oz6e.avif",
 };
 
 export const seedCatalogGames = [
@@ -70,10 +99,10 @@ export const seedCatalogGames = [
   catalogGame({ id: "catalog-eldest-souls", title: "Eldest Souls", slug: "eldest-souls", description: "Boss rush soulslike em pixel art: enfrente os deuses antigos e salve a cidadela de uma desolação iminente.", price: 49.9, releaseDate: "2021-07-29", categories: ["Ação", "RPG"], tags: ["Soulslike", "Boss Rush", "Pixel Art", "Indie"], publisher: "UNITED LABEL" }),
   catalogGame({ id: "catalog-hades-2", title: "Hades II", slug: "hades-2", description: "Como a Princesa imortal do Submundo, use feitiçaria sombria contra o Titã do Tempo em um roguelike de ação.", price: 89.9, releaseDate: "2025-09-25", categories: ["Ação", "RPG", "Roguelike"], tags: ["Mitologia Grega", "Indie", "Dungeon Crawler", "Roguelike"], publisher: "SUPERGIANT GAMES" }),
   catalogGame({ id: "catalog-celeste", title: "Celeste", slug: "celeste", description: "Ajude Madeline a escalar a Montanha Celeste em uma aventura de plataforma precisa e emocional.", price: 36.9, releaseDate: "2018-01-25", categories: ["Ação", "Plataforma"], tags: ["Indie", "2D", "Narrativa", "Desafio"], publisher: "MATT MAKES GAMES" }),
-  catalogGame({ id: "catalog-cod-bo7", title: "Call of Duty: Black Ops 7", slug: "call-of-duty-black-ops-7", description: "Shooter militar de ritmo acelerado da série Black Ops, com campanha, multiplayer e modos cooperativos.", price: 0, releaseDate: "", categories: ["Ação", "FPS"], tags: ["Call of Duty", "Multiplayer", "Shooter", "Black Ops"], publisher: "ACTIVISION" }),
+  catalogGame({ id: "catalog-cod-mw4", title: "Call of Duty: Modern Warfare 4", slug: "call-of-duty-modern-warfare-4", description: "Shooter militar de ritmo acelerado da série Modern Warfare, com campanha, multiplayer e modos cooperativos.", price: 0, releaseDate: "", categories: ["Ação", "FPS"], tags: ["Call of Duty", "Multiplayer", "Shooter", "Modern Warfare"], publisher: "ACTIVISION" }),
   catalogGame({ id: "catalog-sparking-zero", title: "DRAGON BALL: Sparking! ZERO", slug: "dragon-ball-sparking-zero", description: "Lutas em arenas 3D que retomam a série Budokai Tenkaichi, com elenco amplo e batalhas destrutivas.", price: 279.9, releaseDate: "2024-10-11", categories: ["Ação", "Luta"], tags: ["Anime", "Arena Fighter", "Dragon Ball", "Multiplayer"], publisher: "BANDAI NAMCO" }),
   catalogGame({ id: "catalog-marvel-rivals", title: "Marvel Rivals", slug: "marvel-rivals", description: "Hero shooter 6v6 gratuito com heróis e vilões da Marvel, sinergias entre equipes e ambientes destrutíveis.", price: 0, releaseDate: "2024-12-06", categories: ["Ação", "FPS"], tags: ["Hero Shooter", "Multiplayer", "Marvel"], publisher: "NETEASE GAMES" }),
   catalogGame({ id: "catalog-halo", title: "Halo: Campaign Evolved", slug: "halo-campaign-evolved", description: "Remake expandido da campanha que iniciou Halo, reconstruído com visuais modernos, três missões inéditas e co-op.", price: 249.9, releaseDate: "2026-07-28", categories: ["Ação", "Ficção Científica"], tags: ["FPS", "Campanha", "Co-op", "Master Chief"], publisher: "HALO STUDIOS" }),
   catalogGame({ id: "catalog-demons-souls", title: "Demon's Souls", slug: "demons-souls", description: "Remake do clássico de fantasia sombria que estabeleceu as bases do gênero Souls.", price: 349.9, releaseDate: "2020-11-12", categories: ["Ação", "RPG", "Fantasia"], tags: ["Soulslike", "Remake", "PlayStation"], publisher: "PLAYSTATION STUDIOS" }),
-  catalogGame({ id: "catalog-dark-souls", title: "Dark Souls Saga", slug: "dark-souls-saga", description: "A trilogia de RPGs de ação da FromSoftware, com mundos interconectados, chefes memoráveis e combate desafiador.", price: 299.9, releaseDate: "2018-10-19", categories: ["Ação", "RPG", "Fantasia"], tags: ["Soulslike", "Trilogia", "FromSoftware"], publisher: "BANDAI NAMCO" }),
+  catalogGame({ id: "catalog-dark-souls-3", title: "Dark Souls III", slug: "dark-souls-3", description: "RPG de ação da FromSoftware com mundos interconectados, chefes memoráveis e combate desafiador.", price: 299.9, releaseDate: "2016-04-12", categories: ["Ação", "RPG", "Fantasia"], tags: ["Soulslike", "FromSoftware", "Fantasia Sombria"], publisher: "BANDAI NAMCO" }),
 ];

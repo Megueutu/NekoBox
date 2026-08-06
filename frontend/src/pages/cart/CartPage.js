@@ -17,20 +17,13 @@ export default async function CartPage() {
   Store.setState((state) => ({ ...state, cart }));
 
   const user = Store.getState().user;
-  const personalCount = cart.filter((game) => !game.for_gift).length;
-  const giftCount = cart
-    .filter((game) => game.for_gift)
-    .reduce((total, game) => total + game.quantity, 0);
-  const total = cart.reduce(
-    (acc, game) => acc + game.price * (game.for_gift ? game.quantity : 1),
-    0
-  );
+  const total = cart.reduce((acc, game) => acc + game.price, 0);
 
   const content = `
     <div class="cart-page space-y-8">
       ${PageHeader({
         title: "Carrinho",
-        subtitle: `${personalCount} para você e ${giftCount} presente${giftCount !== 1 ? "s" : ""}`,
+        subtitle: `${cart.length} jogo${cart.length !== 1 ? "s" : ""} para sua biblioteca`,
       })}
 
       <p id="cart-feedback" class="cart-feedback" role="status" aria-live="polite" hidden></p>
@@ -61,35 +54,18 @@ export default async function CartPage() {
                 </a>
                 <!-- Infos -->
                 <div class="cart-item__content">
-                  <span class="cart-item__mode">
-                    ${Icon(game.for_gift ? icons.gift : icons.user, { className: "w-3.5 h-3.5" })}
-                    ${game.for_gift ? "Código para presente" : "Para minha biblioteca"}
-                  </span>
-                  <a href="/game/${game.slug}" data-link class="font-semibold text-sm hover:text-[var(--color-brand-400)] truncate block transition-colors">${game.title}</a>
-                  <p class="text-xs text-[var(--color-muted-2)] mt-1">${game.categories?.[0] || ""} • ${game.publisher?.name || ""}</p>
-                  <p class="font-bold text-sm mt-1.5 text-[var(--color-accent-400)]">${formatPrice(game.price)}${game.for_gift ? " por código" : ""}</p>
+                  <span class="cart-item__mode">${Icon(icons.user, { className: "w-3.5 h-3.5" })} Para minha biblioteca</span>
+                  <a href="/game/${game.slug}" data-link class="type-card-title hover:text-[var(--color-brand-400)] truncate block transition-colors">${game.title}</a>
+                  <p class="type-caption text-[var(--color-muted-2)] mt-1">${game.categories?.[0] || ""} • ${game.publisher?.name || ""}</p>
+                  <p class="type-small font-bold mt-1.5 text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
                 </div>
 
-                ${
-                  game.for_gift
-                    ? `<div class="cart-quantity" aria-label="Quantidade de códigos de presente de ${game.title}">
-                        <button type="button" data-quantity-step="-1" data-product-id="${game.id}"
-                                aria-label="Diminuir códigos de presente de ${game.title}" ${game.quantity === 1 ? "disabled" : ""}>−</button>
-                        <label class="sr-only" for="cart-quantity-${game.id}">Códigos de presente de ${game.title}</label>
-                        <input id="cart-quantity-${game.id}" data-quantity-input="${game.id}" type="number"
-                               min="1" max="10" step="1" inputmode="numeric" value="${game.quantity}"
-                               aria-describedby="cart-quantity-hint-${game.id}" />
-                        <button type="button" data-quantity-step="1" data-product-id="${game.id}"
-                                aria-label="Aumentar códigos de presente de ${game.title}" ${game.quantity === 10 ? "disabled" : ""}>+</button>
-                        <small id="cart-quantity-hint-${game.id}">Até 10 códigos</small>
-                      </div>`
-                    : `<span class="cart-personal-quantity">1 cópia</span>`
-                }
+                <span class="cart-personal-quantity">1 cópia</span>
 
-                <strong class="cart-item__subtotal">${formatPrice(game.price * (game.for_gift ? game.quantity : 1))}</strong>
+                <strong class="cart-item__subtotal">${formatPrice(game.price)}</strong>
 
                 <!-- Remover -->
-                <button type="button" data-remove-cart="${game.id}" data-for-gift="${game.for_gift}"
+                <button type="button" data-remove-cart="${game.id}"
                         class="cart-item__remove text-[var(--color-muted-2)] hover:text-red-400 transition-colors" aria-label="Remover ${game.title}">
                   ${Icon(icons.trash)}
                 </button>
@@ -111,9 +87,9 @@ export default async function CartPage() {
                 ${cart
                   .map(
                     (game) => `
-                  <div class="checkout-summary__item flex justify-between text-sm">
-                    <span class="text-muted truncate pr-2">${game.for_gift ? `${game.quantity}× presente` : "1× pessoal"} — ${game.title}</span>
-                    <span class="shrink-0 font-medium">${formatPrice(game.price * (game.for_gift ? game.quantity : 1))}</span>
+                  <div class="checkout-summary__item type-small flex justify-between">
+                    <span class="text-muted truncate pr-2">${game.title}</span>
+                    <span class="shrink-0 font-medium">${formatPrice(game.price)}</span>
                   </div>
                 `
                   )
@@ -122,7 +98,7 @@ export default async function CartPage() {
 
               <div class="checkout-total">
                 <span class="font-bold">Total</span>
-                <span class="font-display font-bold text-xl text-gradient-brand">${formatPrice(total)}</span>
+                <span class="type-content-title text-gradient-brand">${formatPrice(total)}</span>
               </div>
 
               <fieldset class="checkout-fields">
@@ -158,7 +134,7 @@ export default async function CartPage() {
                   <input id="checkout-terms" name="termsAccepted" type="checkbox"
                          aria-describedby="checkout-terms-hint checkout-terms-error" required />
                   <label for="checkout-terms">Confirmo que esta é uma compra de demonstração.</label>
-                  <small id="checkout-terms-hint">O saldo virtual será debitado. Compras pessoais vão para sua biblioteca; presentes geram códigos únicos.</small>
+                  <small id="checkout-terms-hint">O saldo virtual será debitado e os jogos serão adicionados à sua biblioteca.</small>
                   <small id="checkout-terms-error" role="alert" hidden></small>
                 </div>
               </fieldset>
@@ -169,7 +145,7 @@ export default async function CartPage() {
                 Confirmar compra
               </button>
 
-              <a href="/hub" data-link class="block text-center text-[var(--color-muted-2)] text-xs hover:text-[var(--color-ink)] transition-colors">
+              <a href="/hub" data-link class="type-caption block text-center text-[var(--color-muted-2)] hover:text-[var(--color-ink)] transition-colors">
                 Continuar Comprando
               </a>
             </form>
@@ -183,11 +159,6 @@ export default async function CartPage() {
             <p>Pedido confirmado</p>
             <h2 id="checkout-confirmation-title">Compra concluída com sucesso</h2>
             <p id="checkout-confirmation-description"></p>
-            <div id="checkout-gift-codes" class="checkout-gift-codes" hidden>
-              <h3>Códigos para enviar aos amigos</h3>
-              <p>Copie agora ou consulte depois em Presentes, dentro da sua conta.</p>
-              <ul id="checkout-gift-code-list"></ul>
-            </div>
           </div>
           <a href="${ACCOUNT_PATHS.library}" data-link class="button-primary">Abrir biblioteca</a>
         </section>
@@ -209,44 +180,12 @@ export async function afterRender() {
     feedback.classList.toggle("cart-feedback--error", isError);
   };
 
-  const updateQuantity = async (gameId, quantity) => {
-    const resolvedQuantity = Number(quantity);
-    if (!Number.isInteger(resolvedQuantity) || resolvedQuantity < 1 || resolvedQuantity > 10) {
-      showFeedback("A quantidade deve estar entre 1 e 10.", true);
-      return;
-    }
-
-    const input = document.querySelector(`[data-quantity-input="${gameId}"]`);
-    const container = input?.closest(".cart-quantity");
-    container?.setAttribute("aria-busy", "true");
-    try {
-      await Actions.atualizarQuantidadeCarrinho(gameId, resolvedQuantity);
-      navigate(ACCOUNT_PATHS.cart, { focusTarget: `[data-quantity-input="${gameId}"]` });
-    } catch (error) {
-      showFeedback(error.message || "Não foi possível atualizar a quantidade.", true);
-      container?.removeAttribute("aria-busy");
-    }
-  };
-
-  document.querySelectorAll("[data-quantity-step]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const gameId = button.dataset.productId;
-      const input = document.querySelector(`[data-quantity-input="${gameId}"]`);
-      updateQuantity(gameId, Number(input?.value) + Number(button.dataset.quantityStep));
-    });
-  });
-
-  document.querySelectorAll("[data-quantity-input]").forEach((input) => {
-    input.addEventListener("change", () => updateQuantity(input.dataset.quantityInput, input.value));
-  });
-
   document.querySelectorAll("[data-remove-cart]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const gameId = btn.getAttribute("data-remove-cart");
-      const forGift = btn.dataset.forGift === "true";
       btn.disabled = true;
       try {
-        await Actions.removerDoCarrinho(gameId, forGift);
+        await Actions.removerDoCarrinho(gameId);
         navigate(ACCOUNT_PATHS.cart);
       } catch (error) {
         btn.disabled = false;
@@ -315,48 +254,11 @@ export async function afterRender() {
     button.textContent = "Confirmando compra...";
 
     try {
-      const { payments, giftCodes } = await Actions.finalizarCheckoutCarrinho();
+      const { payments } = await Actions.finalizarCheckoutCarrinho();
       const confirmation = document.getElementById("checkout-confirmation");
       const description = document.getElementById("checkout-confirmation-description");
-      const personalPurchases = payments.filter((payment) => !payment.para_presente).length;
       if (description) {
-        const parts = [];
-        if (personalPurchases) {
-          parts.push(
-            `${personalPurchases} jogo${personalPurchases !== 1 ? "s" : ""} adicionado${personalPurchases !== 1 ? "s" : ""} à sua biblioteca`
-          );
-        }
-        if (giftCodes.length) {
-          parts.push(
-            `${giftCodes.length} código${giftCodes.length !== 1 ? "s" : ""} de presente gerado${giftCodes.length !== 1 ? "s" : ""}`
-          );
-        }
-        description.textContent = `${parts.join(" e ")}.`;
-      }
-
-      const codesContainer = document.getElementById("checkout-gift-codes");
-      const codesList = document.getElementById("checkout-gift-code-list");
-      if (giftCodes.length && codesContainer && codesList) {
-        giftCodes.forEach((gift) => {
-          const item = document.createElement("li");
-          const game = document.createElement("span");
-          const code = document.createElement("strong");
-          const copy = document.createElement("button");
-
-          game.textContent = gift.titulo_produto;
-          code.textContent = gift.codigo;
-          copy.type = "button";
-          copy.textContent = "Copiar";
-          copy.setAttribute("aria-label", `Copiar código de ${gift.titulo_produto}`);
-          copy.addEventListener("click", async () => {
-            await navigator.clipboard.writeText(gift.codigo);
-            copy.textContent = "Copiado";
-          });
-
-          item.append(game, code, copy);
-          codesList.append(item);
-        });
-        codesContainer.hidden = false;
+        description.textContent = `${payments.length} jogo${payments.length !== 1 ? "s" : ""} adicionado${payments.length !== 1 ? "s" : ""} à sua biblioteca.`;
       }
       form.hidden = true;
       confirmation.hidden = false;

@@ -95,7 +95,7 @@ class RouterManager {
             <div class="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
               <div class="flex flex-col items-center gap-4">
                 <div class="w-10 h-10 border-4 border-[var(--color-border)] border-t-[var(--color-brand-500)] rounded-full animate-spin"></div>
-                <p class="text-muted text-sm">Carregando...</p>
+                <p class="type-body text-muted">Carregando...</p>
               </div>
             </div>
           `;
@@ -141,7 +141,7 @@ class RouterManager {
     appContainer.innerHTML = `
       <div class="p-12 text-center flex flex-col items-center justify-center min-h-[65vh]">
         <h1 class="font-display text-7xl font-bold mb-4 text-gradient-brand">404</h1>
-        <p class="text-xl font-bold mb-2 text-[var(--color-ink)]">CATALOG ERROR</p>
+        <p class="type-content-title mb-2 text-[var(--color-ink)]">CATALOG ERROR</p>
         <p class="text-muted mb-8 max-w-md">O título buscado não foi indexado ou foi movido do catálogo de lançamentos.</p>
         <button data-link href="/hub" class="button-primary px-6 py-3 cursor-pointer">
           Retornar ao Hub

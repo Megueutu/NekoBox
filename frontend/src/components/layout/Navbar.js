@@ -9,6 +9,7 @@ export function Navbar() {
   const isAdmin = isAuthenticated && user.role === "ADMIN";
   const isCustomer = isAuthenticated && !isAdmin;
   const currentPath = window.location.pathname;
+  const isHub = currentPath === "/hub";
   const cartCount = cart.length;
   const wishlistCount = wishlist.length;
   const navIcon = (href, label, icon, className = "") => {
@@ -21,13 +22,11 @@ export function Navbar() {
   };
 
   return `
-    <nav class="site-nav sticky top-0 z-50" aria-label="Navegação principal">
+    <nav class="site-nav ${isHub ? "site-nav--hub" : ""} ${isHub && window.scrollY > 0 ? "site-nav--scrolled" : ""} sticky top-0 z-50" aria-label="Navegação principal">
       <div class="site-container site-nav__inner flex items-center justify-between">
 
         <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NekoBox — Início">
-          <span class="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center">
-            ${Icon(icons.gamepad, { className: "w-4 h-4 text-white", strokeWidth: 2.25 })}
-          </span>
+          <img src="/nekobox-mark.svg" class="site-brand__mark" alt="" aria-hidden="true" />
           <span class="text-[var(--color-ink)]">Neko<span class="text-[var(--color-brand-400)]">Box</span></span>
         </a>
 
@@ -44,22 +43,22 @@ export function Navbar() {
               ${Icon(icons.menu)}
             </summary>
             <nav class="absolute right-0 top-full mt-2 w-48 bg-surface rounded-xl shadow-xl py-2 z-50" aria-label="Navegação mobile">
-              <a href="/" data-link ${currentPath === "/" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Início</a>
-              <a href="/hub" data-link ${currentPath === "/hub" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Catálogo</a>
-              <a href="/acessibilidade" data-link ${currentPath === "/acessibilidade" ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Acessibilidade</a>
+              <a href="/" data-link ${currentPath === "/" ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Início</a>
+              <a href="/hub" data-link ${currentPath === "/hub" ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Catálogo</a>
+              <a href="/acessibilidade" data-link ${currentPath === "/acessibilidade" ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Acessibilidade</a>
               ${
                 isCustomer
                   ? `
-                    <a href="${ACCOUNT_PATHS.settings}" data-link ${currentPath === ACCOUNT_PATHS.settings ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
-                    <a href="${ACCOUNT_PATHS.library}" data-link ${currentPath === ACCOUNT_PATHS.library ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
-                    <a href="${ACCOUNT_PATHS.games}" data-link ${currentPath === ACCOUNT_PATHS.games ? 'aria-current="page"' : ""} class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meus Jogos</a>
-                    <a href="${ACCOUNT_PATHS.wishlist}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
-                    <a href="${ACCOUNT_PATHS.cart}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
-                    <button type="button" data-wallet-trigger class="w-full text-left px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carteira</button>
-                    <a href="${ACCOUNT_PATHS.profile}" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
+                    <a href="${ACCOUNT_PATHS.settings}" data-link ${currentPath === ACCOUNT_PATHS.settings ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
+                    <a href="${ACCOUNT_PATHS.library}" data-link ${currentPath === ACCOUNT_PATHS.library ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
+                    <a href="${ACCOUNT_PATHS.games}" data-link ${currentPath === ACCOUNT_PATHS.games ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meus Jogos</a>
+                    <a href="${ACCOUNT_PATHS.wishlist}" data-link class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
+                    <a href="${ACCOUNT_PATHS.cart}" data-link class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Carrinho${cartCount ? ` (${cartCount})` : ""}</a>
+                    <button type="button" data-wallet-trigger class="type-small w-full text-left px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Adicionar saldo</button>
+                    <a href="${ACCOUNT_PATHS.profile}" data-link class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meu Perfil</a>
                   `
                   : isAdmin
-                    ? '<a href="/admin" data-link class="block px-4 py-2.5 text-sm text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Administração</a>'
+                    ? '<a href="/admin" data-link class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Administração</a>'
                     : ""
               }
             </nav>
@@ -82,7 +81,7 @@ export function Navbar() {
 
           ${
             isCustomer
-              ? `<button type="button" data-wallet-trigger class="nav-icon-link hidden sm:flex" aria-haspopup="dialog" aria-controls="wallet-dialog" aria-label="Abrir carteira">
+              ? `<button type="button" data-wallet-trigger class="nav-icon-link hidden sm:flex" aria-haspopup="dialog" aria-controls="wallet-dialog" aria-label="Adicionar saldo" title="Adicionar saldo">
                   ${Icon(icons.wallet, { className: "w-4 h-4 sm:w-4.5 sm:h-4.5" })}
                 </button>`
               : ""

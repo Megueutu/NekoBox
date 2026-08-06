@@ -1,7 +1,7 @@
 import { mockGames } from "./games.mock";
 
 const STORAGE_KEY = "nekobox_mock_api_state";
-const SEED_VERSION = 5;
+const SEED_VERSION = 8;
 const clone = (value) => structuredClone(value);
 const now = () => new Date().toISOString();
 const mockError = (message, status = 400) => Object.assign(new Error(message), { status });
@@ -15,15 +15,39 @@ const seedState = () => ({
   carts: {},
   wishlists: {},
   libraries: {},
-  giftCards: [],
   games: clone(mockGames),
 });
 
 function migrateSeedState(state) {
   if (state.seedVersion === SEED_VERSION) return state;
 
+  delete state.giftCards;
+  Object.values(state.carts).forEach((cart) => cart.forEach((item) => {
+    delete item.for_gift;
+    item.quantity = 1;
+  }));
+
   const seededBySlug = new Map(mockGames.map((game) => [game.slug, game]));
+  const renamedSeedSlugs = new Map([
+    ["call-of-duty-black-ops-7", "call-of-duty-modern-warfare-4"],
+    ["dark-souls-saga", "dark-souls-3"],
+  ]);
+  const replaceRenamedSeed = (game) => {
+    const currentSlug = renamedSeedSlugs.get(game.slug);
+    return currentSlug ? clone(seededBySlug.get(currentSlug)) : game;
+  };
+
   state.games = state.games.filter((game) => game.id !== "seed-halo");
+  state.games = state.games.map(replaceRenamedSeed);
+  [state.carts, state.wishlists, state.libraries].forEach((collection) => {
+    Object.values(collection).forEach((games) => games.forEach((game, index) => {
+      const replacement = replaceRenamedSeed(game);
+      if (replacement !== game) games[index] = { ...game, ...replacement };
+    }));
+  });
+  [state.games, ...Object.values(state.carts), ...Object.values(state.wishlists), ...Object.values(state.libraries)]
+    .flat()
+    .forEach((game) => delete game.reviews);
   const existingSlugs = new Set(state.games.map((game) => game.slug));
   state.games = state.games.map((game) => {
     const seeded = seededBySlug.get(game.slug);
@@ -65,6 +89,31 @@ function gameById(state, id) {
   const game = state.games.find((item) => String(item.id) === String(id));
   if (!game) throw mockError("Jogo não encontrado.", 404);
   return game;
+}
+
+function productSlug(title) {
+  return String(title || "jogo")
+    .toLocaleLowerCase("pt-BR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function myGame(game) {
+  return {
+    id: game.id,
+    titulo: game.title,
+    slug: game.slug,
+    preco: game.price,
+    status: game.status,
+    release_date: game.release_date,
+    descricao_curta: game.short_description,
+    descricao_longa: game.long_description,
+    tags: game.tags,
+    capa_url: game.media.find((media) => media.type === "cover")?.url || "",
+    midias: game.media.map((media) => ({ ...media, tipo: media.type })),
+  };
 }
 
 function catalog(state, pathname, searchParams) {
@@ -185,28 +234,28 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
     }
   }
   if (method === "GET" && url.pathname === "/api/carteira") return { saldo: user.saldo };
+  if (method === "POST" && url.pathname === "/api/carteira/recargas") {
+    const value = Number(body?.valor);
+    if (!Number.isFinite(value) || value <= 0) throw mockError("Informe um valor de recarga maior que zero.", 422);
+    user.saldo += value;
+    saveState(state);
+    return { valor_adicionado: value, saldo: user.saldo };
+  }
   if (method === "GET" && url.pathname === "/api/carrinho") return { items: clone(state.carts[userId]) };
   if (method === "POST" && url.pathname === "/api/carrinho/itens") {
     const game = gameById(state, body.produto_id);
     if (Number(game.price) === 0) {
       throw mockError("Jogos gratuitos devem ser adquiridos diretamente na biblioteca.", 422);
     }
-    const existing = state.carts[userId].find((item) => item.id === game.id && item.for_gift === Boolean(body.para_presente));
-    if (existing) existing.quantity = Math.min(existing.quantity + 1, 10);
-    else state.carts[userId].push({ ...clone(game), quantity: 1, for_gift: Boolean(body.para_presente) });
+    const existing = state.carts[userId].find((item) => item.id === game.id);
+    if (existing) throw mockError("Este jogo já está no seu carrinho.", 409);
+    state.carts[userId].push({ ...clone(game), quantity: 1 });
     saveState(state);
     return { items: clone(state.carts[userId]) };
   }
   const cartId = url.pathname.match(/^\/api\/carrinho\/itens\/([^/]+)$/)?.[1];
-  if (cartId && method === "PATCH") {
-    const item = state.carts[userId].find((entry) => String(entry.id) === decodeURIComponent(cartId));
-    if (!item) throw mockError("Item não encontrado no carrinho.", 404);
-    item.quantity = Math.max(1, Math.min(Number(body.quantidade) || 1, 10));
-    saveState(state);
-    return { items: clone(state.carts[userId]) };
-  }
   if (cartId && method === "DELETE") {
-    state.carts[userId] = state.carts[userId].filter((item) => !(String(item.id) === decodeURIComponent(cartId) && item.for_gift === (url.searchParams.get("paraPresente") === "true")));
+    state.carts[userId] = state.carts[userId].filter((item) => String(item.id) !== decodeURIComponent(cartId));
     saveState(state);
     return null;
   }
@@ -236,56 +285,106 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
     return clone(acquiredGame);
   }
   if (method === "POST" && url.pathname === "/api/pagamentos/checkout") {
-    const total = state.carts[userId].reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = state.carts[userId].reduce((sum, item) => sum + item.price, 0);
     if (total > user.saldo) throw mockError("Saldo insuficiente.", 422);
     user.saldo -= total;
-    state.carts[userId].filter((item) => !item.for_gift).forEach((item) => {
+    state.carts[userId].forEach((item) => {
       if (!state.libraries[userId].some((game) => game.id === item.id)) state.libraries[userId].push({ ...clone(item), acquired_at: now() });
     });
+    const payments = state.carts[userId].map((item) => ({ produto_id: item.id, valor: item.price, criado_em: now() }));
     state.carts[userId] = [];
     saveState(state);
-    return { pagamentos: [{ valor: total, criado_em: now() }], codigos_presente: [] };
+    return { pagamentos: payments };
   }
 
-  const reviewGameId = url.pathname.match(/^\/api\/produtos\/([^/]+)\/avaliacoes$/)?.[1];
-  if (reviewGameId && method === "POST") {
-    const game = gameById(state, decodeURIComponent(reviewGameId));
-    const rating = Number(body?.nota);
-    const recommended = body?.recomenda;
+  if (method === "GET" && url.pathname === "/api/produtos/meus") {
+    return state.games.filter((game) => String(game.owner_id) === String(user.id)).map(myGame);
+  }
 
-    if (!state.libraries[userId].some((item) => String(item.id) === String(game.id))) {
-      throw mockError("O usuário só pode avaliar jogos presentes em sua biblioteca.", 422);
-    }
-    if (!Number.isFinite(rating) || rating < 1 || rating > 5 || typeof recommended !== "boolean") {
-      throw mockError("Informe uma nota entre 1 e 5 e se recomenda o jogo.", 422);
-    }
-    if (game.reviews.some((review) => review.username === user.username)) {
-      throw mockError("Você já avaliou este jogo.", 409);
-    }
-
-    const review = {
+  if (method === "POST" && url.pathname === "/api/produtos") {
+    const game = {
       id: crypto.randomUUID(),
-      username: user.username,
-      recommended,
-      review_text: String(body?.textoAvaliacao || "").trim(),
-      created_at: now(),
-      votes: 0,
-      rating,
+      owner_id: user.id,
+      title: String(body?.titulo || "").trim(),
+      slug: productSlug(body?.titulo),
+      short_description: String(body?.descricao_curta || ""),
+      long_description: String(body?.descricao_longa || ""),
+      price: Number(body?.preco || 0),
+      release_date: body?.release_date || "",
+      status: body?.status || "draft",
+      tags: Array.isArray(body?.tags) ? body.tags : [],
+      categories: [],
+      media: [],
+      publisher: null,
+      system_requirements: [],
+      languages: [],
+      updates: [],
     };
-    game.reviews.unshift(review);
+    if (!game.title) throw mockError("Informe o título do jogo.", 422);
+    state.games.push(game);
     saveState(state);
-    return clone(review);
+    return myGame(game);
+  }
+
+  const ownProductMedia = url.pathname.match(/^\/api\/produtos\/([^/]+)\/fotos(?:\/([^/]+))?$/);
+  if (ownProductMedia) {
+    const [, productId, mediaId] = ownProductMedia;
+    const game = gameById(state, decodeURIComponent(productId));
+    if (String(game.owner_id) !== String(user.id)) throw mockError("Você não pode alterar este jogo.", 403);
+    if (method === "POST" && !mediaId) {
+      const type = body?.get("tipo");
+      const file = body?.get("arquivo");
+      if (!['cover', 'banner', 'poster', 'screenshot'].includes(type) || !(file instanceof File)) {
+        throw mockError("Informe uma mídia válida.", 422);
+      }
+      if (type !== "screenshot") game.media = game.media.filter((media) => media.type !== type);
+      const media = {
+        id: crypto.randomUUID(),
+        type,
+        url: `https://picsum.photos/seed/${game.slug}-${type}-${crypto.randomUUID()}/1200/675`,
+        position: game.media.filter((item) => item.type === type).length + 1,
+      };
+      game.media.push(media);
+      saveState(state);
+      return { ...media, tipo: media.type };
+    }
+    if (method === "DELETE" && mediaId) {
+      const before = game.media.length;
+      game.media = game.media.filter((media) => media.id !== decodeURIComponent(mediaId));
+      if (game.media.length === before) throw mockError("Mídia não encontrada.", 404);
+      saveState(state);
+      return null;
+    }
+  }
+
+  const ownProductId = url.pathname.match(/^\/api\/produtos\/([^/]+)$/)?.[1];
+  if (ownProductId) {
+    const game = gameById(state, decodeURIComponent(ownProductId));
+    if (String(game.owner_id) !== String(user.id)) throw mockError("Você não pode alterar este jogo.", 403);
+    if (method === "PUT") {
+      Object.assign(game, {
+        title: String(body?.titulo || "").trim(),
+        slug: productSlug(body?.titulo),
+        short_description: String(body?.descricao_curta || ""),
+        long_description: String(body?.descricao_longa || ""),
+        price: Number(body?.preco || 0),
+        release_date: body?.release_date || "",
+        status: body?.status || "draft",
+        tags: Array.isArray(body?.tags) ? body.tags : [],
+      });
+      if (!game.title) throw mockError("Informe o título do jogo.", 422);
+      saveState(state);
+      return myGame(game);
+    }
+    if (method === "DELETE") {
+      state.games = state.games.filter((item) => item.id !== game.id);
+      saveState(state);
+      return null;
+    }
   }
 
   requireAdmin(state);
   if (method === "GET" && url.pathname === "/api/admin/dashboard") return dashboardMock(state);
-  if (method === "GET" && url.pathname === "/api/admin/gift-cards") return clone(state.giftCards);
-  if (method === "POST" && url.pathname === "/api/admin/gift-cards") {
-    const card = { id: String(state.giftCards.length + 1), codigo: `NEKO-${crypto.randomUUID().slice(0, 8).toUpperCase()}`, valor: Number(body.valor), resgatado: false, resgatado_por: null, criado_em: now() };
-    state.giftCards.unshift(card);
-    saveState(state);
-    return clone(card);
-  }
   if (method === "GET" && url.pathname === "/api/admin/usuarios") return state.users.map(adminUser);
   if (method === "GET" && url.pathname === "/api/admin/jogos") return state.games.map(adminGame);
   if (method === "POST" && url.pathname === "/api/admin/usuarios") {
@@ -311,7 +410,7 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
     return null;
   }
   if (method === "POST" && url.pathname === "/api/admin/jogos") {
-    const game = { id: crypto.randomUUID(), owner_id: "usr_admin_system_001", title: body.titulo, slug: body.titulo.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), short_description: body.descricao_curta || "", long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [], categories: [], media: [], publisher: null, system_requirements: [], languages: [], updates: [], reviews: [] };
+    const game = { id: crypto.randomUUID(), owner_id: "usr_admin_system_001", title: body.titulo, slug: body.titulo.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), short_description: body.descricao_curta || "", long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [], categories: [], media: [], publisher: null, system_requirements: [], languages: [], updates: [] };
     state.games.push(game);
     saveState(state);
     return adminGame(game);

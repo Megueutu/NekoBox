@@ -5,40 +5,40 @@ import { Icon, icons } from "../ui/Icon";
 
 export function WalletDialog() {
   return `
-    <dialog id="wallet-dialog" class="wallet-dialog" aria-labelledby="wallet-title">
+    <dialog id="wallet-dialog" class="wallet-dialog" aria-labelledby="wallet-title" aria-describedby="wallet-description">
       <div class="wallet-dialog__header">
-        <div>
-          <p class="wallet-dialog__eyebrow">Carteira NEXUSPLAY</p>
-          <h2 id="wallet-title">Adicionar saldo</h2>
+        <div class="wallet-dialog__title">
+          <span class="wallet-dialog__title-icon" aria-hidden="true">${Icon(icons.wallet, { className: "w-5 h-5" })}</span>
+          <div>
+            <p class="wallet-dialog__eyebrow">Carteira NekoBox</p>
+            <h2 id="wallet-title">Adicionar saldo</h2>
+          </div>
         </div>
         <button type="button" class="wallet-dialog__close" data-wallet-close aria-label="Fechar carteira">
           ${Icon(icons.x)}
         </button>
       </div>
 
+      <p id="wallet-description" class="wallet-dialog__description">Escolha o valor da recarga para continuar suas compras sem sair do catálogo.</p>
+
       <section class="wallet-balance" aria-labelledby="wallet-balance-label">
-        <p id="wallet-balance-label">Saldo disponível</p>
-        <strong id="wallet-balance-value">—</strong>
+        <div>
+          <p id="wallet-balance-label">Saldo disponível</p>
+          <strong id="wallet-balance-value">—</strong>
+        </div>
+        <span class="wallet-balance__icon" aria-hidden="true">${Icon(icons.wallet, { className: "w-5 h-5" })}</span>
       </section>
 
-      <div class="wallet-payment">
-        <p>Pagamento online</p>
-        <div class="wallet-disabled-action">
-          <button type="button" data-wallet-payment aria-disabled="true" aria-describedby="payment-unavailable-hint">
-            Efetuar pagamento
-          </button>
-          <span id="payment-unavailable-hint" role="tooltip">Função ainda não disponível neste projeto.</span>
+      <form id="wallet-topup-form" class="wallet-topup-form">
+        <div class="wallet-topup-form__heading">
+          <label for="wallet-topup-value">Valor da recarga</label>
+          <p>O crédito é aplicado imediatamente à sua carteira.</p>
         </div>
-      </div>
-
-      <form id="gift-card-form" class="gift-card-form">
-        <label for="gift-card-code">Código do gift card</label>
-        <div class="gift-card-form__controls">
-          <input id="gift-card-code" class="ui-control" name="codigo" type="text" maxlength="64" autocomplete="off"
-                 autocapitalize="characters" spellcheck="false" placeholder="NEKO-XXXX-XXXX" required />
-          <button type="submit" class="button-primary">Resgatar</button>
+        <div class="wallet-topup-form__controls">
+          <div class="wallet-topup-form__input"><span>R$</span><input id="wallet-topup-value" class="ui-control" name="valor" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required /></div>
+          <button type="submit" class="button-primary">Adicionar saldo</button>
         </div>
-        <p class="gift-card-form__hint">O valor do cartão será creditado imediatamente na sua conta.</p>
+        <p class="wallet-topup-form__hint">Escolha qualquer valor positivo para a recarga.</p>
       </form>
 
       <p id="wallet-status" class="wallet-status" role="status" aria-live="polite"></p>
@@ -95,26 +95,21 @@ export function setupWalletDialog() {
       return;
     }
 
-    if (event.target.closest("[data-wallet-payment]")) {
-      setStatus("O pagamento online ainda não está disponível.");
-      return;
-    }
-
     if (event.target.matches("#wallet-dialog")) closeWallet();
   };
 
   const onSubmit = async (event) => {
-    if (event.target.id !== "gift-card-form") return;
+    if (event.target.id !== "wallet-topup-form") return;
     event.preventDefault();
     const form = event.target;
     const button = form.querySelector('button[type="submit"]');
-    const codeInput = form.elements.codigo;
+    const valueInput = form.elements.valor;
     button.disabled = true;
     form.setAttribute("aria-busy", "true");
-    setStatus("Validando gift card...");
+    setStatus("Adicionando saldo...");
 
     try {
-      const result = await AccountService.redeemGiftCard(codeInput.value);
+      const result = await AccountService.addBalance(valueInput.value);
       const balance = document.getElementById("wallet-balance-value");
       if (balance) balance.textContent = formatPrice(result.saldo);
       Store.setState((state) => ({
@@ -122,7 +117,7 @@ export function setupWalletDialog() {
         user: state.user ? { ...state.user, balance: result.saldo } : state.user,
       }));
       form.reset();
-      setStatus(`${formatPrice(result.valor_creditado)} adicionados à sua carteira.`);
+      setStatus(`${formatPrice(result.valor_adicionado)} adicionados à sua carteira.`);
     } catch (error) {
       setStatus(error.message, true);
     } finally {
