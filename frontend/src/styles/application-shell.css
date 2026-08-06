@@ -12,13 +12,22 @@
 
 .app-shell .site-nav {
   background: var(--color-bg);
-  border-bottom-color: var(--color-border);
   box-shadow: none;
 }
 
+.app-shell--public .site-nav--hub {
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  backdrop-filter: blur(12px);
+  transition: background-color 0.18s ease, backdrop-filter 0.18s ease;
+}
+
+.app-shell--public .site-nav--hub.site-nav--scrolled {
+  background: var(--color-bg);
+  backdrop-filter: none;
+}
+
 .app-shell .site-footer {
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--color-surface-2);
 }
 
 .app-shell .hero-panel {
@@ -35,9 +44,8 @@
 .app-shell .account-sidebar-panel,
 .app-shell .purchase-card,
 .app-shell .settings-control-list,
-.app-shell .accessibility-status,
-.app-shell .accessibility-features {
-  border: 1px solid var(--color-border);
+.app-shell .accessibility-status {
+  border: 0;
   background: var(--color-surface);
   box-shadow: none;
 }
@@ -60,22 +68,21 @@
 }
 
 .app-shell .game-section {
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-card);
-  background: var(--color-surface);
+  background: var(--color-surface-2);
   box-shadow: none;
 }
 
 .app-shell .game-section h2,
 .app-shell .page-heading h1,
-.app-shell .accessibility-heading h2,
 .app-shell .settings-section__heading h2 {
   text-shadow: none;
 }
 
 .app-shell .purchase-card {
   overflow: hidden;
-  border-color: var(--color-border);
+  background: var(--color-surface-2);
 }
 
 .app-shell .purchase-card::before {
@@ -97,18 +104,18 @@
 }
 
 .app-shell .button-secondary {
-  border: 1px solid var(--color-border);
+  border: 0;
   background: var(--color-surface-2);
 }
 
 .app-shell .surface-chip {
-  border: 1px solid var(--color-border);
+  border: 0;
   background: var(--color-surface-2);
   backdrop-filter: none;
 }
 
 .app-shell .surface-chip[data-active="true"] {
-  border-color: var(--color-brand-400);
+  background: color-mix(in srgb, var(--color-brand-600) 20%, var(--color-surface-2));
   box-shadow: none;
 }
 
@@ -117,7 +124,6 @@
   padding: clamp(1.25rem, 3vw, 2rem);
   overflow: hidden;
   border: 0;
-  border-bottom: 1px solid var(--color-border);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -129,6 +135,18 @@
 
 .app-shell--private .account-shell {
   position: relative;
+}
+
+.app-shell.app-shell--private .page-heading {
+  padding: 0 0 1.5rem;
+}
+
+.app-shell--private .page-heading .type-page-title {
+  font-size: clamp(1.9rem, 3.5vw, 2.75rem);
+}
+
+.app-shell--private .page-heading .type-subtitle {
+  max-width: 42rem;
 }
 
 .account-sidebar-panel {
@@ -144,13 +162,12 @@
   gap: 0.85rem;
   align-items: center;
   padding: 0.35rem 0.35rem 1.15rem;
-  border-bottom: 1px solid var(--color-border);
 }
 
 .account-sidebar__avatar {
   width: 3.25rem;
   aspect-ratio: 1;
-  border: 2px solid color-mix(in srgb, white 14%, var(--color-border));
+  border: 0;
   border-radius: 50%;
   background-color: var(--color-surface-3);
   background-position: center;
@@ -192,29 +209,31 @@
 
 .account-nav {
   display: grid;
-  gap: 0.3rem;
-  padding-top: 0.85rem;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 .account-nav__link {
   position: relative;
   display: flex;
+  min-height: 2.75rem;
   width: 100%;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: 0.65rem;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: var(--radius-control);
   color: var(--color-muted);
-  font-size: 0.78rem;
-  font-weight: 650;
+  font-size: 0.82rem;
+  font-weight: 700;
   text-align: left;
-  transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+  transition: color 0.18s ease, background-color 0.18s ease;
 }
 
-.account-nav__link:hover {
+.account-nav__link.button-secondary:hover {
   color: var(--color-ink);
-  background: color-mix(in srgb, white 5%, transparent);
+  background: var(--color-surface-3);
 }
 
 .account-nav__link:focus-visible {
@@ -222,25 +241,26 @@
   outline-offset: 2px;
 }
 
-.account-nav__link--active {
-  border-color: color-mix(in srgb, var(--color-brand-400) 24%, transparent);
-  color: var(--color-ink);
-  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-2));
-  box-shadow: inset 3px 0 0 var(--app-neon-soft);
+.account-nav__link--active.button-primary {
+  color: white;
+  background: var(--color-brand-600);
+  box-shadow: none;
 }
 
-.account-nav__link--active svg {
-  color: var(--app-neon-soft);
+.account-nav__link--active.button-primary:hover {
+  background: var(--color-brand-500);
+}
+
+.account-nav__link--active.button-primary svg {
+  color: currentColor;
 }
 
 .account-nav__logout {
-  margin-top: 0.55rem;
-  border-top-color: var(--color-border);
-  border-radius: 0;
+  margin-top: 0.25rem;
   color: #fb7185;
 }
 
-.account-nav__logout:hover {
+.account-nav__logout.button-secondary:hover {
   color: #fda4af;
   background: color-mix(in srgb, #fb7185 8%, transparent);
 }
@@ -256,11 +276,11 @@
 
 .profile-card__heading {
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-  padding: clamp(1.25rem, 3vw, 2rem);
-  border-bottom: 1px solid var(--color-border);
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--color-surface-2);
 }
 
 .profile-card__heading p {
@@ -273,8 +293,7 @@
 
 .profile-card__heading h2 {
   margin-top: 0.25rem;
-  font-size: clamp(1.25rem, 3vw, 1.65rem);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .profile-card__heading > span {
@@ -284,13 +303,17 @@
   text-align: right;
 }
 
+.profile-card__body {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+}
+
 .profile-avatar-editor {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: clamp(1.25rem, 3vw, 2rem);
   align-items: center;
-  padding: clamp(1.25rem, 3vw, 2rem);
-  background: color-mix(in srgb, var(--color-surface-2) 42%, transparent);
 }
 
 .profile-avatar-editor__preview {
@@ -300,7 +323,7 @@
 .profile-avatar {
   width: clamp(5.5rem, 10vw, 7rem);
   aspect-ratio: 1;
-  border: 3px solid color-mix(in srgb, white 14%, var(--color-border));
+  border: 0;
   border-radius: 50%;
   background-color: var(--color-surface-2);
   background-position: center;
@@ -316,7 +339,7 @@
   width: 2rem;
   aspect-ratio: 1;
   place-items: center;
-  border: 2px solid var(--color-surface);
+  border: 0;
   border-radius: 50%;
   color: var(--color-ink);
   background: var(--color-brand-600);
@@ -336,11 +359,10 @@
 }
 
 .profile-avatar-url-editor {
-  grid-column: 1 / -1;
   padding: 1rem;
-  border: 1px solid color-mix(in srgb, var(--app-neon-soft) 24%, var(--color-border));
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--color-bg) 52%, transparent);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-surface-2);
 }
 
 .profile-avatar-url-editor[hidden] {
@@ -350,14 +372,6 @@
 .profile-field {
   display: grid;
   gap: 0.5rem;
-}
-
-.profile-field--full {
-  margin: 0 clamp(1.25rem, 3vw, 2rem);
-}
-
-.profile-field--full + .profile-field--full {
-  margin-top: 1.25rem;
 }
 
 .profile-field label {
@@ -370,9 +384,10 @@
 .profile-field textarea {
   width: 100%;
   padding: 0.8rem 0.9rem;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 0.7rem;
   color: var(--color-ink);
+  background: var(--color-surface-2);
   font-size: 0.84rem;
   outline: none;
 }
@@ -393,15 +408,19 @@
   font-size: 0.68rem;
 }
 
+.profile-form__fields {
+  display: grid;
+  gap: 1.25rem;
+}
+
 .profile-card__actions {
   display: flex;
   min-height: 5rem;
   align-items: center;
   gap: 1rem;
-  margin-top: 1.5rem;
-  padding: 1rem clamp(1.25rem, 3vw, 2rem);
-  border-top: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-bg) 36%, transparent);
+  margin-top: 0;
+  padding: 1rem clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--color-surface-2);
 }
 
 .profile-card__actions .button-primary {
@@ -441,7 +460,7 @@
   aspect-ratio: 1;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 0.75rem;
   color: var(--color-muted);
   background: var(--color-surface-2);
@@ -493,50 +512,23 @@
 }
 
 .app-shell .catalog-toolbar input,
-.app-shell--private input,
+.app-shell--private input:not([type="checkbox"]):not([type="radio"]),
 .app-shell--private textarea {
-  border-color: var(--color-border);
-  background: var(--color-bg);
+  border: 0;
+  background: var(--color-surface-2);
   box-shadow: none;
 }
 
 .app-shell .catalog-toolbar input:focus,
-.app-shell--private input:focus,
+.app-shell--private input:not([type="checkbox"]):not([type="radio"]):focus,
 .app-shell--private textarea:focus {
-  border-color: var(--app-neon-soft);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-neon-primary) 44%, transparent);
-}
-
-.app-shell .accent-option,
-.app-shell .setting-choice > span {
-  background: var(--color-surface);
-  backdrop-filter: none;
-}
-
-.app-shell .accent-option:hover,
-.app-shell .setting-choice:hover > span {
-  border-color: color-mix(in srgb, var(--app-neon-soft) 42%, transparent);
+  background: var(--color-surface-3);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-neon-primary) 60%, transparent);
 }
 
 .app-shell .accessibility-hero {
   border: 0;
   box-shadow: var(--shadow-elevated);
-}
-
-.app-shell .accessibility-principles,
-.app-shell .accessibility-standards {
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-border);
-  box-shadow: var(--shadow-card);
-}
-
-.app-shell .accessibility-principles article,
-.app-shell .accessibility-standards article {
-  background: var(--color-surface);
-  backdrop-filter: none;
 }
 
 @media (max-width: 640px) {

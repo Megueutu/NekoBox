@@ -4,32 +4,48 @@ import { resolveRandomBannerUrls } from "../../utils/random-banner";
 
 const principles = [
   {
-    number: "01",
+    number: "1.1",
     title: "Perceptível",
     description:
       "Conteúdo, estados e controles precisam ser apresentados de formas que diferentes pessoas consigam perceber.",
-    examples: "Contraste, texto alternativo, hierarquia semântica e conteúdo que não depende apenas de cor.",
+    examples: [
+      "Contraste suficiente entre texto e fundo.",
+      "Texto alternativo para imagens informativas.",
+      "Informações que não dependem apenas de cor.",
+    ],
   },
   {
-    number: "02",
+    number: "1.2",
     title: "Operável",
     description:
       "Todas as funções essenciais devem estar disponíveis sem depender de mouse, toque preciso ou movimento.",
-    examples: "Teclado, foco visível, skip link, ordem previsível e suporte a movimento reduzido.",
+    examples: [
+      "Navegação completa por teclado.",
+      "Foco visível e ordem de navegação previsível.",
+      "Suporte a preferências de movimento reduzido.",
+    ],
   },
   {
-    number: "03",
+    number: "1.3",
     title: "Compreensível",
     description:
       "Navegação, formulários e mensagens precisam usar linguagem clara e comportamentos consistentes.",
-    examples: "Labels associados, instruções próximas do contexto, erros objetivos e navegação estável.",
+    examples: [
+      "Labels e instruções próximos do contexto.",
+      "Mensagens de erro objetivas.",
+      "Navegação e comportamentos consistentes.",
+    ],
   },
   {
-    number: "04",
+    number: "1.4",
     title: "Robusto",
     description:
       "A interface deve comunicar sua estrutura de forma confiável para navegadores e tecnologias assistivas.",
-    examples: "HTML semântico, nomes acessíveis, estados ARIA corretos e componentes testáveis.",
+    examples: [
+      "HTML semântico como base da interface.",
+      "Nomes acessíveis para controles e ações.",
+      "Estados ARIA corretos quando necessários.",
+    ],
   },
 ];
 
@@ -104,17 +120,6 @@ export default async function AccessibilityPage() {
         </div>
       </header>
 
-      <nav class="site-container accessibility-shortcuts" aria-label="Nesta página">
-        <p>Nesta página</p>
-        <div>
-          <a href="#premissa">Nossa premissa</a>
-          <a href="#principios">Princípios</a>
-          <a href="#normas">Normas</a>
-          <a href="#recursos">Recursos atuais</a>
-          <a href="#evolucao">Evolução</a>
-        </div>
-      </nav>
-
       <div class="site-container accessibility-content">
         <section id="premissa" class="accessibility-intro" aria-labelledby="premise-title">
           <figure class="accessibility-intro__media">
@@ -135,89 +140,56 @@ export default async function AccessibilityPage() {
           </div>
         </section>
 
-        <section id="principios" aria-labelledby="principles-title">
-          <div class="accessibility-heading">
-            <div>
-              <p class="section-heading__eyebrow mb-2">Como tomamos decisões</p>
-              <h2 id="principles-title">Os quatro princípios da WCAG</h2>
-            </div>
-            <p>Perceptível, operável, compreensível e robusto.</p>
-          </div>
-          <div class="accessibility-principles">
-            ${principles
-              .map(
-                ({ number, title, description, examples }) => `
-                  <article>
-                    <span aria-hidden="true">${number}</span>
-                    <div>
-                      <h3>${title}</h3>
+      </div>
+
+      <div class="site-container legal-layout accessibility-legal-layout">
+        <nav class="legal-index" aria-label="Nesta página">
+          <p>Nesta página</p>
+          <a href="#principios">Princípios da WCAG</a>
+          <a href="#normas">Normas e padrões</a>
+          <a href="#recursos">Recursos atuais</a>
+        </nav>
+
+        <article class="legal-content accessibility-legal-content">
+          <section id="principios" aria-labelledby="principles-title">
+            <h2 id="principles-title">1. Os quatro princípios da WCAG</h2>
+            <p>Perceptível, operável, compreensível e robusto são os critérios que orientam nossas decisões de interface.</p>
+            <ol class="accessibility-principles">
+              ${principles
+                .map(
+                  ({ number, title, description, examples }) => `
+                    <li>
+                      <h3><span aria-hidden="true">${number}</span> ${title}</h3>
                       <p>${description}</p>
-                      <small>${examples}</small>
-                    </div>
-                  </article>
-                `
-              )
-              .join("")}
-          </div>
-        </section>
+                      <ul>
+                        ${examples.map((example) => `<li>${example}</li>`).join("")}
+                      </ul>
+                    </li>
+                  `
+                )
+                .join("")}
+            </ol>
+          </section>
 
-        <section id="normas" aria-labelledby="standards-title">
-          <div class="accessibility-heading">
-            <div>
-              <p class="section-heading__eyebrow mb-2">Referências adotadas</p>
-              <h2 id="standards-title">Normas e padrões que orientam o trabalho</h2>
-            </div>
-            <p>Referências complementares, aplicadas de acordo com o contexto da interface.</p>
-          </div>
-          <div class="accessibility-standards">
-            ${standards
-              .map(
-                ({ name, scope, description }) => `
-                  <article>
-                    <div>
-                      <p>${scope}</p>
-                      <h3>${name}</h3>
-                    </div>
-                    <span>${description}</span>
-                  </article>
-                `
-              )
-              .join("")}
-          </div>
-        </section>
+          <section id="normas" aria-labelledby="standards-title">
+            <h2 id="standards-title">2. Normas e padrões que orientam o trabalho</h2>
+            <p>Aplicamos referências complementares de acordo com o contexto da interface.</p>
+            <ul>
+              ${standards
+                .map(({ name, scope, description }) => `<li><strong>${name}</strong> — ${scope}: ${description}</li>`)
+                .join("")}
+            </ul>
+          </section>
 
-        <section id="recursos" class="accessibility-features" aria-labelledby="features-title">
-          <div>
-            <p class="section-heading__eyebrow mb-2">Já disponível</p>
-            <h2 id="features-title">Recursos presentes na experiência atual</h2>
-            <p>
-              Estes recursos fazem parte do produto hoje e são validados por testes automatizados e percursos manuais
-              de teclado.
-            </p>
-          </div>
-          <ul>
-            ${implementedFeatures.map((feature) => `<li>${feature}</li>`).join("")}
-          </ul>
-        </section>
+          <section id="recursos" aria-labelledby="features-title">
+            <h2 id="features-title">3. Recursos presentes na experiência atual</h2>
+            <p>Estes recursos fazem parte do produto hoje e são validados por testes automatizados e percursos manuais de teclado.</p>
+            <ul>
+              ${implementedFeatures.map((feature) => `<li>${feature}</li>`).join("")}
+            </ul>
+          </section>
 
-        <section id="evolucao" class="accessibility-evolution" aria-labelledby="evolution-title">
-          <div>
-            <p class="section-heading__eyebrow mb-2">Compromisso contínuo</p>
-            <h2 id="evolution-title">Acessibilidade nunca fica “concluída”.</h2>
-          </div>
-          <div>
-            <p>
-              Novas páginas, conteúdos e interações podem introduzir barreiras. Por isso, tratamos conformidade como
-              um processo contínuo: revisar, testar com diferentes tecnologias assistivas, registrar limitações e
-              corrigir regressões.
-            </p>
-            <p>
-              O NekoBox ainda não passou por uma auditoria externa de conformidade. Nosso objetivo é evoluir a
-              cobertura com testes em leitores de tela, zoom ampliado, alto contraste e diferentes dispositivos de entrada.
-            </p>
-            <a href="/" data-link class="button-primary px-5 py-3">Voltar para a loja</a>
-          </div>
-        </section>
+        </article>
       </div>
     </div>
   `;

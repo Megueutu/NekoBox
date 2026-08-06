@@ -22,28 +22,30 @@ export default async function ProfilePage() {
         <div class="profile-card__heading">
           <div>
             <p>Identidade pública</p>
-            <h2>Informações pessoais</h2>
+            <h2 class="type-content-title">Informações pessoais</h2>
           </div>
           <span>Campos marcados podem aparecer no seu perfil.</span>
         </div>
 
-        <div class="profile-avatar-editor">
-          <div class="profile-avatar-editor__preview">
-            <div id="avatar-preview"
-                 class="profile-avatar"
-                 role="img" aria-label="Pré-visualização do avatar de ${user?.username || "usuário"}"
-                 style="background-image: url('${user?.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}');"></div>
-            <button id="btn-edit-avatar" type="button" class="profile-avatar__edit"
-                    aria-label="Alterar URL do avatar" aria-expanded="false" aria-controls="avatar-url-editor">
-              ${Icon(icons.pencil, { className: "w-4 h-4" })}
-            </button>
-          </div>
+        <div class="profile-card__body">
+          <div class="profile-avatar-editor">
+            <div class="profile-avatar-editor__preview">
+              <div id="avatar-preview"
+                   class="profile-avatar"
+                   role="img" aria-label="Pré-visualização do avatar de ${user?.username || "usuário"}"
+                   style="background-image: url('${user?.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}');"></div>
+              <button id="btn-edit-avatar" type="button" class="profile-avatar__edit"
+                      aria-label="Alterar URL do avatar" aria-expanded="false" aria-controls="avatar-url-editor">
+                ${Icon(icons.pencil, { className: "w-4 h-4" })}
+              </button>
+            </div>
 
-          <div class="profile-field">
-            <label for="input-username">Nome de usuário</label>
-            <input id="input-username" class="ui-control" name="username" type="text"
-                   value="${user?.username || ""}"
-                   placeholder="seu_usuario"/>
+            <div class="profile-field">
+              <label for="input-username">Nome de usuário</label>
+              <input id="input-username" class="ui-control" name="username" type="text"
+                     value="${user?.username || ""}"
+                     placeholder="seu_usuario"/>
+            </div>
           </div>
 
           <div id="avatar-url-editor" class="profile-avatar-url-editor" hidden>
@@ -56,19 +58,21 @@ export default async function ProfilePage() {
               <small id="avatar-url-hint">Cole a URL de uma imagem para visualizar antes de salvar.</small>
             </div>
           </div>
-        </div>
 
-        <div class="profile-field profile-field--full">
-          <label for="input-profile-email">E-mail</label>
-          <input id="input-profile-email" class="ui-control" name="email" type="email" value="${user?.email || ""}" disabled
-                 aria-describedby="profile-email-hint"/>
-          <small id="profile-email-hint">O e-mail da conta não pode ser alterado.</small>
-        </div>
+          <div class="profile-form__fields">
+            <div class="profile-field">
+              <label for="input-profile-email">E-mail</label>
+              <input id="input-profile-email" class="ui-control" name="email" type="email" value="${user?.email || ""}" disabled
+                     aria-describedby="profile-email-hint"/>
+              <small id="profile-email-hint">O e-mail da conta não pode ser alterado.</small>
+            </div>
 
-        <div class="profile-field profile-field--full">
-          <label for="input-bio">Bio</label>
-          <textarea id="input-bio" class="ui-control ui-control--area" name="bio" rows="4"
-                    placeholder="Conte um pouco sobre seus jogos, gêneros e experiências favoritas.">${user?.bio || ""}</textarea>
+            <div class="profile-field">
+              <label for="input-bio">Bio</label>
+              <textarea id="input-bio" class="ui-control ui-control--area" name="bio" rows="4"
+                        placeholder="Conte um pouco sobre seus jogos, gêneros e experiências favoritas.">${user?.bio || ""}</textarea>
+            </div>
+          </div>
         </div>
 
         <div class="profile-card__actions">

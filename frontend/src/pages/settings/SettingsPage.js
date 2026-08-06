@@ -9,14 +9,6 @@ import { AuthService } from "../../services/auth/auth.service";
 import { Icon, icons } from "../../components/ui/Icon";
 import { PageHeader } from "../../components/ui/PageHeader";
 
-const accentOptions = [
-  { value: "violet", label: "Violeta Nexus", color: "#a78bfa" },
-  { value: "cyan", label: "Ciano elétrico", color: "#22d3ee" },
-  { value: "lime", label: "Lima neon", color: "#a3e635" },
-  { value: "coral", label: "Coral intenso", color: "#fb7185" },
-  { value: "pink", label: "Rosa pulse", color: "#f472b6" },
-];
-
 const baseOptions = [
   { value: "obsidian", label: "Obsidiana", description: "Preto profundo e cinematográfico" },
   { value: "midnight", label: "Meia-noite", description: "Base escura com nuance azul" },
@@ -48,24 +40,11 @@ export default function SettingsPage() {
         <div class="settings-main">
           <section class="settings-section panel" aria-labelledby="appearance-title">
             <div class="settings-section__heading">
-              <h2 id="appearance-title">Aparência</h2>
-              <span>Defina a cor de destaque e o tom da interface.</span>
+             <h2 id="appearance-title">Aparência</h2>
+              <span>Escolha o tom da interface que fica mais confortável para você.</span>
             </div>
 
             <div class="settings-section__content">
-              <fieldset class="settings-fieldset">
-                <legend>Cor de destaque</legend>
-                <div class="accent-picker">
-                  ${accentOptions.map(({ value, label, color }) => `
-                    <label class="accent-option" style="--swatch-color: ${color}">
-                      <input type="radio" name="accent" value="${value}" ${preferences.accent === value ? "checked" : ""} />
-                      <span class="accent-option__swatch"></span>
-                      <strong>${label}</strong>
-                    </label>
-                  `).join("")}
-                </div>
-              </fieldset>
-
               <fieldset class="settings-fieldset">
                 <legend>Tom da interface</legend>
                 <div class="setting-choice-grid">
@@ -121,7 +100,6 @@ export default function SettingsPage() {
 function readFormPreferences(form) {
   const data = new FormData(form);
   return {
-    accent: data.get("accent"),
     base: data.get("base"),
     textSize: data.get("textSize"),
     density: data.get("density"),

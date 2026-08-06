@@ -12,7 +12,6 @@ const PREFERENCES_KEY = "nekobox_preferences";
 beforeEach(() => {
   localStorage.clear();
   document.documentElement.removeAttribute("data-base");
-  document.documentElement.removeAttribute("data-accent");
   document.documentElement.removeAttribute("data-text-size");
   document.documentElement.removeAttribute("data-density");
   document.documentElement.removeAttribute("data-motion");
@@ -23,7 +22,6 @@ describe("Visual preferences", () => {
   it("should apply and persist a valid customization", () => {
     const preferences = {
       base: "midnight",
-      accent: "cyan",
       textSize: "large",
       density: "compact",
       motion: "reduced",
@@ -34,14 +32,15 @@ describe("Visual preferences", () => {
     expect(getPreferences()).toEqual(preferences);
   });
 
-  it("should reflect preferences on the document root", () => {
-    applyPreferences({ ...defaultPreferences, accent: "lime" });
+  it("should remove the legacy accent customization from the document root", () => {
+    document.documentElement.dataset.accent = "lime";
+    applyPreferences(defaultPreferences);
 
-    expect(document.documentElement.dataset.accent).toBe("lime");
+    expect(document.documentElement.dataset.accent).toBeUndefined();
   });
 
   it("should replace invalid stored values with safe defaults", () => {
-    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ accent: "invisible", base: null }));
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ base: null }));
 
     const preferences = getPreferences();
 
@@ -57,7 +56,7 @@ describe("Visual preferences", () => {
   });
 
   it("should migrate legacy NexusPlay preferences", () => {
-    const legacyPreferences = { ...defaultPreferences, accent: "cyan" };
+    const legacyPreferences = { ...defaultPreferences, base: "midnight" };
     localStorage.setItem("nexusplay_preferences", JSON.stringify(legacyPreferences));
 
     expect(getPreferences()).toEqual(legacyPreferences);
@@ -66,7 +65,7 @@ describe("Visual preferences", () => {
   });
 
   it("should restore the NekoBox default appearance", () => {
-    savePreferences({ ...defaultPreferences, base: "graphite", accent: "pink" });
+    savePreferences({ ...defaultPreferences, base: "graphite" });
 
     const preferences = resetPreferences();
 

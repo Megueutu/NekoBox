@@ -40,11 +40,13 @@ describe("Settings account page", () => {
     document.body.innerHTML = SettingsPage();
     afterRender();
 
-    const cyan = document.querySelector('input[name="accent"][value="cyan"]');
-    cyan.checked = true;
-    cyan.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(document.querySelector('input[name="accent"]')).toBeNull();
 
-    expect(getPreferences().accent).toBe("cyan");
+    const midnight = document.querySelector('input[name="base"][value="midnight"]');
+    midnight.checked = true;
+    midnight.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(getPreferences().base).toBe("midnight");
 
     document.getElementById("reset-settings").click();
 

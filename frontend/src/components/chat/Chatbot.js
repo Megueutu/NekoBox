@@ -3,6 +3,7 @@ import { Icon, icons } from "../ui/Icon";
 import { ChatbotService } from "../../services/chatbot/chatbot.service";
 
 const SESSION_KEY = "nekobox_chatbot_session";
+const PANEL_TRANSITION_MS = 180;
 
 function getSessionId() {
   const storedSessionId = localStorage.getItem(SESSION_KEY);
@@ -20,18 +21,27 @@ export function renderChatbot() {
         ${Icon(icons.messageCircle, { className: "w-5 h-5" })}
         <span class="sr-only">Abrir assistente GameBot</span>
       </button>
-      <section id="chatbot-panel" class="chatbot__panel" aria-label="Conversa com o GameBot" aria-hidden="true" hidden>
+      <button class="chatbot__backdrop" type="button" data-chatbot-close aria-label="Fechar conversa" hidden></button>
+      <section id="chatbot-panel" class="chatbot__panel" aria-label="Conversa com o GameBot" aria-hidden="true" hidden tabindex="-1">
         <header class="chatbot__header">
-          <div><p class="chatbot__eyebrow">Assistente NekoBox</p><h2>GameBot</h2></div>
+          <div class="chatbot__identity">
+            <span class="chatbot__avatar" aria-hidden="true">${Icon(icons.gamepad, { className: "w-5 h-5" })}</span>
+            <div><p class="chatbot__eyebrow">Assistente NekoBox</p><h2>GameBot <span>online</span></h2></div>
+          </div>
           <button class="chatbot__close" type="button" data-chatbot-close aria-label="Fechar assistente">${Icon(icons.x, { className: "w-4 h-4" })}</button>
         </header>
         <div class="chatbot__messages" data-chatbot-messages role="log" aria-live="polite" aria-relevant="additions">
-          <p class="chatbot__message chatbot__message--bot">Oi! Posso ajudar a encontrar jogos, tirar dúvidas sobre o catálogo ou recomendar sua próxima aventura.</p>
+          <div class="chatbot__welcome">
+            <p>Olá, eu sou o GameBot.</p>
+            <span>Posso sugerir seu próximo jogo, explorar o catálogo e tirar dúvidas sobre a NekoBox.</span>
+          </div>
+          <p class="chatbot__message chatbot__message--bot">O que você quer jogar hoje?</p>
         </div>
         <form class="chatbot__form" data-chatbot-form>
           <label class="sr-only" for="chatbot-input">Mensagem para o GameBot</label>
-          <textarea id="chatbot-input" name="message" rows="2" maxlength="2000" placeholder="Pergunte sobre jogos..." required></textarea>
-          <button class="button-primary chatbot__send" type="submit">Enviar</button>
+          <textarea id="chatbot-input" name="message" rows="1" maxlength="2000" placeholder="Pergunte sobre jogos..." required></textarea>
+          <button class="chatbot__send" type="submit"><span class="sr-only">Enviar mensagem</span>${Icon(icons.arrowLeft, { className: "w-4 h-4" })}</button>
+          <small>O GameBot pode cometer erros. Confira informações importantes.</small>
         </form>
       </section>
     </aside>`;
@@ -47,22 +57,42 @@ function appendMessage(messages, content, type) {
 
 export function setupChatbot() {
   let triggerBeforeOpen = null;
-  const getElements = () => ({ panel: document.getElementById("chatbot-panel"), trigger: document.querySelector("[data-chatbot-toggle]"), input: document.getElementById("chatbot-input") });
+  let closeTimer = null;
+  const getElements = () => ({ panel: document.getElementById("chatbot-panel"), trigger: document.querySelector("[data-chatbot-toggle]"), backdrop: document.querySelector(".chatbot__backdrop"), input: document.getElementById("chatbot-input") });
   const close = ({ restoreFocus = true } = {}) => {
-    const { panel, trigger } = getElements();
-    if (!panel || !trigger || panel.hidden) return;
-    panel.hidden = true;
+    const { panel, trigger, backdrop } = getElements();
+    if (!panel || !trigger || panel.hidden || panel.dataset.state === "closing") return;
+    panel.dataset.state = "closing";
+    backdrop.dataset.state = "closing";
     panel.setAttribute("aria-hidden", "true");
     trigger.setAttribute("aria-expanded", "false");
+    closeTimer = window.setTimeout(() => {
+      panel.hidden = true;
+      backdrop.hidden = true;
+      delete panel.dataset.state;
+      delete backdrop.dataset.state;
+      closeTimer = null;
+    }, PANEL_TRANSITION_MS);
     if (restoreFocus) (triggerBeforeOpen || trigger).focus();
   };
   const open = () => {
-    const { panel, trigger, input } = getElements();
+    const { panel, trigger, backdrop, input } = getElements();
     if (!panel || !trigger) return;
+    if (closeTimer) {
+      window.clearTimeout(closeTimer);
+      closeTimer = null;
+    }
     triggerBeforeOpen = document.activeElement;
     panel.hidden = false;
+    backdrop.hidden = false;
+    panel.dataset.state = "opening";
+    backdrop.dataset.state = "opening";
     panel.setAttribute("aria-hidden", "false");
     trigger.setAttribute("aria-expanded", "true");
+    window.requestAnimationFrame(() => {
+      panel.dataset.state = "open";
+      backdrop.dataset.state = "open";
+    });
     input?.focus();
   };
   const onClick = (event) => {
@@ -101,5 +131,10 @@ export function setupChatbot() {
   document.addEventListener("click", onClick);
   document.addEventListener("keydown", onKeydown);
   document.addEventListener("submit", onSubmit);
-  return () => { document.removeEventListener("click", onClick); document.removeEventListener("keydown", onKeydown); document.removeEventListener("submit", onSubmit); };
+  return () => {
+    if (closeTimer) window.clearTimeout(closeTimer);
+    document.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKeydown);
+    document.removeEventListener("submit", onSubmit);
+  };
 }

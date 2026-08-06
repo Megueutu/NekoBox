@@ -66,6 +66,7 @@ describe("Navbar authentication visibility", () => {
     expect(document.querySelector(`.nav-icon-link[href="${ACCOUNT_PATHS.settings}"]`)).toBeNull();
     expect(document.querySelectorAll(`a[href="${ACCOUNT_PATHS.settings}"]`)).toHaveLength(1);
     expect(document.querySelector('[data-wallet-trigger]')).not.toBeNull();
+    expect(document.querySelector('.nav-icon-link[data-wallet-trigger]').textContent.trim()).toBe("");
     expect(document.querySelector('a[href="/admin"]')).toBeNull();
     expect(document.querySelector('a[href="/login"]')).toBeNull();
   });

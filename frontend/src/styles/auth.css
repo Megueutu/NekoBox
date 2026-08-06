@@ -30,14 +30,14 @@
 .auth-brand strong { color: var(--color-brand-400); }
 
 .auth-brand__mark {
-  display: grid;
+  display: block;
   width: 2.4rem;
   height: 2.4rem;
-  place-items: center;
-  border: 0;
+  padding: 0.38rem;
   border-radius: 0.75rem;
   background: var(--color-brand-600);
   box-shadow: none;
+  object-fit: contain;
 }
 
 .auth-card {
@@ -45,7 +45,7 @@
   width: 100%;
   padding: clamp(1.5rem, 5vw, 2.25rem);
   overflow: clip;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-card);
   background: var(--color-surface);
   box-shadow: none;
@@ -59,11 +59,12 @@
   position: relative;
   z-index: 1;
   display: grid;
+  flex: 0 0 2.75rem;
   width: 2.75rem;
-  height: 2.75rem;
+  aspect-ratio: 1;
   margin-bottom: 1.25rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--color-brand-400) 36%, var(--color-border));
+  border: 0;
   border-radius: 0.85rem;
   color: var(--color-brand-400);
   background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-2));
@@ -82,7 +83,7 @@
   gap: 0.3rem;
   margin-bottom: 1.5rem;
   padding: 0.3rem;
-  border: 1px solid color-mix(in srgb, white 7%, transparent);
+  border: 0;
   border-radius: 0.8rem;
   background: color-mix(in srgb, var(--color-bg) 58%, transparent);
 }
@@ -127,15 +128,14 @@
   align-items: center;
   min-height: 3.2rem;
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 0.8rem;
   background: color-mix(in srgb, var(--color-bg) 72%, transparent);
   box-shadow: none;
-  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .auth-field__control:hover {
-  border-color: color-mix(in srgb, var(--app-neon-soft) 42%, var(--color-border));
   background: color-mix(in srgb, var(--color-surface-2) 74%, transparent);
 }
 
@@ -144,10 +144,8 @@
 }
 
 .auth-field__control:focus-within {
-  border-color: var(--app-neon-soft);
-  background: color-mix(in srgb, var(--color-surface-2) 82%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-neon-primary) 46%, transparent);
-  transform: none;
+  background: var(--color-surface-3);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-neon-primary) 60%, transparent);
 }
 
 .auth-field__icon {
@@ -217,8 +215,8 @@
 }
 
 .auth-field:has(.auth-field__input:user-invalid) .auth-field__control {
-  border-color: color-mix(in srgb, #fb7185 72%, var(--color-border));
-  box-shadow: 0 0 0 1px color-mix(in srgb, #fb7185 42%, transparent);
+  background: color-mix(in srgb, #fb7185 10%, var(--color-surface-2));
+  box-shadow: 0 0 0 2px color-mix(in srgb, #fb7185 52%, transparent);
 }
 
 .auth-field__input:-webkit-autofill,
@@ -270,7 +268,7 @@
   margin: auto;
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 1.25rem;
   color: var(--color-ink);
   background: var(--color-surface);
@@ -344,8 +342,7 @@
 .auth-dialog > .auth-legal {
   margin: 0 auto;
   padding: 0.9rem 1.5rem 1rem;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--color-surface-2);
 }
 
 .error-page {
@@ -368,7 +365,7 @@
   width: min(calc(100vw - 2rem), 34rem);
   max-width: 100%;
   padding: clamp(2rem, 7vw, 3.25rem);
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-card);
   background: var(--color-surface);
   box-shadow: none;
@@ -381,7 +378,7 @@
   height: 4.5rem;
   margin: 0 auto 1.5rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--color-brand-400) 36%, var(--color-border));
+  border: 0;
   border-radius: 1.35rem;
   color: var(--color-brand-400);
   background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-2));
@@ -459,7 +456,7 @@ sub {
 ::-webkit-scrollbar-thumb {
   background: var(--color-surface-3);
   border-radius: 999px;
-  border: 2px solid var(--color-bg);
+  border: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brand-600);

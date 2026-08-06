@@ -6,46 +6,49 @@ export function Footer() {
       <div class="site-container site-footer__grid">
 
         <div class="site-footer__brand">
-          <p class="font-display font-bold text-lg mb-2 text-gradient-brand">NEKOBOX</p>
-          <p class="text-muted text-sm leading-relaxed">
+          <a href="/" data-link class="site-footer__logo" aria-label="NekoBox — Início">
+            <img src="/nekobox-mark.svg" alt="" aria-hidden="true" />
+            <span>NEKOBOX</span>
+          </a>
+          <p class="type-small text-muted">
             Marketplace de jogos digitais.<br>
             Compre, jogue e gerencie sua biblioteca.
           </p>
         </div>
 
         <div>
-          <p class="text-ink font-semibold text-sm mb-3">Navegação</p>
+          <p class="type-small text-ink font-semibold mb-3">Navegação</p>
           <ul class="space-y-2">
-            <li><a href="/hub" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Catálogo</a></li>
-            <li><a href="${ACCOUNT_PATHS.cart}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Carrinho</a></li>
-            <li><a href="${ACCOUNT_PATHS.wishlist}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Lista de Desejos</a></li>
-            <li><a href="${ACCOUNT_PATHS.library}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Biblioteca</a></li>
+            <li><a href="/hub" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Catálogo</a></li>
+            <li><a href="${ACCOUNT_PATHS.cart}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Carrinho</a></li>
+            <li><a href="${ACCOUNT_PATHS.wishlist}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Lista de Desejos</a></li>
+            <li><a href="${ACCOUNT_PATHS.library}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Biblioteca</a></li>
           </ul>
         </div>
 
         <div>
-          <p class="text-[var(--color-ink)] font-semibold text-sm mb-3">Conta</p>
+          <p class="type-small text-[var(--color-ink)] font-semibold mb-3">Conta</p>
           <ul class="space-y-2">
-            <li><a href="${ACCOUNT_PATHS.profile}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Meu Perfil</a></li>
-            <li><a href="${ACCOUNT_PATHS.library}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Minha Biblioteca</a></li>
-            <li><a href="/login" data-login-trigger aria-haspopup="dialog" aria-controls="auth-dialog" class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Entrar / Cadastrar</a></li>
-            <li><a href="${ACCOUNT_PATHS.settings}" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Configurações</a></li>
+            <li><a href="${ACCOUNT_PATHS.profile}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Meu Perfil</a></li>
+            <li><a href="${ACCOUNT_PATHS.library}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Minha Biblioteca</a></li>
+            <li><a href="/login" data-login-trigger aria-haspopup="dialog" aria-controls="auth-dialog" class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Entrar / Cadastrar</a></li>
+            <li><a href="${ACCOUNT_PATHS.settings}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Configurações</a></li>
           </ul>
         </div>
 
         <div>
-          <p class="text-[var(--color-ink)] font-semibold text-sm mb-4">Suporte</p>
+          <p class="type-small text-[var(--color-ink)] font-semibold mb-4">Suporte</p>
           <ul class="space-y-2.5">
-            <li><a href="/acessibilidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Acessibilidade</a></li>
-            <li><a href="/termos-de-uso" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Termos de Uso</a></li>
-            <li><a href="/privacidade" data-link class="text-muted hover:text-[var(--color-accent-400)] text-sm transition-colors">Privacidade</a></li>
+            <li><a href="/acessibilidade" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Acessibilidade</a></li>
+            <li><a href="/termos-de-uso" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Termos de Uso</a></li>
+            <li><a href="/privacidade" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Privacidade</a></li>
           </ul>
         </div>
 
       </div>
 
       <div class="border-t border-[var(--color-border)] px-4 py-4">
-        <p class="text-[var(--color-muted-2)] text-xs text-center">
+        <p class="type-caption text-[var(--color-muted-2)] text-center">
           © ${new Date().getFullYear()} NEKOBOX — Marketplace de Jogos Digitais. Todos os direitos reservados.
         </p>
       </div>

@@ -69,7 +69,7 @@ describe("Profile account page", () => {
     );
   });
 
-  it("should reveal the avatar URL from the pencil button and keep email full width", async () => {
+  it("should reveal the avatar URL from the pencil button and keep fields in the shared form body", async () => {
     document.body.innerHTML = await ProfilePage();
     afterRender();
 
@@ -78,7 +78,8 @@ describe("Profile account page", () => {
 
     expect(avatarEditor.hidden).toBe(true);
     expect(document.getElementById("input-username")?.closest(".profile-avatar-editor")).not.toBeNull();
-    expect(document.getElementById("input-profile-email")?.parentElement.classList.contains("profile-field--full")).toBe(true);
+    expect(document.getElementById("input-profile-email")?.closest(".profile-card__body")).not.toBeNull();
+    expect(document.getElementById("input-bio")?.closest(".profile-form__fields")).not.toBeNull();
 
     editButton.click();
 

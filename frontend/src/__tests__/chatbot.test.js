@@ -15,6 +15,7 @@ describe("GameBot chat interface", () => {
     document.body.innerHTML = renderChatbot();
     expect(document.querySelector("[data-chatbot-toggle]")?.getAttribute("aria-expanded")).toBe("false");
     expect(document.getElementById("chatbot-panel")?.hidden).toBe(true);
+    expect(document.querySelector(".chatbot__backdrop")?.hidden).toBe(true);
   });
 
   it("should open, send a message and close with Escape", async () => {
@@ -23,13 +24,14 @@ describe("GameBot chat interface", () => {
     const cleanup = setupChatbot();
     document.querySelector("[data-chatbot-toggle]").click();
     expect(document.getElementById("chatbot-panel")?.hidden).toBe(false);
+    expect(document.querySelector(".chatbot__backdrop")?.hidden).toBe(false);
     const input = document.getElementById("chatbot-input");
     input.value = "Me recomende um roguelike";
     document.querySelector("[data-chatbot-form]").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await vi.waitFor(() => expect(ChatbotService.sendMessage).toHaveBeenCalledOnce());
     expect(document.querySelector("[data-chatbot-messages]").textContent).toContain("Hades é uma ótima escolha.");
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    expect(document.getElementById("chatbot-panel")?.hidden).toBe(true);
+    await vi.waitFor(() => expect(document.getElementById("chatbot-panel")?.hidden).toBe(true));
     cleanup();
   });
 });

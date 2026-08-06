@@ -3,7 +3,6 @@ const LEGACY_PREFERENCES_KEY = "nexusplay_preferences";
 
 export const defaultPreferences = Object.freeze({
   base: "obsidian",
-  accent: "violet",
   textSize: "default",
   density: "comfortable",
   motion: "system",
@@ -11,7 +10,6 @@ export const defaultPreferences = Object.freeze({
 
 const allowedValues = Object.freeze({
   base: ["obsidian", "midnight", "graphite"],
-  accent: ["violet", "cyan", "lime", "coral", "pink"],
   textSize: ["default", "large"],
   density: ["comfortable", "compact"],
   motion: ["system", "reduced"],
@@ -50,6 +48,7 @@ export function applyPreferences(preferences = getPreferences()) {
   Object.entries(safePreferences).forEach(([key, value]) => {
     root.dataset[key] = value;
   });
+  root.removeAttribute("data-accent");
 
   return safePreferences;
 }

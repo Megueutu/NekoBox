@@ -1,5 +1,5 @@
 import { getCoverUrl, getPosterUrl } from "../../utils/media";
-import { formatPrice, getRecommendationRate, isFreeGame } from "../../utils/format";
+import { formatPrice, isFreeGame } from "../../utils/format";
 import { Icon, icons } from "./Icon";
 
 /**
@@ -9,7 +9,6 @@ import { Icon, icons } from "./Icon";
  */
 export function GameCard(game, { variant = "catalog" } = {}) {
   if (variant === "catalog") {
-    const recRate = getRecommendationRate(game.reviews);
     return `
       <a href="/game/${game.slug}" data-link
          class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover-glow group">
@@ -21,18 +20,11 @@ export function GameCard(game, { variant = "catalog" } = {}) {
               ? `<span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-black/80 text-white">${game.categories[0]}</span>`
               : ""
           }
-          ${
-            recRate !== null
-              ? `<span class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-black/80 ${recRate >= 70 ? "text-[var(--color-accent-400)]" : "text-[var(--color-muted)]"}">
-                  ${Icon(icons.star, { className: "w-3 h-3", fill: "currentColor" })} ${recRate}%
-                 </span>`
-              : ""
-          }
         </div>
         <div class="game-card__body">
-          <p class="font-bold text-sm sm:text-base leading-snug line-clamp-2">${game.title}</p>
-          <p class="text-xs text-muted truncate mt-1">${game.publisher?.name || game.categories?.[0] || "Jogo digital"}</p>
-          <span class="font-display font-bold text-base text-[var(--color-accent-400)] mt-auto pt-2">${formatPrice(game.price)}</span>
+          <p class="type-card-title line-clamp-2">${game.title}</p>
+          <p class="type-caption text-muted truncate mt-1">${game.publisher?.name || game.categories?.[0] || "Jogo digital"}</p>
+          <span class="type-card-title text-[var(--color-accent-400)] mt-auto pt-2">${formatPrice(game.price)}</span>
         </div>
       </a>
     `;
@@ -55,8 +47,8 @@ export function GameCard(game, { variant = "catalog" } = {}) {
                class="game-card__media w-full object-cover bg-[var(--color-surface-2)]" />
         </a>
         <div class="p-3 space-y-2">
-          <p class="font-semibold text-sm truncate">${game.title}</p>
-          <p class="text-xs text-[var(--color-brand-400)]">${game.categories?.[0] || ""}</p>
+          <p class="type-card-title truncate">${game.title}</p>
+          <p class="type-caption text-[var(--color-brand-400)]">${game.categories?.[0] || ""}</p>
           <button data-play="${game.slug}"
                   class="button-accent w-full py-2 text-xs gap-1.5">
             ${Icon(icons.play, { className: "w-3.5 h-3.5", fill: "currentColor" })} Jogar Agora
@@ -75,8 +67,8 @@ export function GameCard(game, { variant = "catalog" } = {}) {
              class="game-card__media w-full object-cover bg-[var(--color-surface-2)]" />
       </a>
       <div class="p-4 space-y-2.5">
-        <p class="font-semibold text-sm truncate">${game.title}</p>
-        <p class="font-bold text-sm text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
+        <p class="type-card-title truncate">${game.title}</p>
+        <p class="type-small font-bold text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
         <div class="flex gap-2">
           <button ${freeGame ? `data-acquire-free-license="${game.id}"` : `data-add-cart="${game.id}"`}
                   class="button-primary flex-1 py-1.5 text-xs gap-1.5">

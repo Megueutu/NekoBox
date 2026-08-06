@@ -43,15 +43,11 @@
 .storefront-kicker {
   margin-bottom: 1rem;
   color: var(--color-accent-400);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .storefront-hero h1 {
   max-width: 10ch;
-  font-size: clamp(3rem, 7vw, 6.75rem);
+  font-size: var(--font-size-hero-title);
   font-weight: 700;
   line-height: 0.88;
   text-wrap: balance;
@@ -61,7 +57,7 @@
   max-width: 35rem;
   margin-top: 1.5rem;
   color: #ddd8e5;
-  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  font-size: var(--font-size-subtitle);
 }
 
 .storefront-hero__meta,
@@ -147,7 +143,6 @@
   gap: 0.35rem;
   overflow-x: auto;
   padding-block: 1.25rem;
-  border-bottom: 1px solid color-mix(in srgb, white 7%, transparent);
   scrollbar-width: none;
 }
 
@@ -331,7 +326,6 @@
   min-width: 0;
   min-height: 100%;
   overflow: hidden;
-  border-left: 1px solid var(--color-border);
   background: var(--color-surface-2);
 }
 
@@ -363,7 +357,7 @@
   gap: 0.35rem;
   max-width: 24rem;
   padding: 1rem 1.15rem;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--color-bg) 88%, transparent);
 }
@@ -400,14 +394,10 @@
 }
 
 .glass-panel {
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-card);
   background: var(--color-surface);
   box-shadow: none;
-}
-
-.glass-panel--glow {
-  border-color: var(--color-border);
 }
 
 .glass-panel--glow::before {
@@ -448,7 +438,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.45rem 0.85rem;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 999px;
   background: var(--color-surface-2);
   color: var(--color-ink);
@@ -457,7 +447,6 @@
 }
 
 .glass-chip--price {
-  border-color: var(--color-brand-400);
   color: var(--color-brand-100);
 }
 
@@ -486,16 +475,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-control);
   background: var(--color-surface-2);
   color: var(--color-ink);
   font-weight: 700;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition: background-color 0.18s ease;
 }
 
 .button-glass:hover {
-  border-color: var(--color-muted-2);
   background: var(--color-surface-3);
 }
 
@@ -565,8 +553,6 @@
   .landing-membership__art {
     order: -1;
     min-height: clamp(18rem, 52vw, 25rem);
-    border-bottom: 1px solid var(--color-border);
-    border-left: 0;
   }
 }
 

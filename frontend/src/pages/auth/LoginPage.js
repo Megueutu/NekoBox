@@ -121,7 +121,7 @@ export function renderAuthPage(view = activeTab) {
       </div>
       <main class="auth-stage">
         <a href="/" data-link class="auth-brand" aria-label="NekoBox — Início">
-          <span class="auth-brand__mark">${Icon(icons.gamepad, { className: "w-5 h-5" })}</span>
+          <img src="/nekobox-mark.svg" class="auth-brand__mark" alt="" aria-hidden="true" />
           <span>NEKO<strong>BOX</strong></span>
         </a>
         ${renderAuthCard(view)}

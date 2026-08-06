@@ -4,7 +4,7 @@ import { navigate } from "../../app/router/navigate";
 import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { getBannerUrl } from "../../utils/media";
-import { formatPrice, getRecommendationRate } from "../../utils/format";
+import { formatPrice } from "../../utils/format";
 import { Icon, icons } from "../../components/ui/Icon";
 
 const ALL_CATEGORIES = [
@@ -62,9 +62,9 @@ function coverRail(eyebrow, title, description, games) {
       <div class="section-heading">
         <div>
           <p class="section-heading__eyebrow mb-1">${eyebrow}</p>
-          <h2 class="font-display text-2xl sm:text-3xl font-bold">${title}</h2>
+          <h2 class="type-section-title">${title}</h2>
         </div>
-        <span class="text-muted text-sm">${description}</span>
+        <span class="type-small text-muted">${description}</span>
       </div>
       <div class="horizontal-rail">
         ${games.map((game) => `<div>${GameCard(game, { variant: "catalog" })}</div>`).join("")}
@@ -81,21 +81,25 @@ export function bindCatalogSearch(games) {
   });
 }
 
+export function bindHubNavigationScroll() {
+  const navigation = document.querySelector(".site-nav--hub");
+  if (!navigation) return;
+
+  const controller = new AbortController();
+  const updateNavigationState = () => {
+    navigation.classList.toggle("site-nav--scrolled", window.scrollY > 0);
+  };
+
+  updateNavigationState();
+  window.addEventListener("scroll", updateNavigationState, { passive: true, signal: controller.signal });
+  window.addEventListener("rerender", () => controller.abort(), { once: true, signal: controller.signal });
+  window.addEventListener("popstate", () => controller.abort(), { once: true, signal: controller.signal });
+}
+
 export default async function HubPage() {
   const allGames = await GamesService.getAll();
   catalogGames = allGames;
   const heroGame = allGames[0];
-  const heroRecRate = getRecommendationRate(heroGame.reviews);
-
-  // "Em Alta": top 5 títulos por taxa real de recomendação, excluindo o destaque do hero.
-  const trending = allGames
-    .filter((g) => g.id !== heroGame.id)
-    .map((g) => ({ game: g, rate: getRecommendationRate(g.reviews) }))
-    .filter((g) => g.rate !== null)
-    .sort((a, b) => b.rate - a.rate)
-    .slice(0, 5)
-    .map((g) => g.game);
-
   const latestReleases = [...allGames]
     .filter((game) => game.release_date)
     .sort((a, b) => b.release_date.localeCompare(a.release_date))
@@ -117,22 +121,17 @@ export default async function HubPage() {
               <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent-400)] glow-accent"></span>
               Destaque da Semana
             </p>
-            <h1 class="font-display text-white text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 leading-[0.95] tracking-tight">${heroGame.title}</h1>
-            <p class="text-zinc-200 text-sm sm:text-base leading-relaxed mb-5 max-w-xl line-clamp-2">${heroGame.short_description}</p>
+            <h1 class="type-hero-title text-white mb-4">${heroGame.title}</h1>
+            <p class="type-subtitle text-zinc-200 mb-5 max-w-xl line-clamp-2">${heroGame.short_description}</p>
             <div class="flex flex-wrap items-center gap-2 mb-6">
               ${heroGame.categories.map((c) => `<span class="surface-chip px-2.5 py-1 text-xs font-medium rounded-md">${c}</span>`).join("")}
-              ${
-                heroRecRate !== null
-                  ? `<span class="hero-recommendation inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-black/55 ${heroRecRate >= 70 ? "text-[var(--color-accent-400)]" : "text-zinc-300"}">${Icon(icons.star, { className: "w-3.5 h-3.5", fill: "currentColor" })} ${heroRecRate}% recomendado</span>`
-                  : ""
-              }
             </div>
             <div class="flex flex-wrap items-center gap-4 sm:gap-6">
               <a href="/game/${heroGame.slug}" data-link
                  class="button-primary gap-2 px-5 py-3 text-sm">
                 Ver Detalhes
               </a>
-              <span class="font-display text-2xl sm:text-3xl font-bold text-[var(--color-accent-300)]">${formatPrice(heroGame.price)}</span>
+              <span class="type-content-title text-[var(--color-accent-300)]">${formatPrice(heroGame.price)}</span>
             </div>
           </div>
       </div>
@@ -141,19 +140,18 @@ export default async function HubPage() {
       ${coverRail("Lançamentos", "Novos no catálogo", "Adicionados recentemente", latestReleases)}
       ${coverRail("Jogue sem custo", "Gratuitos para começar", "Títulos disponíveis agora", freeToPlay)}
       ${coverRail("Para sua próxima aventura", "RPGs para explorar", "Histórias, mundos e escolhas", rolePlaying)}
-      ${coverRail("Descubra", "Em alta agora", "Mais recomendados pela comunidade", trending)}
 
       <!-- Busca, contagem e filtros -->
       <section class="space-y-6">
         <div class="section-heading mb-0">
           <div>
             <p class="section-heading__eyebrow mb-1">Explore</p>
-            <h2 class="font-display text-2xl sm:text-3xl font-bold">Catálogo de jogos</h2>
+            <h2 class="type-section-title">Catálogo de jogos</h2>
           </div>
-          <p id="catalog-results-count" class="text-muted text-sm shrink-0" aria-live="polite">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
+          <p id="catalog-results-count" class="type-small text-muted shrink-0" aria-live="polite">${filteredGames.length} título${filteredGames.length !== 1 ? "s" : ""}</p>
         </div>
         <div class="catalog-toolbar">
-          <label class="catalog-search w-full sm:max-w-lg">
+          <label class="catalog-search">
             <span class="sr-only">Buscar jogos</span>
             ${Icon(icons.search, { className: "w-4 h-4" })}
             <input id="search-input" class="ui-control" type="search" placeholder="Buscar jogos..."
@@ -161,7 +159,7 @@ export default async function HubPage() {
                    />
           </label>
 
-        <div class="flex gap-2 flex-nowrap overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-label="Filtrar por categoria">
+        <div class="catalog-category-rail" role="radiogroup" aria-label="Filtrar por categoria">
           ${ALL_CATEGORIES.map(
             (cat) => `
             <button data-category="${cat}"
@@ -205,6 +203,7 @@ export default async function HubPage() {
 
 export async function afterRender() {
   bindCatalogSearch(catalogGames);
+  bindHubNavigationScroll();
 
   document.querySelectorAll("[data-category]").forEach((btn) => {
     btn.addEventListener("click", () => {

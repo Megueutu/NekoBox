@@ -14,7 +14,7 @@ function requirementCard(title, requirement, recommended = false) {
   return `
     <article class="game-requirement-card${recommended ? " game-requirement-card--recommended" : ""}">
       <header>
-        <span aria-hidden="true">${Icon(recommended ? icons.star : icons.settings, { className: "w-4 h-4" })}</span>
+        <span class="game-info-icon-badge" aria-hidden="true">${Icon(recommended ? icons.star : icons.settings, { className: "w-4 h-4" })}</span>
         <div>
           <p>${recommended ? "Experiência ideal" : "Para executar"}</p>
           <h3>${title}</h3>
@@ -49,11 +49,13 @@ export function renderSystemRequirements(minimum, recommended) {
 function languageSupport(label, available) {
   return `
     <li class="${available ? "is-available" : "is-unavailable"}">
-      <span aria-hidden="true">
+      <span class="game-info-icon-badge" aria-hidden="true">
         ${Icon(available ? icons.check : icons.x, { className: "w-4 h-4", strokeWidth: 2.5 })}
       </span>
-      <span>${label}</span>
-      <strong>${available ? "Disponível" : "Indisponível"}</strong>
+      <span class="game-language-card__support">
+        <span>${label}</span>
+        <strong>${available ? "Disponível" : "Indisponível"}</strong>
+      </span>
     </li>
   `;
 }
@@ -81,7 +83,7 @@ export function renderLanguages(languages = []) {
 
 export function renderAboutGame(description, tags = []) {
   return `
-    <p class="text-muted text-sm leading-relaxed">${description}</p>
+    <p class="type-body text-muted">${description}</p>
     ${
       tags.length
         ? `<div class="flex flex-wrap gap-2 mt-5" aria-label="Tags do jogo">

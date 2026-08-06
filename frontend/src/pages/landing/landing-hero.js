@@ -1,4 +1,4 @@
-import { formatPrice, getRecommendationRate } from "../../utils/format";
+import { formatPrice } from "../../utils/format";
 
 let cleanupLandingEffects = () => {};
 
@@ -7,7 +7,6 @@ export const LANDING_HERO_INTERVAL_MS = 7000;
 export function getLandingHeroMeta(game) {
   return {
     price: formatPrice(game.price),
-    rate: getRecommendationRate(game.reviews),
     category: game.categories?.[0] || "",
   };
 }
@@ -20,7 +19,6 @@ export function setupLandingHero(slides) {
   const heroTitle = hero?.querySelector("#landing-title");
   const heroDescription = hero?.querySelector("[data-hero-description]");
   const heroPrice = hero?.querySelector("[data-hero-price]");
-  const heroRate = hero?.querySelector("[data-hero-rate]");
   const heroCategory = hero?.querySelector("[data-hero-category]");
   const heroDetails = hero?.querySelector("[data-hero-details]");
   const heroPause = hero?.querySelector("[data-hero-pause]");
@@ -54,8 +52,6 @@ export function setupLandingHero(slides) {
     heroTitle.textContent = game.title;
     heroDescription.textContent = game.short_description;
     heroPrice.textContent = meta.price;
-    heroRate.hidden = meta.rate === null;
-    heroRate.textContent = meta.rate === null ? "" : `${meta.rate}% recomendado`;
     heroCategory.hidden = !meta.category;
     heroCategory.textContent = meta.category;
     heroDetails.href = `/game/${game.slug}`;

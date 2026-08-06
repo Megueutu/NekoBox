@@ -1,7 +1,6 @@
 import { PublicLayout } from "../../app/layouts/PublicLayout";
 import { GameCard } from "../../components/ui/GameCard";
 import { GamesService } from "../../services/games/games.service";
-import { getRecommendationRate } from "../../utils/format";
 import { getBannerUrl } from "../../utils/media";
 import { getGameBannerRotation } from "../../utils/random-banner";
 import {
@@ -40,15 +39,11 @@ export default async function LandingPage() {
 
   const totalGames = games.length;
   const genreCount = new Set(games.flatMap((game) => game.categories || [])).size;
-  const rates = games.map((game) => getRecommendationRate(game.reviews)).filter((rate) => rate !== null);
-  const avgRate = rates.length ? Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length) : null;
-
   const stats = [
     { value: `${totalGames}+`, label: "Títulos no catálogo" },
     { value: `${genreCount}`, label: "Gêneros diferentes" },
-    avgRate !== null ? { value: `${avgRate}%`, label: "Média de recomendação" } : null,
     { value: "24/7", label: "Acesso à sua biblioteca" },
-  ].filter(Boolean);
+  ];
 
   const content = `
     <div class="landing-page">
@@ -63,12 +58,11 @@ export default async function LandingPage() {
         <div class="storefront-hero__shade" aria-hidden="true"></div>
         <div class="site-container storefront-hero__content">
           <div class="storefront-hero__copy glass-panel" data-reveal>
-            <p class="storefront-kicker"><span class="storefront-kicker__dot" aria-hidden="true"></span>Em destaque no NekoBox</p>
-            <h1 id="landing-title">${featuredGame.title}</h1>
-            <p data-hero-description>${featuredGame.short_description}</p>
+            <p class="storefront-kicker type-eyebrow"><span class="storefront-kicker__dot" aria-hidden="true"></span>Em destaque no NekoBox</p>
+            <h1 id="landing-title" class="type-hero-title">${featuredGame.title}</h1>
+            <p data-hero-description class="type-subtitle">${featuredGame.short_description}</p>
             <div class="storefront-hero__meta" aria-label="Informações do jogo">
               <span class="glass-chip glass-chip--price" data-hero-price>${featuredMeta.price}</span>
-              <span class="glass-chip" data-hero-rate ${featuredMeta.rate === null ? "hidden" : ""}>${featuredMeta.rate ?? ""}% recomendado</span>
               <span class="glass-chip" data-hero-category ${featuredMeta.category ? "" : "hidden"}>${featuredMeta.category}</span>
             </div>
             <div class="storefront-actions">
@@ -127,7 +121,7 @@ export default async function LandingPage() {
           <div class="section-heading">
             <div>
               <p class="section-heading__eyebrow mb-1">Seleção da semana</p>
-              <h2 id="highlights-title" class="font-display text-3xl sm:text-4xl font-bold">Jogos para começar agora</h2>
+              <h2 id="highlights-title" class="type-section-title">Jogos para começar agora</h2>
             </div>
             <a href="/hub" data-link class="landing-section-link">Ver catálogo completo</a>
           </div>
@@ -140,7 +134,7 @@ export default async function LandingPage() {
           <div class="section-heading">
             <div>
               <p class="section-heading__eyebrow mb-1">Escolha seu ritmo</p>
-              <h2 id="collections-title" class="font-display text-3xl sm:text-4xl font-bold">Coleções em foco</h2>
+              <h2 id="collections-title" class="type-section-title">Coleções em foco</h2>
             </div>
           </div>
           <div class="landing-collections">
@@ -165,8 +159,8 @@ export default async function LandingPage() {
         <section class="landing-membership glass-panel glass-panel--glow" aria-labelledby="membership-title" data-reveal>
           <div class="landing-membership__copy">
             <p class="section-heading__eyebrow mb-2">Sua coleção, do seu jeito</p>
-            <h2 id="membership-title" class="font-display text-3xl sm:text-5xl font-bold">Salve. Escolha. Jogue.</h2>
-            <p>Crie sua lista de desejos, organize sua biblioteca e encontre seu próximo jogo sem sair do NekoBox.</p>
+            <h2 id="membership-title" class="type-section-title">Salve. Escolha. Jogue.</h2>
+            <p class="type-body">Crie sua lista de desejos, organize sua biblioteca e encontre seu próximo jogo sem sair do NekoBox.</p>
             <ul class="landing-membership__benefits" aria-label="Recursos da sua conta">
               <li>Lista de desejos</li>
               <li>Biblioteca organizada</li>

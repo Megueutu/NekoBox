@@ -19,7 +19,6 @@ const games = [
   short_description: `Descrição ${index + 1}`,
   price: 50 + index,
   categories: ["Ação"],
-  reviews: [],
   media: [{ type: "banner", url: `https://example.com/banner-${index + 1}.jpg` }],
 }));
 

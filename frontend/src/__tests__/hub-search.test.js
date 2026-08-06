@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bindCatalogSearch, filterCatalogGames } from "../pages/hub/HubPage";
+import { bindCatalogSearch, bindHubNavigationScroll, filterCatalogGames } from "../pages/hub/HubPage";
 import { GameCard } from "../components/ui/GameCard";
 
 const games = [
@@ -12,7 +12,6 @@ const games = [
     categories: ["Roguelike"],
     tags: ["Ação"],
     media: [],
-    reviews: [],
   },
   {
     id: "2",
@@ -23,12 +22,13 @@ const games = [
     categories: ["Aventura"],
     tags: ["Espaço"],
     media: [],
-    reviews: [],
   },
 ];
 
 afterEach(() => {
   document.body.innerHTML = "";
+  window.history.replaceState({}, "", "/");
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 0, writable: true });
   vi.restoreAllMocks();
 });
 
@@ -61,6 +61,20 @@ describe("Hub catalog search", () => {
     expect(document.querySelector("#catalog-grid img")?.alt).toBe("Pôster de Hades");
     expect(document.querySelectorAll("#catalog-grid img")).toHaveLength(1);
     expect(dispatchEvent).not.toHaveBeenCalled();
+  });
+
+  it("should make the Hub navigation opaque after scrolling", () => {
+    document.body.innerHTML = '<nav class="site-nav site-nav--hub"></nav>';
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 0, writable: true });
+
+    bindHubNavigationScroll();
+    expect(document.querySelector(".site-nav")?.classList.contains("site-nav--scrolled")).toBe(false);
+
+    window.scrollY = 24;
+    window.dispatchEvent(new Event("scroll"));
+
+    expect(document.querySelector(".site-nav")?.classList.contains("site-nav--scrolled")).toBe(true);
+    window.dispatchEvent(new Event("rerender"));
   });
 
   it("should render poster cards as image-only links", () => {
