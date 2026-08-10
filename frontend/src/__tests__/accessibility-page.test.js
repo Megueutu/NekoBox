@@ -23,7 +23,7 @@ describe("Accessibility page", () => {
     expect(hero?.getAttribute("aria-labelledby")).toBe("legal-title");
     expect(hero?.querySelector(".content-hero__backdrop")?.getAttribute("aria-hidden")).toBe("true");
     expect(hero?.querySelector(".content-hero__image")?.getAttribute("alt")).toBe("");
-    expect(hero?.querySelector("h1")?.textContent).toContain("experiências para todos");
+    expect(hero?.querySelector("h1")?.textContent).toContain("experiência para todos");
   });
 
   it("should keep the post-WCAG sections addressable from its sidebar index", async () => {

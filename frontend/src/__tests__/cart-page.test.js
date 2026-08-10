@@ -17,6 +17,18 @@ const { cart } = vi.hoisted(() => ({
       media: [],
       publisher: { id: "2", name: "NekoBox Studios" },
     },
+    {
+      id: "9",
+      title: "Gift Runner",
+      slug: "gift-runner",
+      price: 20,
+      quantity: 2,
+      for_gift: true,
+      categories: ["Ação"],
+      tags: [],
+      media: [],
+      publisher: { id: "4", name: "Studio X" },
+    },
   ],
 }));
 
@@ -45,6 +57,7 @@ beforeEach(() => {
     cart,
   }));
   vi.spyOn(Actions, "removerDoCarrinho").mockResolvedValue();
+  vi.spyOn(Actions, "atualizarQuantidadeCarrinho").mockResolvedValue();
   vi.spyOn(Actions, "finalizarCheckoutCarrinho").mockResolvedValue({
     payments: [
       {
@@ -71,6 +84,34 @@ describe("Cart page", () => {
     expect(document.querySelector(".cart-layout")).not.toBeNull();
     expect(document.querySelector("[data-quantity-input]")).toBeNull();
     expect(document.querySelector(".cart-item__subtotal").textContent).toContain("49,90");
+  });
+
+  it("should render quantity controls only for gift items and total all lines", async () => {
+    document.body.innerHTML = await CartPage();
+
+    expect(document.querySelector('[data-qty-increase="7"]')).toBeNull();
+    const decreaseBtn = document.querySelector('[data-qty-decrease="9"]');
+    const increaseBtn = document.querySelector('[data-qty-increase="9"]');
+    expect(decreaseBtn).not.toBeNull();
+    expect(increaseBtn).not.toBeNull();
+    expect(decreaseBtn.disabled).toBe(false);
+    expect(increaseBtn.disabled).toBe(false);
+    expect(decreaseBtn.closest(".cart-item__qty").querySelector(".cart-item__qty-value").textContent.trim()).toBe("2");
+
+    const subtotals = [...document.querySelectorAll(".cart-item__subtotal")].map((el) => el.textContent);
+    expect(subtotals.some((text) => text.includes("40,00"))).toBe(true);
+    expect(document.querySelector(".checkout-total").textContent).toContain("89,90");
+  });
+
+  it("should ask the store to update quantity when the increase button is clicked", async () => {
+    document.body.innerHTML = await CartPage();
+    afterRender();
+
+    document.querySelector('[data-qty-increase="9"]').click();
+
+    await vi.waitFor(() => {
+      expect(Actions.atualizarQuantidadeCarrinho).toHaveBeenCalledWith("9", 3);
+    });
   });
 
   it("should focus the first invalid checkout field", async () => {
