@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { renderChatbot, setupChatbot } from "../components/chat/Chatbot";
-import { ChatbotService } from "../services/chatbot/chatbot.service";
+import { renderChatbot, setupChatbot } from "../components/Chatbot";
+import { ChatbotService } from "../services/chatbot.service";
 import { PublicLayout } from "../app/layouts/PublicLayout";
 
 afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.restoreAllMocks(); });

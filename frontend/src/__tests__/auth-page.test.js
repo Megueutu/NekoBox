@@ -4,7 +4,7 @@ import {
   resolvePostLoginTarget,
   bindAuthInteractions,
 } from "../pages/auth/LoginPage";
-import { renderAuthDialog, setupAuthDialog } from "../components/auth/AuthDialog";
+import { renderAuthDialog, setupAuthDialog } from "../components/AuthDialog";
 
 afterEach(() => {
   document.body.innerHTML = "";

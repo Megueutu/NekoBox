@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { matchRoute } from "../app/router/matchRoute";
+import { matchRoute } from "../app/router/match-route";
 import { routes } from "../app/router/routes";
 import { shouldRedirectAdmin } from "../app/router/router";
 import { ACCOUNT_PATHS } from "../app/router/account-routes";
@@ -57,13 +57,7 @@ describe("Accessibility page route", () => {
   });
 });
 
-describe("Settings page route", () => {
-  it("should keep visual preferences inside the authenticated account area", () => {
-    const settingsRoute = routes.find((route) => route.path === ACCOUNT_PATHS.settings);
-
-    expect(settingsRoute.private).toBe(true);
-  });
-
+describe("Legacy account routes", () => {
   it("should redirect legacy account URLs to the shared account namespace", () => {
     const legacyProfile = routes.find((route) => route.path === "/profile");
 
@@ -72,7 +66,7 @@ describe("Settings page route", () => {
 });
 
 describe("Admin route isolation", () => {
-  it.each(["/", "/hub", ACCOUNT_PATHS.profile, ACCOUNT_PATHS.settings, "/game/example", "/unknown"])(
+  it.each(["/", "/hub", ACCOUNT_PATHS.profile, "/game/example", "/unknown"])(
     "should redirect an authenticated admin from %s",
     (pathname) => {
       expect(shouldRedirectAdmin(pathname, "active-token", "ADMIN")).toBe(true);

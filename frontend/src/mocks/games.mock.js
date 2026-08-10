@@ -6,8 +6,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Cyberpunk 2077",
     slug: "cyberpunk-2077",
-    short_description: "Uma história de aventura de ação de mundo aberto na megalópole de Night City.",
-    long_description: "Cyberpunk 2077 é um RPG de ação e aventura em mundo aberto ambientado na megalópole de Night City, onde você vive, rouba, implanta chips em si mesmo e mata para sobreviver. Você joga como V, um mercenário fora da lei atrás de um implante único que carrega a chave da imortalidade. Personalize o corpo e as habilidades do seu personagem enquanto você escolhe o seu caminho por uma cidade implacável.",
+    long_description: `Cyberpunk 2077 é um RPG de ação e aventura em mundo aberto ambientado na megalópole de Night City, onde você vive, rouba, implanta chips em si mesmo e mata para sobreviver. Você joga como V, um mercenário fora da lei atrás de um implante único que carrega a chave da imortalidade. Personalize o corpo e as habilidades do seu personagem enquanto você escolhe o seu caminho por uma cidade implacável.
+
+A trama gira em torno da parceria entre V e Johnny Silverhand, um rebelde digitalizado interpretado por Keanu Reeves, cuja personalidade está gravada no biochip que ameaça sobrepor a mente do protagonista. Entre gangues, corporações e fixers, Night City se revela um organismo vivo, dividido em distritos com identidades e conflitos próprios, onde cada escolha de diálogo pode redefinir alianças e o destino final da história.
+
+O combate mistura tiro em primeira pessoa, hackeamento e habilidades cibernéticas (cyberware) que transformam braços em lâminas ou olhos em scanners táticos. A build do personagem é moldada por uma árvore de perícias flexível, permitindo abordagens furtivas, técnicas ou de confronto direto, enquanto veículos e uma cidade vertical incentivam a exploração livre entre missões principais e contratos paralelos ricos em detalhes.
+
+Desenvolvido pela CD Projekt RED, o jogo passou por um ciclo extenso de correções desde o lançamento, culminando na expansão Phantom Liberty e em uma reformulação completa dos sistemas de habilidade, veículos e inteligência artificial policial, elevando a direção de arte cyberpunk e a trilha sonora licenciada a um dos pontos altos da produção.`,
     price: 199.90,
     release_date: "2020-12-10",
     status: "published",
@@ -47,8 +52,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "The Witcher 3: Wild Hunt",
     slug: "the-witcher-3",
-    short_description: "Torne-se um caçador de monstros profissional e embarque em uma aventura de proporções épicas!",
-    long_description: "O RPG de mundo aberto mais premiado de uma geração está refinado e aprimorado. Você é Geralt de Rívia, um caçador de monstros mercenário, em um continente devastado pela guerra e infestado de monstros que você pode explorar à vontade. Conclua contratos de caçador de monstros, tome decisões difíceis para coletar enormes recompensas.",
+    long_description: `O RPG de mundo aberto mais premiado de uma geração está refinado e aprimorado. Você é Geralt de Rívia, um caçador de monstros mercenário, em um continente devastado pela guerra e infestado de monstros que você pode explorar à vontade. Conclua contratos de caçador de monstros, tome decisões difíceis para coletar enormes recompensas.
+
+No centro da trama está a busca de Geralt por Ciri, sua filha adotiva perseguida pela Wild Hunt, uma horda espectral vinda de outro mundo. A jornada atravessa reinos em guerra, vilarejos amaldiçoados e cortes políticas, tecendo uma narrativa adulta sobre escolhas morais ambíguas, onde poucas decisões têm resposta certa.
+
+O combate combina espadas de aço e prata, sinais mágicos e alquimia de poções e óleos, exigindo preparo contra cada tipo de criatura do bestiário. Fora das batalhas, Gwent, corridas de cavalo, contratos de caça e uma economia de crafting robusta preenchem um mundo aberto denso, onde cada região carrega sua própria identidade visual e folclore.
+
+Desenvolvido pela CD Projekt RED, o jogo é aclamado por sua escrita madura e pelas expansões Hearts of Stone e Blood and Wine, consideradas referências do gênero. A direção de arte inspirada no folclore eslavo, aliada a uma trilha sonora atmosférica, consolidou Wild Hunt como um marco na narrativa de RPGs.`,
     price: 129.90,
     release_date: "2015-05-19",
     status: "published",
@@ -76,8 +86,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Red Dead Redemption 2",
     slug: "red-dead-redemption-2",
-    short_description: "Uma épica aventura no coração da América do fim do século XIX.",
-    long_description: "America, 1899. O fim da era dos foragidos chegou. Arthur Morgan e a gangue Van der Linde são forçados a fugir depois de um roubo que deu errado na cidade de Blackwater. Com autoridades federais e os melhores caçadores de recompensas do país em seus calcanhares, a gangue deve roubar, roubar e brigar para sobreviver.",
+    long_description: `America, 1899. O fim da era dos foragidos chegou. Arthur Morgan e a gangue Van der Linde são forçados a fugir depois de um roubo que deu errado na cidade de Blackwater. Com autoridades federais e os melhores caçadores de recompensas do país em seus calcanhares, a gangue deve roubar, roubar e brigar para sobreviver.
+
+A narrativa acompanha o declínio da gangue Van der Linde em uma América que industrializa rapidamente e não tem mais espaço para foras da lei. Arthur Morgan, tenente leal ao líder Dutch, é o fio condutor de uma história sobre lealdade, redenção e as consequências morais de uma vida de crime, contada com um elenco de personagens profundamente humanos.
+
+O mundo aberto reage ao comportamento do jogador através do sistema de Honra, que influencia diálogos, reputação e finais possíveis. Caça, pesca, acampamento, tiroteios táticos e a criação de vínculo com o cavalo compõem uma simulação de sobrevivência minuciosa, onde o ritmo lento reforça a imersão em vez de pressa.
+
+Produzido pela Rockstar Games, o título é reconhecido pela reconstrução detalhada do Velho Oeste, com ciclos climáticos, fauna e economia simulados em escala raramente vista. A direção de Dan Houser e a atuação de Roger Clark como Arthur renderam um dos roteiros mais elogiados da indústria.`,
     price: 179.90,
     release_date: "2018-10-26",
     status: "published",
@@ -108,8 +123,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Elden Ring",
     slug: "elden-ring",
-    short_description: "Levante, Entre Morto. E que a graça te guie até o Anel Élfico.",
-    long_description: "Uma nova fantasia épica criada por Hidetaka Miyazaki e o grande novelista George R. R. Martin. ELDEN RING é um RPG de ação e fantasia set em um mundo criado pela colaboração dessas duas mentes criativas. Um vasto mundo onde florestas abertas e campos animados são conectados a masmorras sombrias.",
+    long_description: `Uma nova fantasia épica criada por Hidetaka Miyazaki e o grande novelista George R. R. Martin. ELDEN RING é um RPG de ação e fantasia set em um mundo criado pela colaboração dessas duas mentes criativas. Um vasto mundo onde florestas abertas e campos animados são conectados a masmorras sombrias.
+
+As Terras Intermédias mergulharam no caos após o estilhaçamento do Anel Prezado, e cabe ao Sem-Luz reunir os fragmentos perdidos para se tornar o novo Lorde Prezado. A mitologia obscura de Martin se manifesta em ruínas, semideuses corrompidos e uma lore fragmentada, contada por itens e diálogos em vez de cutscenes explicativas.
+
+Diferente dos jogos Souls anteriores, o mundo é totalmente aberto e navegável a cavalo em Torrente, permitindo abordar masmorras, castelos e chefes opcionais na ordem que o jogador preferir. Armas, feitiços e cinzas de guerra oferecem builds altamente variadas, mantendo o combate punitivo e recompensador que caracteriza a FromSoftware.
+
+Sob a direção de Hidetaka Miyazaki, com worldbuilding de George R. R. Martin, o jogo venceu múltiplos prêmios de Jogo do Ano e recebeu a expansão Shadow of the Erdtree, expandindo ainda mais seu já vasto universo de fantasia sombria.`,
     price: 249.90,
     release_date: "2022-02-25",
     status: "published",
@@ -140,8 +160,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "God of War Ragnarök",
     slug: "god-of-war-ragnarok",
-    short_description: "Embarque em uma jornada épica pelos Nove Reinos no clímax da história nórdica.",
-    long_description: "A jornada épica de Kratos e Atreus continua. Enfrentando a iminente profecia do Ragnarök, pai e filho devem viajar pelos Nove Reinos em busca de respostas. Enquanto as forças de Asgard se preparam para a guerra, Kratos e Atreus devem fazer escolhas que irão ecoar pelos mundos.",
+    long_description: `A jornada épica de Kratos e Atreus continua. Enfrentando a iminente profecia do Ragnarök, pai e filho devem viajar pelos Nove Reinos em busca de respostas. Enquanto as forças de Asgard se preparam para a guerra, Kratos e Atreus devem fazer escolhas que irão ecoar pelos mundos.
+
+Com o inverno de Fimbulwinter se aproximando do fim, Kratos e Atreus se veem no centro de uma guerra que envolve os Nove Reinos, deuses e gigantes. A relação entre pai e filho amadurece à medida que Atreus busca seu próprio caminho, enquanto Kratos confronta seu passado violento e o peso de ser visto como um deus.
+
+O combate expande o sistema introduzido em 2018 com o retorno das Lâminas do Caos ao lado do Machado Leviatã, permitindo alternar entre estilos de gelo e fogo em tempo real. A exploração dos Nove Reinos ficou mais livre, com viagens entre mundos, quebra-cabeças ambientais e desafios opcionais que recompensam equipamentos e histórias paralelas.
+
+Desenvolvido pela Santa Monica Studio, o jogo manteve a assinatura de câmera contínua sem cortes e elevou a fidelidade das animações faciais e da direção cinematográfica, sendo aclamado como um dos maiores exclusivos de PlayStation da geração.`,
     price: 299.90,
     release_date: "2022-11-09",
     status: "published",
@@ -170,8 +195,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Hollow Knight",
     slug: "hollow-knight",
-    short_description: "Explore um vasto reino subterrâneo de insetos e heróis.",
-    long_description: "Forje seu caminho por um vasto reino em ruínas de insetos e heróis. Explore cavernas tortuosas, vilas antigas e ruínas mortais. Enfrente inimigos mortais, faça amizade com criaturas estranhas e resolva mistérios ancestrais no coração do continente.",
+    long_description: `Forje seu caminho por um vasto reino em ruínas de insetos e heróis. Explore cavernas tortuosas, vilas antigas e ruínas mortais. Enfrente inimigos mortais, faça amizade com criaturas estranhas e resolva mistérios ancestrais no coração do continente.
+
+Hallownest é um reino subterrâneo em ruínas, devastado por uma praga que corrompeu seus habitantes insetóides. Como o Cavaleiro, um pequeno guerreiro silencioso, você desvenda aos poucos uma história trágica de reis caídos, irmãs guardiãs e um mal ancestral, contada quase inteiramente através de ambientes e encontros opcionais.
+
+A exploração não linear recompensa curiosidade e memorização de mapas, com habilidades de movimento (double jump, dash, wall jump) que abrem caminhos previamente inacessíveis, no estilo clássico de metroidvania. Os combates contra chefes exigem precisão e paciência, com uma dificuldade que cresce de forma justa conforme novos amuletos e talismãs são equipados.
+
+Criado por uma equipe pequena na Team Cherry, o jogo se destaca pela direção de arte desenhada à mão e por uma trilha sonora orquestral melancólica, tornando-se referência do gênero indie e abrindo caminho para a aguardada sequência Silksong.`,
     price: 49.90,
     release_date: "2017-02-24",
     status: "published",
@@ -199,8 +229,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Baldur's Gate 3",
     slug: "baldurs-gate-3",
-    short_description: "Reúna seus companheiros e retorne às Terras Esquecidas em uma história de companheirismo e traição.",
-    long_description: "Reúna seus companheiros e retorne às Terras Esquecidas em uma história de amizade, traição, sacrifício e sobrevivência. Uma doença chamada Aberração Mental está se espalhando pela cidade. Você é um dos poucos que pode parar isso — se não se tornar um monstro antes.",
+    long_description: `Reúna seus companheiros e retorne às Terras Esquecidas em uma história de amizade, traição, sacrifício e sobrevivência. Uma doença chamada Aberração Mental está se espalhando pela cidade. Você é um dos poucos que pode parar isso — se não se tornar um monstro antes.
+
+Infectado por um parasita mental ilítida, o grupo de sobreviventes precisa encontrar uma cura antes de se transformar em uma aberração mental. A jornada atravessa a Costa da Espada em uma trama repleta de reviravoltas políticas, dilemas morais e romances possíveis, moldada quase inteiramente pelas escolhas do jogador.
+
+Baseado nas regras de Dungeons & Dragons 5ª edição, o combate por turnos valoriza posicionamento, vantagem tática e uso criativo do ambiente, como empurrar inimigos de penhascos ou incendiar óleo derramado. A liberdade narrativa é notável: praticamente qualquer ação pode ser tentada, com resultados determinados por testes de dados e pelas consequências de longo prazo.
+
+Desenvolvido pela Larian Studios ao longo de mais de seis anos, incluindo um extenso período de acesso antecipado, o jogo é elogiado pela quantidade de conteúdo reativo e pela qualidade das atuações em captura de performance, tendo vencido o prêmio de Jogo do Ano em 2023.`,
     price: 219.90,
     release_date: "2023-08-03",
     status: "published",
@@ -231,8 +266,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Minecraft",
     slug: "minecraft",
-    short_description: "Construa qualquer coisa que você imaginar. Explore mundos gerados infinitamente.",
-    long_description: "Minecraft é um jogo de aventura sandbox onde você pode construir e criar seu próprio mundo. Explore mundos gerados proceduralmente com biomas infinitos. Colete recursos, crafteie ferramentas, construa estruturas e sobreviva aos monstros da noite.",
+    long_description: `Minecraft é um jogo de aventura sandbox onde você pode construir e criar seu próprio mundo. Explore mundos gerados proceduralmente com biomas infinitos. Colete recursos, crafteie ferramentas, construa estruturas e sobreviva aos monstros da noite.
+
+Não existe um objetivo único: o jogador define seus próprios propósitos, seja construir castelos elaborados, redstone complexo automatizado ou simplesmente sobreviver o máximo possível. O modo Sobrevivência introduz fome, saúde e ameaças noturnas, enquanto o modo Criativo remove limites de recursos para dar espaço total à imaginação.
+
+Cada mundo gerado é único, combinando biomas que vão de desertos e florestas a oceanos profundos e a dimensão do Nether, repleta de perigos e recursos exclusivos. A dimensão do End guarda o confronto final contra o Ender Dragon, mas a maior parte da experiência é definida pela jornada, não pelo destino.
+
+Criado originalmente por Markus "Notch" Persson e hoje mantido pela Mojang Studios, Minecraft se tornou um fenômeno cultural com atualizações constantes, suporte robusto a mods e um dos maiores mercados multiplayer já criados, sendo um dos jogos mais vendidos da história.`,
     price: 89.90,
     release_date: "2011-11-18",
     status: "published",
@@ -262,8 +302,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Stardew Valley",
     slug: "stardew-valley",
-    short_description: "Você herdou a antiga fazenda do seu avô. Equipado com ferramentas, comece uma nova vida.",
-    long_description: "Você herdou a antiga fazenda do seu avô e se mudou para o interior para recomeçar. Com algumas ferramentas antigas e algumas moedas, você dá início a uma nova vida. Cultive colheitas, crie animais, pesque, minere, faça amizades com os moradores da cidade e talvez encontre o amor.",
+    long_description: `Você herdou a antiga fazenda do seu avô e se mudou para o interior para recomeçar. Com algumas ferramentas antigas e algumas moedas, você dá início a uma nova vida. Cultive colheitas, crie animais, pesque, minere, faça amizades com os moradores da cidade e talvez encontre o amor.
+
+O ciclo de dias é dividido entre plantio e colheita sazonal, cuidado com animais, mineração em cavernas geradas proceduralmente e pesca em lagos, rios e no mar. A gestão de tempo e energia adiciona uma camada estratégica sutil, incentivando o jogador a planejar rotas e prioridades a cada manhã.
+
+Pelican Town abriga dezenas de moradores com rotinas, diálogos e arcos pessoais próprios, permitindo amizades, rivalidades e casamentos. Restaurar o Centro Comunitário abandonado em oposição à cadeia JojaMart adiciona um tema sutil sobre comunidade versus consumismo corporativo.
+
+Desenvolvido quase inteiramente por uma única pessoa, Eric "ConcernedApe" Barone, o jogo levou cerca de quatro anos para ficar pronto e recebeu atualizações gratuitas contínuas por quase uma década, incluindo multiplayer, novas áreas e o modo Terreno Ancestral, mantendo uma das comunidades mais fiéis do gênero indie.`,
     price: 39.90,
     release_date: "2016-02-26",
     status: "published",
@@ -293,8 +338,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Hades",
     slug: "hades",
-    short_description: "Desafie o deus da morte enquanto luta para escapar do submundo da mitologia grega.",
-    long_description: "Desafie o deus da morte lutando para escapar do submundo da mitologia grega neste aclamado roguelike de Supergiant Games. Cada vez que você sai, o mundo se expande e novos segredos são revelados. Use uma combinação de armas, habilidades e bençãos dos deuses do Olimpo para triunfar.",
+    long_description: `Desafie o deus da morte lutando para escapar do submundo da mitologia grega neste aclamado roguelike de Supergiant Games. Cada vez que você sai, o mundo se expande e novos segredos são revelados. Use uma combinação de armas, habilidades e bençãos dos deuses do Olimpo para triunfar.
+
+Zagreu, filho do deus Hades, tenta repetidamente escapar do Submundo para encontrar sua verdadeira mãe na superfície. Cada fuga fracassada revela mais sobre a família disfuncional do Olimpo através de diálogos que evoluem a cada nova tentativa, transformando a repetição roguelike em uma ferramenta narrativa em vez de um obstáculo.
+
+Cada uma das Salas do Submundo apresenta combinações aleatórias de inimigos e recompensas, enquanto Bênçãos concedidas por deuses do Olimpo, como Zeus e Ares, alteram drasticamente as armas e habilidades do jogador em cada corrida. Seis armas com estilos distintos garantem builds variadas mesmo depois de dezenas de tentativas.
+
+Desenvolvido pela Supergiant Games, o jogo se destaca por sua direção de arte vibrante inspirada em cerâmica grega antiga e por uma trilha sonora de rock composta por Darren Korb, sendo um dos roguelikes mais premiados e o primeiro do gênero indicado ao prêmio Hugo.`,
     price: 69.90,
     release_date: "2020-09-17",
     status: "published",
@@ -322,8 +372,13 @@ const baseMockGames = [
     owner_id: "usr_admin_system_001",
     title: "Grand Theft Auto V",
     slug: "gta-5",
-    short_description: "Explore o extenso mundo de Los Santos e arredores nesta narrativa épica de crime.",
-    long_description: "Quando um jovem golpista das ruas, um ladrão de bancos aposentado e um psicopata aterrorizante se envolvem com a facção mais assustadora e lunática do governo criminal dos EUA, eles devem arriscar tudo em uma série de golpes ousados e perigosos que representam sua única saída.",
+    long_description: `Quando um jovem golpista das ruas, um ladrão de bancos aposentado e um psicopata aterrorizante se envolvem com a facção mais assustadora e lunática do governo criminal dos EUA, eles devem arriscar tudo em uma série de golpes ousados e perigosos que representam sua única saída.
+
+A trama alterna entre três protagonistas jogáveis — Michael, Franklin e Trevor — cujas histórias se cruzam em uma série de assaltos cada vez mais ambiciosos em Los Santos, uma sátira da Califórnia moderna. A alternância de perspectivas permite abordar cada missão de múltiplos ângulos, aprofundando a caracterização de cada personagem.
+
+Além da campanha, GTA Online oferece um mundo persistente com missões cooperativas, corridas, negócios criminosos e atualizações contínuas de conteúdo há mais de uma década. A liberdade de explorar Los Santos e o condado de Blaine a pé, de carro, avião ou submarino continua sendo um dos maiores atrativos da série.
+
+Desenvolvido pela Rockstar North, o jogo é um dos produtos de entretenimento mais lucrativos já criados, sustentado por uma direção de mundo aberto minuciosa, humor satírico afiado e uma trilha sonora com rádios licenciadas que definiram a cultura pop da década de 2010.`,
     price: 99.90,
     release_date: "2013-09-17",
     status: "published",

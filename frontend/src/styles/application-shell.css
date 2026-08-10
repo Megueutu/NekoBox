@@ -1,17 +1,13 @@
 .app-shell {
   position: relative;
   isolation: isolate;
-  --app-neon-primary: var(--color-brand-500);
-  --app-neon-soft: var(--color-brand-400);
-  --app-neon-secondary: var(--color-accent-400);
-}
-
-.app-ambient {
-  display: none;
+  --app-focus-primary: var(--color-brand-500);
+  --app-focus-soft: var(--color-brand-400);
 }
 
 .app-shell .site-nav {
-  background: var(--color-bg);
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  backdrop-filter: blur(12px);
   box-shadow: none;
 }
 
@@ -22,8 +18,22 @@
 }
 
 .app-shell--public .site-nav--hub.site-nav--scrolled {
-  background: var(--color-bg);
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+}
+
+.app-shell--public .site-nav--landing {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  background: transparent;
   backdrop-filter: none;
+  box-shadow: none;
+  transition: background-color 0.2s ease, backdrop-filter 0.2s ease;
+}
+
+.app-shell--public .site-nav--landing.site-nav--scrolled {
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(12px);
 }
 
 .app-shell .site-footer {
@@ -40,11 +50,8 @@
 }
 
 .app-shell .catalog-toolbar,
-.app-shell .panel,
 .app-shell .account-sidebar-panel,
-.app-shell .purchase-card,
-.app-shell .settings-control-list,
-.app-shell .accessibility-status {
+.app-shell .purchase-card {
   border: 0;
   background: var(--color-surface);
   box-shadow: none;
@@ -75,8 +82,7 @@
 }
 
 .app-shell .game-section h2,
-.app-shell .page-heading h1,
-.app-shell .settings-section__heading h2 {
+.app-shell .page-heading h1 {
   text-shadow: none;
 }
 
@@ -138,7 +144,7 @@
 }
 
 .app-shell.app-shell--private .page-heading {
-  padding: 0 0 1.5rem;
+  padding: 0;
 }
 
 .app-shell--private .page-heading .type-page-title {
@@ -150,8 +156,12 @@
 }
 
 .account-sidebar-panel {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
   position: relative;
   overflow: hidden;
+  min-height: 25rem;
   padding: 1rem;
   border-radius: var(--radius-card);
 }
@@ -181,10 +191,10 @@
 
 .account-sidebar__user > span {
   color: var(--color-brand-300);
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .account-sidebar__user p {
@@ -237,32 +247,25 @@
 }
 
 .account-nav__link:focus-visible {
-  outline: 2px solid var(--app-neon-soft);
+  outline: 2px solid var(--app-focus-soft);
   outline-offset: 2px;
 }
 
-.account-nav__link--active.button-primary {
-  color: white;
-  background: var(--color-brand-600);
-  box-shadow: none;
-}
-
-.account-nav__link--active.button-primary:hover {
-  background: var(--color-brand-500);
-}
-
-.account-nav__link--active.button-primary svg {
-  color: currentColor;
+.account-nav__link--active {
+  border-color: color-mix(in srgb, var(--color-brand-400) 24%, transparent);
+  color: var(--color-ink);
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-2));
+  box-shadow: inset 3px 0 0 var(--app-focus-soft);
 }
 
 .account-nav__logout {
-  margin-top: 0.25rem;
-  color: #fb7185;
+  border-top-color: var(--color-border);
+  color: var(--color-danger);
 }
 
 .account-nav__logout.button-secondary:hover {
   color: #fda4af;
-  background: color-mix(in srgb, #fb7185 8%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 8%, transparent);
 }
 
 .profile-page {
@@ -276,19 +279,19 @@
 
 .profile-card__heading {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
   padding: clamp(1.25rem, 3vw, 1.75rem);
-  background: var(--color-surface-2);
+  padding-bottom: 0;
+  background: var(--color-surface);
 }
 
 .profile-card__heading p {
   color: var(--color-brand-300);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .profile-card__heading h2 {
@@ -296,17 +299,11 @@
   font-weight: 700;
 }
 
-.profile-card__heading > span {
-  max-width: 17rem;
-  color: var(--color-muted-2);
-  font-size: 0.72rem;
-  text-align: right;
-}
-
 .profile-card__body {
   display: grid;
   gap: 1.25rem;
   padding: clamp(1.25rem, 3vw, 1.75rem);
+  background-color: var(--color-surface);
 }
 
 .profile-avatar-editor {
@@ -410,17 +407,17 @@
 
 .profile-form__fields {
   display: grid;
-  gap: 1.25rem;
+  gap: 0.75rem;
 }
 
 .profile-card__actions {
   display: flex;
-  min-height: 5rem;
   align-items: center;
   gap: 1rem;
   margin-top: 0;
-  padding: 1rem clamp(1.25rem, 3vw, 1.75rem);
-  background: var(--color-surface-2);
+  padding: 2rem clamp(1.25rem, 3vw, 1.75rem);
+  padding-top: 0;
+  background: var(--color-surface);
 }
 
 .profile-card__actions .button-primary {
@@ -446,6 +443,7 @@
   justify-content: space-between;
   gap: 1.5rem;
   padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--color-surface);
 }
 
 .profile-session > div {
@@ -483,22 +481,22 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 0.9rem;
-  border: 1px solid color-mix(in srgb, #fb7185 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
   border-radius: 0.65rem;
-  color: #fb7185;
+  color: var(--color-danger);
   font-size: 0.74rem;
   font-weight: 750;
   transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
 }
 
 .profile-logout:hover {
-  border-color: color-mix(in srgb, #fb7185 60%, transparent);
+  border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
   color: #fecdd3;
-  background: color-mix(in srgb, #fb7185 9%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 9%, transparent);
 }
 
 .profile-logout:focus-visible {
-  outline: 2px solid #fb7185;
+  outline: 2px solid var(--color-danger);
   outline-offset: 2px;
 }
 
@@ -523,10 +521,10 @@
 .app-shell--private input:not([type="checkbox"]):not([type="radio"]):focus,
 .app-shell--private textarea:focus {
   background: var(--color-surface-3);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-neon-primary) 60%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-focus-primary) 38%, transparent);
 }
 
-.app-shell .accessibility-hero {
+.app-shell .content-hero {
   border: 0;
   box-shadow: var(--shadow-elevated);
 }
@@ -534,12 +532,6 @@
 @media (max-width: 640px) {
   .app-shell .page-heading { padding: 1.25rem; }
   .app-shell .game-section { border-radius: 0.75rem; }
-}
-
-.text-gradient-brand {
-  background: none;
-  color: var(--color-brand-400);
-  -webkit-text-fill-color: currentColor;
 }
 
 .site-nav {
@@ -593,10 +585,4 @@
   ::view-transition-new(*) {
     animation: none !important;
   }
-}
-
-:root[data-motion="reduced"]::view-transition-group(*),
-:root[data-motion="reduced"]::view-transition-old(*),
-:root[data-motion="reduced"]::view-transition-new(*) {
-  animation: none !important;
 }

@@ -7,8 +7,8 @@ export function Footer() {
 
         <div class="site-footer__brand">
           <a href="/" data-link class="site-footer__logo" aria-label="NekoBox — Início">
-            <img src="/nekobox-mark.svg" alt="" aria-hidden="true" />
-            <span>NEKOBOX</span>
+            <img src="/cat.svg" class="site-footer__mark" alt="" aria-hidden="true" />
+            <img src="/logo.svg" class="site-footer__wordmark" alt="NekoBox" />
           </a>
           <p class="type-small text-muted">
             Marketplace de jogos digitais.<br>
@@ -32,7 +32,6 @@ export function Footer() {
             <li><a href="${ACCOUNT_PATHS.profile}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Meu Perfil</a></li>
             <li><a href="${ACCOUNT_PATHS.library}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Minha Biblioteca</a></li>
             <li><a href="/login" data-login-trigger aria-haspopup="dialog" aria-controls="auth-dialog" class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Entrar / Cadastrar</a></li>
-            <li><a href="${ACCOUNT_PATHS.settings}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Configurações</a></li>
           </ul>
         </div>
 
@@ -45,12 +44,6 @@ export function Footer() {
           </ul>
         </div>
 
-      </div>
-
-      <div class="border-t border-[var(--color-border)] px-4 py-4">
-        <p class="type-caption text-[var(--color-muted-2)] text-center">
-          © ${new Date().getFullYear()} NEKOBOX — Marketplace de Jogos Digitais. Todos os direitos reservados.
-        </p>
       </div>
     </footer>
   `;

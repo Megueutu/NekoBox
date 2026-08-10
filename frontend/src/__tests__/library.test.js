@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterAndSortLibrary } from "../pages/library/LibraryPage";
+import { filterAndSortLibrary } from "../pages/games/LibraryPage";
 import { formatPlaytime } from "../utils/format";
 
 const games = [

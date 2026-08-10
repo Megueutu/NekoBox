@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { routes } from "../app/router/routes";
 import { Footer } from "../components/layout/Footer";
-import PrivacyPage from "../pages/legal/PrivacyPage";
-import TermsPage from "../pages/legal/TermsPage";
+import PrivacyPage from "../pages/info/legal/PrivacyPage";
+import TermsPage from "../pages/info/legal/TermsPage";
 import { GamesService } from "../services/games/games.service";
 
 vi.mock("../services/games/games.service", () => ({
@@ -38,10 +38,10 @@ describe("Legal pages navigation", () => {
 
     container.innerHTML = await renderPage();
 
-    const hero = container.querySelector(".legal-hero");
-    expect(hero?.querySelector(".legal-hero__image")?.getAttribute("alt")).toBe("");
-    expect(hero?.querySelector(".legal-hero__image")?.getAttribute("src")).toBe("https://example.com/hades.jpg");
-    expect(hero?.querySelector(".legal-hero__backdrop")?.getAttribute("aria-hidden")).toBe("true");
+    const hero = container.querySelector(".content-hero");
+    expect(hero?.querySelector(".content-hero__image")?.getAttribute("alt")).toBe("");
+    expect(hero?.querySelector(".content-hero__image")?.getAttribute("src")).toBe("https://example.com/hades.jpg");
+    expect(hero?.querySelector(".content-hero__backdrop")?.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("should keep the local banner when the catalog is unavailable", async () => {
@@ -50,7 +50,7 @@ describe("Legal pages navigation", () => {
 
     container.innerHTML = await TermsPage();
 
-    expect(container.querySelector(".legal-hero__image")?.getAttribute("src"))
+    expect(container.querySelector(".content-hero__image")?.getAttribute("src"))
       .toBe("/mocks/callofduty.png");
   });
 });

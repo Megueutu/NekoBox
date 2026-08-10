@@ -3,11 +3,21 @@ import {
   renderAboutGame,
   renderLanguages,
   renderSystemRequirements,
-} from "../pages/game/GamePage";
+} from "../pages/games/game/GamePage";
 import { Icon, icons } from "../components/ui/Icon";
 
 describe("Game information sections", () => {
-  it("should keep game tags inside the description content", () => {
+  it("should render the description inside a scrollable container", () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = renderAboutGame("Uma aventura épica.", []);
+
+    expect(container.querySelector("[data-game-description]")?.textContent).toContain(
+      "Uma aventura épica."
+    );
+  });
+
+  it("should render game tags as hashtags without spaces", () => {
     const container = document.createElement("div");
 
     container.innerHTML = renderAboutGame("Uma aventura épica.", [
@@ -15,10 +25,27 @@ describe("Game information sections", () => {
       "Mundo aberto",
     ]);
 
-    expect(container.querySelector('[aria-label="Tags do jogo"]')?.parentElement).toBe(
+    expect(container.querySelector('[aria-label="Hashtags do jogo"]')?.parentElement).toBe(
       container
     );
-    expect(container.querySelectorAll(".surface-chip")).toHaveLength(2);
+    const hashtags = [...container.querySelectorAll(".game-hashtag")].map((el) => el.textContent);
+    expect(hashtags).toEqual(["#Fantasia", "#Mundoaberto"]);
+  });
+
+  it("should show a publisher and release date credit line when provided", () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = renderAboutGame("Uma aventura épica.", [], "CD PROJEKT RED", "2020-12-10");
+
+    expect(container.textContent).toContain("Publicado por CD PROJEKT RED em");
+  });
+
+  it("should omit the credit line when publisher and release date are missing", () => {
+    const container = document.createElement("div");
+
+    container.innerHTML = renderAboutGame("Uma aventura épica.", []);
+
+    expect(container.textContent).not.toContain("Publicado por");
   });
 
   it("should render system requirements with semantic labels and breakable values", () => {

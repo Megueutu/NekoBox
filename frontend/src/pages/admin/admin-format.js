@@ -5,10 +5,6 @@ export const money = new Intl.NumberFormat("pt-BR", {
 export const compactDate = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
 });
-export const dateTime = new Intl.DateTimeFormat("pt-BR", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
 
 export function formatDate(value, formatter = compactDate) {
   if (!value) return "—";

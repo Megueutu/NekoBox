@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import styles from "../style.css?raw";
-import ProfilePage, { afterRender } from "../pages/profile/ProfilePage";
+import ProfilePage, { afterRender } from "../pages/account/ProfilePage";
 import { Store } from "../store/store";
 import { Actions } from "../store/actions";
 
-vi.mock("../services/account/account.service", () => ({
+vi.mock("../services/account.service", () => ({
   AccountService: {
     getProfile: vi.fn().mockResolvedValue({
       id: "2",
@@ -17,7 +17,7 @@ vi.mock("../services/account/account.service", () => ({
   },
 }));
 
-vi.mock("../services/auth/auth.service", () => ({
+vi.mock("../services/auth.service", () => ({
   AuthService: { logout: vi.fn() },
 }));
 

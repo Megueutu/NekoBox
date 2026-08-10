@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setupKeyboardNavigation } from "../app/accessibility/keyboard";
+import { setupKeyboardNavigation } from "../app/keyboard";
 
 let cleanup;
 

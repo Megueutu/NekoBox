@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import AccessibilityPage from "../pages/accessibility/AccessibilityPage";
+import AccessibilityPage from "../pages/info/AccessibilityPage";
 import { GamesService } from "../services/games/games.service";
 
 vi.mock("../services/games/games.service", () => ({
@@ -19,12 +19,11 @@ describe("Accessibility page", () => {
 
     container.innerHTML = await AccessibilityPage();
 
-    const hero = container.querySelector(".accessibility-hero");
-    expect(hero?.getAttribute("aria-labelledby")).toBe("accessibility-title");
-    expect(hero?.querySelector(".accessibility-hero__backdrop")?.getAttribute("aria-hidden")).toBe("true");
-    expect(hero?.querySelector(".accessibility-hero__image")?.getAttribute("alt")).toBe("");
+    const hero = container.querySelector(".content-hero");
+    expect(hero?.getAttribute("aria-labelledby")).toBe("legal-title");
+    expect(hero?.querySelector(".content-hero__backdrop")?.getAttribute("aria-hidden")).toBe("true");
+    expect(hero?.querySelector(".content-hero__image")?.getAttribute("alt")).toBe("");
     expect(hero?.querySelector("h1")?.textContent).toContain("experiências para todos");
-    expect(hero?.querySelector(".accessibility-hero__meta dd")?.textContent).toContain("WCAG 2.2");
   });
 
   it("should keep the post-WCAG sections addressable from its sidebar index", async () => {
@@ -32,7 +31,7 @@ describe("Accessibility page", () => {
 
     container.innerHTML = await AccessibilityPage();
 
-    const targets = [...container.querySelectorAll(".accessibility-legal-layout .legal-index a")]
+    const targets = [...container.querySelectorAll(".legal-layout .legal-index a")]
       .map((link) => link.getAttribute("href"));
 
     expect(targets).toEqual(["#principios", "#normas", "#recursos"]);
@@ -52,21 +51,12 @@ describe("Accessibility page", () => {
       .toEqual(["1.1", "1.2", "1.3", "1.4"]);
   });
 
-  it("should render the content after the premise using the legal editorial layout", async () => {
+  it("should render the sections using the shared legal editorial layout", async () => {
     const container = document.createElement("div");
 
     container.innerHTML = await AccessibilityPage();
 
-    expect(container.querySelectorAll(".accessibility-legal-layout .legal-content > section")).toHaveLength(3);
-  });
-
-  it("should pair the premise content with decorative game artwork", async () => {
-    const container = document.createElement("div");
-
-    container.innerHTML = await AccessibilityPage();
-
-    const image = container.querySelector("#premissa .accessibility-intro__media img");
-    expect(image?.getAttribute("alt")).toBe("");
+    expect(container.querySelectorAll(".legal-layout .legal-content > section")).toHaveLength(3);
   });
 
   it("should keep the local fallback when the catalog is unavailable", async () => {
@@ -75,7 +65,7 @@ describe("Accessibility page", () => {
     const container = document.createElement("div");
     container.innerHTML = await AccessibilityPage();
 
-    expect(container.querySelector(".accessibility-hero__image")?.getAttribute("src"))
+    expect(container.querySelector(".content-hero__image")?.getAttribute("src"))
       .toBe("/mocks/callofduty.png");
   });
 });

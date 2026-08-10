@@ -41,7 +41,7 @@ describe("local mock API", () => {
     expect(mockGames.some((game) => game.slug === "hollow-knight-silksong")).toBe(true);
   });
 
-  it("should include every curated title and use one placeholder for unavailable covers", () => {
+  it("should include every curated title and use real, distinct covers for previously missing artwork", () => {
     const slugs = [
       "hollow-knight-silksong",
       "assassins-creed-black-flag-remake",
@@ -53,11 +53,12 @@ describe("local mock API", () => {
       "dragon-ball-sparking-zero",
       "halo-campaign-evolved",
     ];
-    const covers = ["eldest-souls", "hades-2", "hades", "celeste", "dark-souls-3", "stardew-valley"]
-      .map((slug) => mockGames.find((game) => game.slug === slug).media.find((item) => item.type === "cover").url);
+    const fixedCovers = ["eldest-souls", "hades-2", "hades", "celeste", "dark-souls-3", "stardew-valley"]
+      .map((slug) => mockGames.find((game) => game.slug === slug).media.find((item) => item.type === "cover"));
 
     expect(slugs.every((slug) => mockGames.some((game) => game.slug === slug))).toBe(true);
-    expect(new Set(covers).size).toBe(1);
+    expect(fixedCovers.every((cover) => cover && !cover.is_placeholder)).toBe(true);
+    expect(new Set(fixedCovers.map((cover) => cover.url)).size).toBe(fixedCovers.length);
   });
 
   it("should use the supplied Cloudinary posters for every mapped game", () => {

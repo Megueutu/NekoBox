@@ -1,19 +1,8 @@
-.noise-overlay {
-  position: relative;
-}
-.noise-overlay::after {
-  content: none;
-}
-
-
 a, button, input, textarea, select, [tabindex] {
   outline: none;
 }
 a:focus-visible,
 button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid var(--color-brand-400);
   outline-offset: 2px;

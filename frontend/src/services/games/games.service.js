@@ -1,4 +1,4 @@
-import { ApiClient } from "../api/api.client";
+import { ApiClient } from "../api.client";
 import { normalizeGame, normalizeGames } from "./game.normalizer";
 import { auditCatalogMedia } from "./catalog-media.audit";
 

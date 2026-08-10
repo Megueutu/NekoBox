@@ -1,4 +1,4 @@
-import { ApiClient } from "../api/api.client";
+import { ApiClient } from "../api.client";
 
 const resourceId = (id) => encodeURIComponent(String(id));
 

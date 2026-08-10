@@ -1,8 +1,10 @@
 import { PublicLayout } from "../../app/layouts/PublicLayout";
+import { ContentHero } from "../../components/ui/ContentHero";
 import { GameCard } from "../../components/ui/GameCard";
 import { GamesService } from "../../services/games/games.service";
 import { getBannerUrl } from "../../utils/media";
 import { getGameBannerRotation } from "../../utils/random-banner";
+import { bindNavigationScroll } from "../../utils/nav-scroll";
 import {
   getLandingHeroMeta,
   LANDING_HERO_INTERVAL_MS,
@@ -37,84 +39,26 @@ export default async function LandingPage() {
     highlights[0] ||
     featuredGame;
 
-  const totalGames = games.length;
-  const genreCount = new Set(games.flatMap((game) => game.categories || [])).size;
-  const stats = [
-    { value: `${totalGames}+`, label: "Títulos no catálogo" },
-    { value: `${genreCount}`, label: "Gêneros diferentes" },
-    { value: "24/7", label: "Acesso à sua biblioteca" },
-  ];
 
   const content = `
     <div class="landing-page">
-      <div class="landing-aurora" aria-hidden="true">
-        <span class="landing-aurora__blob landing-aurora__blob--one"></span>
-        <span class="landing-aurora__blob landing-aurora__blob--two"></span>
-        <span class="landing-aurora__grid"></span>
-      </div>
-
       <section class="storefront-hero" aria-labelledby="landing-title" data-hero-carousel>
         <img src="${featuredBannerUrl}" alt="" class="storefront-hero__image" data-hero-image data-hero-parallax fetchpriority="high" />
         <div class="storefront-hero__shade" aria-hidden="true"></div>
         <div class="site-container storefront-hero__content">
-          <div class="storefront-hero__copy glass-panel" data-reveal>
-            <p class="storefront-kicker type-eyebrow"><span class="storefront-kicker__dot" aria-hidden="true"></span>Em destaque no NekoBox</p>
+          <div class="storefront-hero__copy panel" data-reveal>
             <h1 id="landing-title" class="type-hero-title">${featuredGame.title}</h1>
-            <p data-hero-description class="type-subtitle">${featuredGame.short_description}</p>
             <div class="storefront-hero__meta" aria-label="Informações do jogo">
-              <span class="glass-chip glass-chip--price" data-hero-price>${featuredMeta.price}</span>
-              <span class="glass-chip" data-hero-category ${featuredMeta.category ? "" : "hidden"}>${featuredMeta.category}</span>
+              <span class="chip" data-hero-price>${featuredMeta.price}</span>
+              <span class="storefront-hero__tags" data-hero-categories>${featuredMeta.categories.map((category) => `<span class="chip">${category}</span>`).join("")}</span>
             </div>
             <div class="storefront-actions">
-              <a href="/game/${featuredGame.slug}" data-link data-hero-details class="button-neon px-5 py-3">Ver detalhes</a>
-              <a href="/hub" data-link class="button-glass px-5 py-3">Explorar catálogo</a>
+              <a href="/game/${featuredGame.slug}" data-link data-hero-details class="button-primary px-5 py-3">Ver detalhes</a>
+              <a href="/hub" data-link class="button-outline px-5 py-3">Explorar catálogo</a>
             </div>
-            ${
-              landingHeroSlides.length > 1
-                ? `
-                  <div class="storefront-hero__rotation" aria-label="Controles do destaque">
-                    <div class="storefront-hero__indicators" role="group" aria-label="Selecionar jogo em destaque">
-                      ${landingHeroSlides
-                        .map(
-                          ({ game }, index) => `
-                            <button type="button" data-hero-slide="${index}"
-                                    aria-label="Mostrar ${game.title}"
-                                    ${index === 0 ? 'aria-current="true"' : ""}></button>
-                          `
-                        )
-                        .join("")}
-                    </div>
-                    <button type="button" class="storefront-hero__pause" data-hero-pause aria-pressed="false">
-                      Pausar troca automática
-                    </button>
-                  </div>
-                `
-                : ""
-            }
           </div>
         </div>
       </section>
-
-      <div class="site-container">
-        <dl class="landing-stats" data-reveal aria-label="Números do NekoBox">
-          ${stats
-            .map(
-              (stat) => `
-                <div class="landing-stat glass-panel">
-                  <dt class="landing-stat__value">${stat.value}</dt>
-                  <dd class="landing-stat__label">${stat.label}</dd>
-                </div>
-              `
-            )
-            .join("")}
-        </dl>
-      </div>
-
-      <nav class="site-container landing-shortcuts" aria-label="Atalhos desta página">
-        <a href="#destaques">Destaques</a>
-        <a href="#colecoes">Coleções</a>
-        <a href="/hub" data-link>Todos os jogos</a>
-      </nav>
 
       <div class="site-container landing-content">
         <section id="destaques" aria-labelledby="highlights-title" data-reveal>
@@ -134,7 +78,7 @@ export default async function LandingPage() {
           <div class="section-heading">
             <div>
               <p class="section-heading__eyebrow mb-1">Escolha seu ritmo</p>
-              <h2 id="collections-title" class="type-section-title">Coleções em foco</h2>
+              <h2 id="collections-title" class="type-section-title">Nossas principais coleções</h2>
             </div>
           </div>
           <div class="landing-collections">
@@ -145,7 +89,6 @@ export default async function LandingPage() {
                     <img src="${getBannerUrl(game)}" alt="" loading="lazy" />
                     <span class="collection-card__shade" aria-hidden="true"></span>
                     <span class="collection-card__content">
-                      <span class="collection-card__index" aria-hidden="true">0${index + 1}</span>
                       <strong>${label}</strong>
                       <span>${description}</span>
                     </span>
@@ -156,30 +99,20 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        <section class="landing-membership glass-panel glass-panel--glow" aria-labelledby="membership-title" data-reveal>
-          <div class="landing-membership__copy">
-            <p class="section-heading__eyebrow mb-2">Sua coleção, do seu jeito</p>
-            <h2 id="membership-title" class="type-section-title">Salve. Escolha. Jogue.</h2>
-            <p class="type-body">Crie sua lista de desejos, organize sua biblioteca e encontre seu próximo jogo sem sair do NekoBox.</p>
-            <ul class="landing-membership__benefits" aria-label="Recursos da sua conta">
-              <li>Lista de desejos</li>
-              <li>Biblioteca organizada</li>
-              <li>Acesso 24/7</li>
-            </ul>
-            <div class="landing-membership__actions">
-              <a href="/login" data-link class="button-neon px-5 py-3">Criar conta</a>
-              <a href="/hub" data-link class="button-glass px-5 py-3">Explorar catálogo</a>
-            </div>
-          </div>
-          <figure class="landing-membership__art" aria-hidden="true">
-            <img src="${getBannerUrl(membershipGame)}" alt="" loading="lazy" />
-            <span class="landing-membership__shade" aria-hidden="true"></span>
-            <figcaption>
-              <span>Uma próxima aventura te espera</span>
-              <strong>${membershipGame.title}</strong>
-            </figcaption>
-          </figure>
-        </section>
+        ${ContentHero({
+          tag: "section",
+          className: "landing-membership",
+          attributes: "data-reveal",
+          titleId: "membership-title",
+          headingTag: "h2",
+          title: "Salve. Escolha. Jogue.",
+          description: "Crie sua lista de desejos, organize sua biblioteca e encontre seu próximo jogo sem sair do NekoBox.",
+          bannerUrl: getBannerUrl(membershipGame),
+          actionsHtml: `
+            <a href="/login" data-link class="button-primary px-5 py-3">Criar conta</a>
+            <a href="/hub" data-link class="button-outline px-5 py-3">Explorar catálogo</a>
+          `,
+        })}
       </div>
     </div>
   `;
@@ -189,4 +122,5 @@ export default async function LandingPage() {
 
 export function afterRender() {
   setupLandingHero(landingHeroSlides);
+  bindNavigationScroll(".site-nav--landing");
 }

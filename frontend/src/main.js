@@ -1,12 +1,10 @@
 import "@/style.css";
 import { Router } from "@/app/router/router";
-import { applyPreferences } from "@/app/preferences/preferences";
-import { setupWalletDialog } from "@/components/wallet/WalletDialog";
+import { setupWalletDialog } from "@/components/WalletDialog";
 import { setupMediaFallbacks } from "@/utils/media-fallback";
-import { setupAuthDialog } from "@/components/auth/AuthDialog";
-import { setupChatbot } from "@/components/chat/Chatbot";
+import { setupAuthDialog } from "@/components/AuthDialog";
+import { setupChatbot } from "@/components/Chatbot";
 
-applyPreferences();
 setupWalletDialog();
 setupMediaFallbacks();
 setupAuthDialog();

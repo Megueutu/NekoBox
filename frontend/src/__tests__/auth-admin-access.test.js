@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../services/api/api.client", () => ({
+vi.mock("../services/api.client", () => ({
   ApiClient: {
     post: vi.fn(),
   },
 }));
 
-vi.mock("../services/account/account.service", () => ({
+vi.mock("../services/account.service", () => ({
   AccountService: {
     getProfile: vi.fn(),
     getCart: vi.fn(),
@@ -21,9 +21,9 @@ vi.mock("../store/actions", () => ({
   },
 }));
 
-import { AuthService } from "../services/auth/auth.service";
-import { ApiClient } from "../services/api/api.client";
-import { AccountService } from "../services/account/account.service";
+import { AuthService } from "../services/auth.service";
+import { ApiClient } from "../services/api.client";
+import { AccountService } from "../services/account.service";
 import { Actions } from "../store/actions";
 
 describe("Admin session isolation", () => {

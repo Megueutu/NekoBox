@@ -1,11 +1,12 @@
 import { AdminLayout } from "../../app/layouts/AdminLayout";
 import { navigate } from "../../app/router/navigate";
 import { Icon, icons } from "../../components/ui/Icon";
-import { GameResourceForm } from "../../components/game/GameResourceForm";
-import { AdminService } from "../../services/admin/admin.service";
-import { AuthService } from "../../services/auth/auth.service";
+import { GameResourceForm } from "../../components/GameResourceForm";
+import { AdminService } from "../../services/admin.service";
+import { AuthService } from "../../services/auth.service";
 import { escapeHtml } from "../../utils/escape";
-import { dateTime, formatDate, money } from "./admin-format";
+import { formatPrice } from "../../utils/format";
+import { formatDate, money } from "./admin-format";
 import {
   cleanupSelectedMedia,
   getSelectedMediaUploads,
@@ -15,22 +16,17 @@ import {
   updateGamePreview,
 } from "./admin-game-preview";
 
-let activeSection = "dashboard";
-let adminState = { dashboard: null, users: [], games: [] };
+let activeSection = "users";
+let adminState = { users: [], games: [] };
 
 function emptyRow(columns, message) {
   return `<tr><td colspan="${columns}" class="admin-empty">${message}</td></tr>`;
 }
 
-function dashboardEmptyState(title, description, icon = icons.dashboard) {
-  return `<div class="admin-empty-state"><span>${Icon(icon, { className: "w-5 h-5" })}</span><div><strong>${title}</strong><p>${description}</p></div></div>`;
-}
-
-function pageHeader(eyebrow, title, description, action = "") {
+function pageHeader(title, description, action = "") {
   return `
     <header class="admin-page-header">
       <div>
-        <p>${eyebrow}</p>
         <h1>${title}</h1>
         <span>${description}</span>
       </div>
@@ -39,64 +35,11 @@ function pageHeader(eyebrow, title, description, action = "") {
   `;
 }
 
-function dashboardSection(dashboard) {
-  const evolution = dashboard.evolucao || [];
-  const maxRevenue = Math.max(...evolution.map((item) => Number(item.receita)), 1);
-  return `
-    <section class="admin-section ${activeSection === "dashboard" ? "" : "hidden"}" data-admin-panel="dashboard">
-      ${pageHeader("Visão geral", "Dashboard de vendas", "Acompanhe a operação e identifique os jogos com maior tração.")}
-      <div class="admin-kpis">
-        <article><span>Receita aprovada</span><strong>${money.format(dashboard.receita || 0)}</strong><small>${dashboard.vendas} vendas</small></article>
-        <article><span>Ticket médio</span><strong>${money.format(dashboard.ticket_medio || 0)}</strong><small>${dashboard.compradores} compradores</small></article>
-        <article><span>Usuários</span><strong>${dashboard.usuarios}</strong><small>contas cadastradas</small></article>
-        <article><span>Catálogo ativo</span><strong>${dashboard.jogos_ativos}</strong><small>jogos publicados</small></article>
-      </div>
-      <div class="admin-dashboard-grid">
-        <article class="admin-panel admin-chart-panel">
-          <div class="admin-panel__heading"><div><p>Receita por dia</p><h2>Evolução das vendas</h2></div><span>Pagamentos aprovados</span></div>
-          ${
-            evolution.length
-              ? `<ol class="admin-chart">
-                  ${evolution.map((item) => {
-                    const height = Math.max((Number(item.receita) / maxRevenue) * 100, 8);
-                    return `<li style="--bar-height:${height}%">
-                      <span class="sr-only">${formatDate(item.data)}: ${money.format(item.receita)}, ${item.vendas} vendas</span>
-                      <i aria-hidden="true"></i><small>${formatDate(item.data)}</small>
-                    </li>`;
-                  }).join("")}
-                </ol>`
-              : dashboardEmptyState("A evolução começa na primeira venda", "Quando um pagamento for aprovado, a receita diária aparecerá aqui.")
-          }
-        </article>
-        <article class="admin-panel">
-          <div class="admin-panel__heading"><div><p>Top 5</p><h2>Jogos mais vendidos</h2></div></div>
-          <ol class="admin-ranking">
-            ${(dashboard.mais_vendidos || []).map((game, index) => `
-              <li><span>${String(index + 1).padStart(2, "0")}</span><div><strong>${escapeHtml(game.titulo)}</strong><small>${game.vendas} vendas</small></div><b>${money.format(game.receita)}</b></li>
-            `).join("") || `<li class="admin-ranking__empty">${dashboardEmptyState("O ranking será montado aqui", "Os jogos com mais compras aprovadas aparecem neste espaço.", icons.gamepad)}</li>`}
-          </ol>
-        </article>
-      </div>
-      <article class="admin-panel">
-        <div class="admin-panel__heading"><div><p>Atividade</p><h2>Vendas recentes</h2></div></div>
-        <div class="admin-table-wrap"><table class="admin-table">
-          <thead><tr><th>Data</th><th>Cliente</th><th>Jogo</th><th>Valor</th></tr></thead>
-          <tbody>
-            ${(dashboard.vendas_recentes || []).map((sale) => `
-              <tr><td>${formatDate(sale.criado_em, dateTime)}</td><td>${escapeHtml(sale.usuario)}</td><td>${escapeHtml(sale.jogo)}</td><td><strong>${money.format(sale.valor)}</strong></td></tr>
-            `).join("") || `<tr><td colspan="4">${dashboardEmptyState("Ainda não há vendas recentes", "As compras aprovadas aparecerão nesta lista assim que acontecerem.", icons.circleCheck)}</td></tr>`}
-          </tbody>
-        </table></div>
-      </article>
-    </section>
-  `;
-}
-
 function usersSection(users) {
   const action = `<button type="button" class="button-primary admin-header-action" data-admin-create="user">${Icon(icons.plus, { className: "w-4 h-4" })} Novo usuário</button>`;
   return `
     <section class="admin-section ${activeSection === "users" ? "" : "hidden"}" data-admin-panel="users">
-      ${pageHeader("Acessos", "Usuários", "Gerencie contas e saldos sem alterar o papel do administrador único.", action)}
+      ${pageHeader("Usuários", "Gerencie contas e saldos sem alterar o papel do administrador único.", action)}
       <article class="admin-panel">
         <div class="admin-panel__heading"><div><p>Base de usuários</p><h2>${users.length} contas</h2></div></div>
         <div class="admin-table-wrap"><table class="admin-table">
@@ -125,23 +68,25 @@ function gamesSection(games) {
   const action = `<button type="button" class="button-primary admin-header-action" data-admin-create="game">${Icon(icons.plus, { className: "w-4 h-4" })} Novo jogo</button>`;
   return `
     <section class="admin-section ${activeSection === "games" ? "" : "hidden"}" data-admin-panel="games">
-      ${pageHeader("Catálogo", "Jogos", "Crie, publique e arquive títulos do marketplace.", action)}
+      ${pageHeader("Jogos", "Crie, publique e arquive títulos em nosso marketplace.", action)}
       <article class="admin-panel">
         <div class="admin-panel__heading"><div><p>Catálogo completo</p><h2>${games.length} jogos</h2></div></div>
         <div class="admin-table-wrap"><table class="admin-table admin-games-table">
-          <thead><tr><th>Jogo</th><th>Preço</th><th>Status</th><th>Lançamento</th><th><span class="sr-only">Ações</span></th></tr></thead>
           <tbody>
-            ${games.map((game) => `
+            ${games.map((game) => {
+              const posterUrl = game.midias?.find((item) => (item.tipo || item.type) === "poster")?.url || "";
+              return `
               <tr>
-                <td><div class="admin-game-cell"><div class="admin-game-cover" ${game.capa_url ? `style="background-image:url('${escapeHtml(game.capa_url)}')"` : ""}>${game.capa_url ? "" : Icon(icons.gamepad, { className: "w-5 h-5" })}</div><div><strong>${escapeHtml(game.titulo)}</strong><small>${escapeHtml(game.slug)}</small></div></div></td>
-                <td>${money.format(game.preco)}</td><td><span class="admin-status admin-status--${game.status === "published" ? "success" : game.status === "archived" ? "muted" : "warning"}">${escapeHtml(game.status)}</span></td>
+                <td><div class="admin-game-cell"><div class="admin-game-cover admin-game-cover--square" ${posterUrl ? `style="background-image:url('${escapeHtml(posterUrl)}')"` : ""}>${posterUrl ? "" : Icon(icons.gamepad, { className: "w-5 h-5" })}</div><div><strong>${escapeHtml(game.titulo)}</strong><small>${escapeHtml(game.slug)}</small></div></div></td>
+                <td>${formatPrice(game.preco)}</td><td><span class="admin-status admin-status--${game.status === "published" ? "success" : game.status === "archived" ? "muted" : "warning"}">${escapeHtml(game.status)}</span></td>
                 <td>${formatDate(game.data_lancamento)}</td>
                 <td><div class="admin-row-actions">
                   <button type="button" data-admin-edit-game="${game.id}" aria-label="Editar ${escapeHtml(game.titulo)}">${Icon(icons.pencil, { className: "w-4 h-4" })}</button>
                   <button type="button" class="admin-danger" data-admin-delete-game="${game.id}" aria-label="Excluir ${escapeHtml(game.titulo)}">${Icon(icons.trash, { className: "w-4 h-4" })}</button>
                 </div></td>
               </tr>
-            `).join("") || emptyRow(5, "Nenhum jogo cadastrado.")}
+            `;
+            }).join("") || emptyRow(5, "Nenhum jogo cadastrado.")}
           </tbody>
         </table></div>
       </article>
@@ -162,14 +107,12 @@ function adminDialog() {
 }
 
 export default async function AdminPage() {
-  const [dashboard, users, games] = await Promise.all([
-    AdminService.getDashboard(),
+  const [users, games] = await Promise.all([
     AdminService.getUsers(),
     AdminService.getGames(),
   ]);
-  adminState = { dashboard, users, games };
+  adminState = { users, games };
   const content = `
-    ${dashboardSection(dashboard)}
     ${usersSection(users)}
     ${gamesSection(games)}
     ${adminDialog()}
@@ -222,13 +165,12 @@ function openGameDialog(game = null) {
   const content = document.getElementById("admin-dialog-content");
   dialog.dataset.variant = "game";
   content.innerHTML = `
-    <header><p>${game ? "Editar catálogo" : "Novo catálogo"}</p><h2 id="admin-dialog-title">${game ? escapeHtml(game.titulo) : "Cadastrar jogo"}</h2></header>
+    <header><h2 id="admin-dialog-title">${game ? escapeHtml(game.titulo) : "Cadastrar jogo"}</h2></header>
     ${GameResourceForm({
       formId: "admin-resource-form",
       idPrefix: "admin-game",
       game,
       submitLabel: game ? "Salvar alterações" : "Cadastrar jogo",
-      introEyebrow: "Cadastro do catálogo",
       introDescription: "Comece pelo conteúdo que aparece para quem está navegando pela loja.",
       mediaDeleteAttribute: "data-admin-delete-media",
     })}`;
@@ -259,7 +201,6 @@ async function submitResourceForm(form) {
       const current = adminState.games.find((game) => String(game.id) === id);
       const payload = {
         titulo: data.get("titulo"),
-        descricao_curta: data.get("descricao_curta"),
         descricao_longa: data.get("descricao_longa"),
         preco: Number(data.get("preco")),
         data_lancamento: data.get("data_lancamento") || null,

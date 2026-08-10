@@ -1,4 +1,4 @@
-import { formatDate, money } from "./admin-format";
+import { formatPrice } from "../../utils/format";
 
 const MAX_SCREENSHOTS = 10;
 const mediaSelections = new WeakMap();
@@ -99,11 +99,8 @@ export function updateGamePreview(form) {
   if (!preview) return;
 
   const title = form.elements.titulo.value.trim() || "Título do jogo";
-  const description = form.elements.descricao_curta.value.trim()
-    || "Uma breve descrição vai aparecer aqui.";
   const price = Number(form.elements.preco.value || 0);
-  const formattedPrice = price === 0 ? "Gratuito" : money.format(Number.isFinite(price) ? price : 0);
-  const releaseDate = form.elements.data_lancamento.value;
+  const formattedPrice = formatPrice(Number.isFinite(price) ? price : 0);
   const status = form.elements.status.value;
   const statusLabels = { draft: "Rascunho", published: "Publicado", archived: "Arquivado" };
   const tags = form.elements.tags.value
@@ -112,31 +109,24 @@ export function updateGamePreview(form) {
     .filter(Boolean)
     .slice(0, 4);
   const bannerUrl = selectedMediaUrls(form, "banner")[0] || "";
-  const posterUrl = selectedMediaUrls(form, "poster")[0] || "";
+  const coverUrl = selectedMediaUrls(form, "cover")[0] || "";
   const screenshots = selectedMediaUrls(form, "screenshot");
 
   preview.querySelector("[data-preview-title]").textContent = title;
   preview.querySelector("[data-preview-card-title]").textContent = title;
-  preview.querySelector("[data-preview-description]").textContent = description;
   preview.querySelector("[data-preview-card-description]").textContent = tags[0] || "Jogo digital";
   preview.querySelector("[data-preview-price]").textContent = formattedPrice;
   preview.querySelector("[data-preview-card-price]").textContent = formattedPrice;
-  preview.querySelector("[data-preview-release]").textContent = releaseDate
-    ? formatDate(releaseDate)
-    : "Data a definir";
-
-  const statusBadge = preview.querySelector("[data-preview-status]");
-  statusBadge.textContent = statusLabels[status] || status;
-  statusBadge.dataset.status = status;
 
   const tagsContainer = preview.querySelector("[data-preview-tags]");
   tagsContainer.replaceChildren(...tags.map((tag) => {
     const chip = document.createElement("span");
+    chip.className = "chip";
     chip.textContent = tag;
     return chip;
   }));
 
-  setPreviewImage(preview.querySelector("[data-preview-poster]"), posterUrl, `Pôster de ${title}`);
+  setPreviewImage(preview.querySelector("[data-preview-cover]"), coverUrl, `Capa de ${title}`);
   setPreviewImage(preview.querySelector("[data-preview-banner]"), bannerUrl, `Banner de ${title}`);
 
   const screenshotsContainer = preview.querySelector("[data-preview-screenshots]");
@@ -147,7 +137,7 @@ export function updateGamePreview(form) {
     screenshotsContainer.append(empty);
     return;
   }
-  screenshots.slice(0, 4).forEach((url, index) => {
+  screenshots.slice(0, 3).forEach((url, index) => {
     const image = document.createElement("img");
     image.src = url;
     image.alt = `Screenshot ${index + 1} de ${title}`;

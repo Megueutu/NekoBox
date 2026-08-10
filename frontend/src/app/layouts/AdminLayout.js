@@ -1,6 +1,6 @@
 import { Icon, icons } from "../../components/ui/Icon";
 
-export function AdminLayout(content, activeSection = "dashboard") {
+export function AdminLayout(content, activeSection = "users") {
   const item = (section, label, icon) => `
     <button type="button" class="admin-nav__item ${activeSection === section ? "admin-nav__item--active" : ""}"
             data-admin-section="${section}" ${activeSection === section ? 'aria-current="page"' : ""}>
@@ -13,12 +13,11 @@ export function AdminLayout(content, activeSection = "dashboard") {
     <div class="admin-shell">
       <a href="#admin-content" class="skip-link">Pular para o conteúdo</a>
       <aside class="admin-sidebar">
-        <a href="/admin" data-link class="admin-brand" aria-label="NekoBox Admin — início">
-          <img src="/nekobox-mark.svg" class="admin-brand__mark" alt="" aria-hidden="true" />
-          <strong>NEKO<em>ADMIN</em></strong>
+        <a href="/admin" data-link class="admin-brand" aria-label="NekoBox Admin">
+          <img src="/cat.svg" class="admin-brand__mark" alt="" aria-hidden="true" />
+          <img src="/logo.svg" class="admin-brand__logo" alt="NekoBox" />
         </a>
         <nav class="admin-nav" aria-label="Administração">
-          ${item("dashboard", "Dashboard", icons.dashboard)}
           ${item("users", "Usuários", icons.users)}
           ${item("games", "Jogos", icons.gamepad)}
         </nav>

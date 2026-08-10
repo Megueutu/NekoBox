@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { WalletDialog, setupWalletDialog } from "../components/wallet/WalletDialog";
-import { AccountService } from "../services/account/account.service";
+import { WalletDialog, setupWalletDialog } from "../components/WalletDialog";
+import { AccountService } from "../services/account.service";
 
 let cleanup;
 

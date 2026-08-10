@@ -1,33 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getSelectedMediaUploads, selectMediaFiles } from "../pages/admin/admin-game-preview";
 
-vi.mock("../services/admin/admin.service", () => ({
+vi.mock("../services/admin.service", () => ({
   AdminService: {
-    getDashboard: vi.fn(),
     getUsers: vi.fn(),
     getGames: vi.fn(),
   },
 }));
 
 import AdminPage, { afterRender } from "../pages/admin/AdminPage";
-import { AdminService } from "../services/admin/admin.service";
+import { AdminService } from "../services/admin.service";
 
 describe("Admin page", () => {
   beforeEach(() => {
     Object.defineProperties(URL, {
       createObjectURL: { configurable: true, value: vi.fn((file) => `blob:${file.name}`) },
       revokeObjectURL: { configurable: true, value: vi.fn() },
-    });
-    AdminService.getDashboard.mockResolvedValue({
-      receita: 349.8,
-      vendas: 2,
-      ticket_medio: 174.9,
-      compradores: 2,
-      usuarios: 4,
-      jogos_ativos: 3,
-      evolucao: [],
-      mais_vendidos: [],
-      vendas_recentes: [],
     });
     AdminService.getUsers.mockResolvedValue([
       {
@@ -51,38 +39,14 @@ describe("Admin page", () => {
     const container = document.createElement("div");
     container.innerHTML = await AdminPage();
 
-    expect(container.querySelectorAll("[data-admin-section]")).toHaveLength(3);
-    expect(container.querySelector('[data-admin-panel="dashboard"]')).not.toBeNull();
+    expect(container.querySelectorAll("[data-admin-section]")).toHaveLength(2);
+    expect(container.querySelector('[data-admin-panel="dashboard"]')).toBeNull();
     expect(container.querySelector('[data-admin-panel="credits"]')).toBeNull();
     expect(container.querySelector('[data-admin-panel="users"]')).not.toBeNull();
     expect(container.querySelector('[data-admin-panel="games"]')).not.toBeNull();
     expect(container.querySelector("footer")).toBeNull();
     expect(container.querySelector('a[href="/hub"]')).toBeNull();
     expect(container.querySelector("#admin-logout")).not.toBeNull();
-  });
-
-  it("should center useful empty states when dashboard data is unavailable", async () => {
-    const container = document.createElement("div");
-    container.innerHTML = await AdminPage();
-
-    expect(container.querySelectorAll("[data-admin-panel=\"dashboard\"] .admin-empty-state")).toHaveLength(3);
-    expect(container.textContent).toContain("A evolução começa na primeira venda");
-    expect(container.textContent).toContain("O ranking será montado aqui");
-  });
-
-  it("should render dashboard content when sales data is available", async () => {
-    AdminService.getDashboard.mockResolvedValue({
-      receita: 329.8, vendas: 2, ticket_medio: 164.9, compradores: 2, usuarios: 4, jogos_ativos: 3,
-      evolucao: [{ data: "2026-08-01", receita: 129.9, vendas: 1 }, { data: "2026-08-02", receita: 199.9, vendas: 1 }],
-      mais_vendidos: [{ titulo: "Hades", vendas: 1, receita: 129.9 }],
-      vendas_recentes: [{ criado_em: "2026-08-02T18:42:00", usuario: "marina", jogo: "Cyberpunk 2077", valor: 199.9 }],
-    });
-    const container = document.createElement("div");
-    container.innerHTML = await AdminPage();
-
-    expect(container.querySelectorAll(".admin-chart li")).toHaveLength(2);
-    expect(container.querySelector(".admin-ranking strong")?.textContent).toBe("Hades");
-    expect(container.querySelector("[data-admin-panel=\"dashboard\"] .admin-empty-state")).toBeNull();
   });
 
   it("should protect the single admin from a delete action in the interface", async () => {
@@ -93,7 +57,7 @@ describe("Admin page", () => {
     expect(container.textContent).toContain("ADMIN");
   });
 
-  it("should render the uploaded cover returned by the backend", async () => {
+  it("should render the uploaded square poster in the catalog table", async () => {
     AdminService.getGames.mockResolvedValue([{
       id: 10,
       titulo: "Cyberpunk 2077",
@@ -101,10 +65,10 @@ describe("Admin page", () => {
       preco: 199.9,
       status: "published",
       midias: [{
-        id: 21,
-        tipo: "cover",
+        id: 22,
+        tipo: "poster",
         posicao: 1,
-        url: "https://res.cloudinary.com/demo/image/upload/cover.jpg",
+        url: "https://res.cloudinary.com/demo/image/upload/poster.jpg",
       }],
       capa_url: "https://res.cloudinary.com/demo/image/upload/cover.jpg",
     }]);
@@ -112,7 +76,9 @@ describe("Admin page", () => {
 
     container.innerHTML = await AdminPage();
 
-    expect(container.querySelector(".admin-game-cover")?.getAttribute("style")).toContain("res.cloudinary.com");
+    const cover = container.querySelector(".admin-game-cover");
+    expect(cover?.classList).toContain("admin-game-cover--square");
+    expect(cover?.getAttribute("style")).toContain("poster.jpg");
   });
 
   it("should open the user editor with the normalized dialog structure", async () => {
@@ -134,7 +100,6 @@ describe("Admin page", () => {
       id: 10,
       titulo: "Cyberpunk 2077",
       slug: "cyberpunk-2077",
-      descricao_curta: "Night City.",
       preco: 199.9,
       status: "published",
       tags: ["RPG"],
@@ -160,7 +125,7 @@ describe("Admin page", () => {
     expect(dialog.querySelector("[data-preview-card-price]").textContent).toContain("89,90");
     expect([...dialog.querySelectorAll("[data-preview-tags] span")].map((item) => item.textContent))
       .toEqual(["Indie", "Aventura"]);
-    expect(dialog.querySelector("[data-preview-poster] img").hidden).toBe(true);
+    expect(dialog.querySelector("[data-preview-cover] img").src).toBe("https://example.com/cover.jpg");
     expect(dialog.querySelector("[data-preview-banner] img").src).toBe("https://example.com/banner.jpg");
 
     form.elements.preco.value = "0";
@@ -184,7 +149,7 @@ describe("Admin page", () => {
     expect(dialog.querySelector('[name="preco"]')?.closest(".admin-input-prefix")).not.toBeNull();
     expect(dialog.querySelector('[name="preco"]')?.closest(".admin-input-prefix")?.querySelector("svg")).not.toBeNull();
     expect(dialog.querySelectorAll(".field-required")).toHaveLength(2);
-    expect(dialog.querySelectorAll(".admin-field .field-tooltip")).toHaveLength(7);
+    expect(dialog.querySelectorAll(".admin-field .field-tooltip")).toHaveLength(6);
     expect(dialog.querySelector(".admin-field small")).toBeNull();
   });
 

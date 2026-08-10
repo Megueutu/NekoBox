@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GameResourceForm } from "../components/game/GameResourceForm";
+import { GameResourceForm } from "../components/GameResourceForm";
 
 describe("GameResourceForm", () => {
   it("should render a reusable catalog form with responsive field groups", () => {

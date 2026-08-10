@@ -1,25 +1,26 @@
 import { navigate } from "../../app/router/navigate";
 import { FormField } from "../../components/ui/FormField";
 import { Icon, icons } from "../../components/ui/Icon";
-import { AuthService, PASSWORD_PATTERN, USERNAME_PATTERN } from "../../services/auth/auth.service";
+import {
+  AuthService,
+  PASSWORD_PATTERN,
+  USERNAME_PATTERN,
+} from "../../services/auth.service";
 
 let activeTab = "login";
 
 const viewContent = {
   login: {
-    eyebrow: "Sua biblioteca espera",
-    title: "Boas-vindas de volta",
-    description: "Entre para continuar sua jornada no NexusPlay.",
+    title: "Boas-vindas de volta!",
+    description: "Entre para continuar sua jornada no NekoBox.",
     icon: icons.logIn,
   },
   register: {
-    eyebrow: "Comece a jogar",
-    title: "Crie sua conta",
+    title: "Comece sua jornada!",
     description: "Monte sua biblioteca e descubra seu próximo jogo favorito.",
     icon: icons.user,
   },
   forgot: {
-    eyebrow: "Recuperação de acesso",
     title: "Esqueceu sua senha?",
     description: "Informe o e-mail cadastrado para receber as instruções de recuperação.",
     icon: icons.mail,
@@ -79,11 +80,8 @@ export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
 
   return `
     <section class="auth-card auth-card--${resolvedView}" aria-labelledby="auth-title">
-      <div class="auth-card__icon" aria-hidden="true">
-        ${Icon(currentView.icon, { className: "w-5 h-5" })}
-      </div>
+      <img class="brand-minimalist" src="/brand-minimalist.svg">
       <header class="auth-card__header">
-        <p>${currentView.eyebrow}</p>
         <${headingTag} id="auth-title">${currentView.title}</${headingTag}>
         <span>${currentView.description}</span>
       </header>
@@ -114,18 +112,13 @@ export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
 export function renderAuthPage(view = activeTab) {
   return `
     <div class="auth-shell app-shell app-shell--auth">
-      <div class="app-ambient" aria-hidden="true">
-        <span class="app-ambient__blob app-ambient__blob--one"></span>
-        <span class="app-ambient__blob app-ambient__blob--two"></span>
-        <span class="app-ambient__grid"></span>
-      </div>
       <main class="auth-stage">
         <a href="/" data-link class="auth-brand" aria-label="NekoBox — Início">
-          <img src="/nekobox-mark.svg" class="auth-brand__mark" alt="" aria-hidden="true" />
-          <span>NEKO<strong>BOX</strong></span>
+          <img src="/cat.svg" class="auth-brand__mark" alt="" aria-hidden="true" />
+          <img src="/logo.svg" class="auth-brand__logo" alt="NekoBox" />
         </a>
         ${renderAuthCard(view)}
-        <p class="auth-legal">Ao continuar, você concorda com os <a href="/termos-de-uso" data-link>Termos de Uso</a> e a <a href="/privacidade" data-link>Política de Privacidade</a>.</p>
+        <p class="auth-legal">Ao continuar, você concorda com os <a style="text-decoration: none;" href="/termos-de-uso" data-link>Termos de Uso</a> e a <a style="text-decoration: none;" href="/privacidade" data-link>Política de Privacidade</a>.</p>
       </main>
     </div>
   `;
@@ -165,8 +158,13 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
       const isVisible = input.type === "text";
       input.type = isVisible ? "password" : "text";
       toggle.setAttribute("aria-pressed", String(!isVisible));
-      toggle.setAttribute("aria-label", isVisible ? "Mostrar senha" : "Ocultar senha");
-      toggle.innerHTML = Icon(isVisible ? icons.eye : icons.eyeOff, { className: "w-4 h-4" });
+      toggle.setAttribute(
+        "aria-label",
+        isVisible ? "Mostrar senha" : "Ocultar senha",
+      );
+      toggle.innerHTML = Icon(isVisible ? icons.eye : icons.eyeOff, {
+        className: "w-4 h-4",
+      });
       input.focus({ preventScroll: true });
     });
   });
@@ -177,21 +175,35 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
     navigate(resolvePostLoginTarget(usuario, target));
   };
 
-  find("#tab-login")?.addEventListener("click", () => showView("login", "#tab-login"));
-  find("#tab-register")?.addEventListener("click", () => showView("register", "#tab-register"));
-  find("#btn-forgot-tab")?.addEventListener("click", () => showView("forgot", "#input-forgot-email"));
-  find("#btn-back-login")?.addEventListener("click", () => showView("login", "#btn-forgot-tab"));
+  find("#tab-login")?.addEventListener("click", () =>
+    showView("login", "#tab-login"),
+  );
+  find("#tab-register")?.addEventListener("click", () =>
+    showView("register", "#tab-register"),
+  );
+  find("#btn-forgot-tab")?.addEventListener("click", () =>
+    showView("forgot", "#input-forgot-email"),
+  );
+  find("#btn-back-login")?.addEventListener("click", () =>
+    showView("login", "#btn-forgot-tab"),
+  );
 
   const registerForm = find("#register-form");
   const validatePasswordConfirmation = () => {
     const password = find("#input-reg-password");
     const confirmation = find("#input-reg-confirm");
     if (!password || !confirmation) return;
-    confirmation.setCustomValidity(confirmation.value && password.value !== confirmation.value ? "As senhas não coincidem." : "");
+    confirmation.setCustomValidity(
+      confirmation.value && password.value !== confirmation.value
+        ? "As senhas não coincidem."
+        : "",
+    );
   };
-  registerForm?.querySelectorAll("#input-reg-password, #input-reg-confirm").forEach((input) => {
-    input.addEventListener("input", validatePasswordConfirmation);
-  });
+  registerForm
+    ?.querySelectorAll("#input-reg-password, #input-reg-confirm")
+    .forEach((input) => {
+      input.addEventListener("input", validatePasswordConfirmation);
+    });
 
   find("#login-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();

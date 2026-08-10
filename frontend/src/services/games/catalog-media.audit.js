@@ -1,4 +1,4 @@
-import { ApiClient } from "../api/api.client";
+import { ApiClient } from "../api.client";
 import { buildCloudinaryUrl } from "../../utils/media";
 
 const AUDIT_ENABLED = import.meta.env.DEV && import.meta.env.VITE_CLOUDINARY_MEDIA_AUDIT === "true";

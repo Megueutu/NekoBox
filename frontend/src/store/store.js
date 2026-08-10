@@ -1,4 +1,4 @@
-import { createStore } from "./createStore";
+import { createStore } from "./create-store";
 
 const STATE_PERSIST_KEY = "marketplace_central_state";
 

@@ -26,7 +26,6 @@ describe("Navbar authentication visibility", () => {
     ];
 
     expect(privateTargets.some((href) => document.querySelector(`a[href="${href}"]`))).toBe(false);
-    expect(document.querySelector(`a[href="${ACCOUNT_PATHS.settings}"]`)).toBeNull();
     expect(document.querySelector('a[href="/"][aria-label="Início"] svg')).not.toBeNull();
     expect(document.querySelector('a[href="/hub"][aria-label="Catálogo"] svg')).not.toBeNull();
     expect(document.querySelector(".site-nav__link")).toBeNull();
@@ -63,8 +62,6 @@ describe("Navbar authentication visibility", () => {
 
     expect(document.querySelector(`a[href="${ACCOUNT_PATHS.profile}"]`)).not.toBeNull();
     expect(document.querySelector(`a[href="${ACCOUNT_PATHS.library}"][aria-label="Minha Biblioteca"] svg`)).not.toBeNull();
-    expect(document.querySelector(`.nav-icon-link[href="${ACCOUNT_PATHS.settings}"]`)).toBeNull();
-    expect(document.querySelectorAll(`a[href="${ACCOUNT_PATHS.settings}"]`)).toHaveLength(1);
     expect(document.querySelector('[data-wallet-trigger]')).not.toBeNull();
     expect(document.querySelector('.nav-icon-link[data-wallet-trigger]').textContent.trim()).toBe("");
     expect(document.querySelector('a[href="/admin"]')).toBeNull();

@@ -10,7 +10,6 @@ export function normalizeGame(game) {
     owner_id: text(game.owner_id),
     title: text(game.title),
     slug: text(game.slug),
-    short_description: text(game.short_description),
     long_description: text(game.long_description),
     price: Number(game.price || 0),
     quantity: Math.min(10, Math.max(1, Number(game.quantity || 1))),

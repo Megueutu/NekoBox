@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiClient } from "../services/api/api.client";
+import { ApiClient } from "../services/api.client";
 import { Store } from "../store/store";
 
 const initialState = Store.getState();

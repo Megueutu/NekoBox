@@ -1,7 +1,7 @@
 import { Store } from "../../store/store";
 import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { Icon, icons } from "../ui/Icon";
-import { WalletDialog } from "../wallet/WalletDialog";
+import { WalletDialog } from "../WalletDialog";
 
 export function Navbar() {
   const { cart, wishlist, user } = Store.getState();
@@ -10,6 +10,7 @@ export function Navbar() {
   const isCustomer = isAuthenticated && !isAdmin;
   const currentPath = window.location.pathname;
   const isHub = currentPath === "/hub";
+  const isLanding = currentPath === "/";
   const cartCount = cart.length;
   const wishlistCount = wishlist.length;
   const navIcon = (href, label, icon, className = "") => {
@@ -22,12 +23,12 @@ export function Navbar() {
   };
 
   return `
-    <nav class="site-nav ${isHub ? "site-nav--hub" : ""} ${isHub && window.scrollY > 0 ? "site-nav--scrolled" : ""} sticky top-0 z-50" aria-label="Navegação principal">
+    <nav class="site-nav ${isHub ? "site-nav--hub" : ""} ${isLanding ? "site-nav--landing" : ""} ${(isHub || isLanding) && window.scrollY > 0 ? "site-nav--scrolled" : ""} sticky top-0 z-50" aria-label="Navegação principal">
       <div class="site-container site-nav__inner flex items-center justify-between">
 
-        <a href="/" data-link class="flex items-center gap-2 font-display font-bold text-xl sm:text-2xl tracking-tight shrink-0" aria-label="NekoBox — Início">
-          <img src="/nekobox-mark.svg" class="site-brand__mark" alt="" aria-hidden="true" />
-          <span class="text-[var(--color-ink)]">Neko<span class="text-[var(--color-brand-400)]">Box</span></span>
+        <a href="/" data-link class="flex items-center gap-2 shrink-0" aria-label="NekoBox — Início">
+          <img src="/cat.svg" class="site-brand__mark" alt="" aria-hidden="true" />
+          <img src="/logo.svg" class="site-brand__logo" alt="NekoBox" />
         </a>
 
         <div class="flex items-center gap-0 sm:gap-2">
@@ -38,7 +39,9 @@ export function Navbar() {
           ${isAdmin ? navIcon("/admin", "Administração", icons.dashboard, "hidden sm:flex") : ""}
           ${navIcon("/acessibilidade", "Acessibilidade", icons.accessibility, "hidden sm:flex")}
 
-          ${isAuthenticated ? `<details class="lg:hidden relative order-last">
+          ${
+            isAuthenticated
+              ? `<details class="lg:hidden relative order-last">
             <summary class="list-none [&::-webkit-details-marker]:hidden flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer" aria-label="Abrir menu de navegação">
               ${Icon(icons.menu)}
             </summary>
@@ -49,7 +52,6 @@ export function Navbar() {
               ${
                 isCustomer
                   ? `
-                    <a href="${ACCOUNT_PATHS.settings}" data-link ${currentPath === ACCOUNT_PATHS.settings ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Configurações</a>
                     <a href="${ACCOUNT_PATHS.library}" data-link ${currentPath === ACCOUNT_PATHS.library ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Minha Biblioteca</a>
                     <a href="${ACCOUNT_PATHS.games}" data-link ${currentPath === ACCOUNT_PATHS.games ? 'aria-current="page"' : ""} class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Meus Jogos</a>
                     <a href="${ACCOUNT_PATHS.wishlist}" data-link class="type-small block px-4 py-2.5 text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors">Lista de Desejos${wishlistCount ? ` (${wishlistCount})` : ""}</a>
@@ -62,7 +64,9 @@ export function Navbar() {
                     : ""
               }
             </nav>
-          </details>` : ""}
+          </details>`
+              : ""
+          }
 
           ${
             isCustomer

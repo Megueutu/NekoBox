@@ -5,6 +5,8 @@ import LandingPage, {
 } from "../pages/landing/LandingPage";
 import { GamesService } from "../services/games/games.service";
 
+const gameCategories = ["Ação", "Aventura", "RPG", "Mundo Aberto", "Fantasia", "Roguelike", "Indie"];
+
 const games = [
   "Cyberpunk 2077",
   "The Witcher 3: Wild Hunt",
@@ -16,9 +18,8 @@ const games = [
   id: String(index + 1),
   title,
   slug: `game-${index + 1}`,
-  short_description: `Descrição ${index + 1}`,
   price: 50 + index,
-  categories: ["Ação"],
+  categories: gameCategories,
   media: [{ type: "banner", url: `https://example.com/banner-${index + 1}.jpg` }],
 }));
 
@@ -49,11 +50,15 @@ afterEach(() => {
 describe("Landing hero rotation", () => {
   it("should render five unique games in the hero rotation", async () => {
     document.body.innerHTML = await LandingPage();
+    afterRender();
 
-    const controls = [...document.querySelectorAll("[data-hero-slide]")];
-    const labels = controls.map((control) => control.getAttribute("aria-label"));
+    const titles = [document.getElementById("landing-title").textContent];
+    for (let i = 0; i < 4; i += 1) {
+      await vi.advanceTimersByTimeAsync(LANDING_HERO_INTERVAL_MS);
+      titles.push(document.getElementById("landing-title").textContent);
+    }
 
-    expect(new Set(labels).size).toBe(5);
+    expect(new Set(titles).size).toBe(5);
   });
 
   it("should advance the featured game and loop automatically", async () => {
@@ -69,24 +74,6 @@ describe("Landing hero rotation", () => {
     expect(document.getElementById("landing-title").textContent).toBe(initialTitle);
   });
 
-  it("should pause and resume automatic rotation", async () => {
-    document.body.innerHTML = await LandingPage();
-    afterRender();
-    const pauseButton = document.querySelector("[data-hero-pause]");
-    const initialTitle = document.getElementById("landing-title").textContent;
-
-    pauseButton.click();
-    await vi.advanceTimersByTimeAsync(LANDING_HERO_INTERVAL_MS);
-
-    expect(document.getElementById("landing-title").textContent).toBe(initialTitle);
-    expect(pauseButton.getAttribute("aria-pressed")).toBe("true");
-
-    pauseButton.click();
-    await vi.advanceTimersByTimeAsync(LANDING_HERO_INTERVAL_MS);
-
-    expect(document.getElementById("landing-title").textContent).not.toBe(initialTitle);
-  });
-
   it("should keep the hero static when reduced motion is requested", async () => {
     window.matchMedia = vi.fn(() => ({ matches: true }));
     document.body.innerHTML = await LandingPage();
@@ -97,24 +84,51 @@ describe("Landing hero rotation", () => {
 
     expect(document.getElementById("landing-title").textContent).toBe(initialTitle);
   });
+
+  it("should show up to five category tags for the featured game", async () => {
+    document.body.innerHTML = await LandingPage();
+    afterRender();
+
+    const tags = [...document.querySelectorAll("[data-hero-categories] .chip")].map(
+      (chip) => chip.textContent
+    );
+
+    expect(tags).toEqual(gameCategories.slice(0, 5));
+  });
+});
+
+describe("Landing navigation background", () => {
+  it("should stay transparent until the user scrolls", async () => {
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 0, writable: true });
+    document.body.innerHTML = await LandingPage();
+    afterRender();
+
+    const nav = document.querySelector(".site-nav--landing");
+    expect(nav.classList.contains("site-nav--scrolled")).toBe(false);
+
+    window.scrollY = 24;
+    window.dispatchEvent(new Event("scroll"));
+
+    expect(nav.classList.contains("site-nav--scrolled")).toBe(true);
+  });
 });
 
 describe("Landing membership call to action", () => {
   it("should pair the account invitation with decorative catalog artwork", async () => {
     document.body.innerHTML = await LandingPage();
 
-    const art = document.querySelector(".landing-membership__art");
+    const membership = document.querySelector(".landing-membership");
 
     expect({
-      hidden: art?.getAttribute("aria-hidden"),
-      imageAlt: art?.querySelector("img")?.getAttribute("alt"),
+      hidden: membership?.querySelector(".content-hero__backdrop")?.getAttribute("aria-hidden"),
+      imageAlt: membership?.querySelector(".content-hero__image")?.getAttribute("alt"),
     }).toEqual({ hidden: "true", imageAlt: "" });
   });
 
   it("should preserve the account and catalog destinations", async () => {
     document.body.innerHTML = await LandingPage();
 
-    const destinations = [...document.querySelectorAll(".landing-membership__actions a")]
+    const destinations = [...document.querySelectorAll(".landing-membership .content-hero__actions a")]
       .map((link) => link.getAttribute("href"));
 
     expect(destinations).toEqual(["/login", "/hub"]);

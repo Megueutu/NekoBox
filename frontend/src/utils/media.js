@@ -3,7 +3,7 @@ import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 import { auto as autoFormat } from "@cloudinary/url-gen/qualifiers/format";
 import { auto as autoQuality } from "@cloudinary/url-gen/qualifiers/quality";
-import { cld } from "../core/cloudinary/cloudinary";
+import { cld } from "../core/cloudinary";
 import { MISSING_MEDIA_URL } from "./media-fallback";
 
 export { MISSING_MEDIA_URL } from "./media-fallback";

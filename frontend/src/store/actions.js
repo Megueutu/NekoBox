@@ -1,5 +1,5 @@
 import { clearSessionState, Store } from "./store";
-import { AccountService } from "../services/account/account.service";
+import { AccountService } from "../services/account.service";
 
 export const Actions = {
   setUser(user) {

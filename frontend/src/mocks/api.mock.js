@@ -1,7 +1,7 @@
 import { mockGames } from "./games.mock";
 
 const STORAGE_KEY = "nekobox_mock_api_state";
-const SEED_VERSION = 8;
+const SEED_VERSION = 11;
 const clone = (value) => structuredClone(value);
 const now = () => new Date().toISOString();
 const mockError = (message, status = 400) => Object.assign(new Error(message), { status });
@@ -51,7 +51,7 @@ function migrateSeedState(state) {
   const existingSlugs = new Set(state.games.map((game) => game.slug));
   state.games = state.games.map((game) => {
     const seeded = seededBySlug.get(game.slug);
-    return seeded ? { ...game, media: clone(seeded.media) } : game;
+    return seeded ? { ...game, media: clone(seeded.media), long_description: seeded.long_description } : game;
   });
   state.games.push(...mockGames.filter((game) => !existingSlugs.has(game.slug)).map(clone));
   state.seedVersion = SEED_VERSION;
@@ -108,7 +108,6 @@ function myGame(game) {
     preco: game.price,
     status: game.status,
     release_date: game.release_date,
-    descricao_curta: game.short_description,
     descricao_longa: game.long_description,
     tags: game.tags,
     capa_url: game.media.find((media) => media.type === "cover")?.url || "",
@@ -123,7 +122,7 @@ function catalog(state, pathname, searchParams) {
   if (pathname === "/api/games") {
     const query = searchParams.get("search")?.trim().toLocaleLowerCase("pt-BR");
     const content = query
-      ? state.games.filter((game) => [game.title, game.short_description, ...game.tags].some((value) => value.toLocaleLowerCase("pt-BR").includes(query)))
+      ? state.games.filter((game) => [game.title, ...game.tags].some((value) => value.toLocaleLowerCase("pt-BR").includes(query)))
       : state.games;
     return { content: clone(content) };
   }
@@ -143,7 +142,6 @@ function adminGame(game) {
     preco: game.price,
     status: game.status,
     data_lancamento: game.release_date,
-    descricao_curta: game.short_description,
     descricao_longa: game.long_description,
     tags: game.tags,
     categoria_ids: [],
@@ -307,7 +305,6 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
       owner_id: user.id,
       title: String(body?.titulo || "").trim(),
       slug: productSlug(body?.titulo),
-      short_description: String(body?.descricao_curta || ""),
       long_description: String(body?.descricao_longa || ""),
       price: Number(body?.preco || 0),
       release_date: body?.release_date || "",
@@ -365,7 +362,6 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
       Object.assign(game, {
         title: String(body?.titulo || "").trim(),
         slug: productSlug(body?.titulo),
-        short_description: String(body?.descricao_curta || ""),
         long_description: String(body?.descricao_longa || ""),
         price: Number(body?.preco || 0),
         release_date: body?.release_date || "",
@@ -410,7 +406,7 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
     return null;
   }
   if (method === "POST" && url.pathname === "/api/admin/jogos") {
-    const game = { id: crypto.randomUUID(), owner_id: "usr_admin_system_001", title: body.titulo, slug: body.titulo.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), short_description: body.descricao_curta || "", long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [], categories: [], media: [], publisher: null, system_requirements: [], languages: [], updates: [] };
+    const game = { id: crypto.randomUUID(), owner_id: "usr_admin_system_001", title: body.titulo, slug: body.titulo.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [], categories: [], media: [], publisher: null, system_requirements: [], languages: [], updates: [] };
     state.games.push(game);
     saveState(state);
     return adminGame(game);
@@ -418,7 +414,7 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
   const adminGameId = url.pathname.match(/^\/api\/admin\/jogos\/([^/]+)$/)?.[1];
   if (adminGameId && method === "PUT") {
     const editableGame = gameById(state, decodeURIComponent(adminGameId));
-    Object.assign(editableGame, { title: body.titulo, short_description: body.descricao_curta || "", long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [] });
+    Object.assign(editableGame, { title: body.titulo, long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [] });
     saveState(state);
     return adminGame(editableGame);
   }

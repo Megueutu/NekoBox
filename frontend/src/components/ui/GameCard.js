@@ -11,20 +11,15 @@ export function GameCard(game, { variant = "catalog" } = {}) {
   if (variant === "catalog") {
     return `
       <a href="/game/${game.slug}" data-link
-         class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover-glow group">
+         class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover group">
         <div class="game-card__media w-full bg-[var(--color-surface-3)] relative overflow-hidden">
           <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy"
                class="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90" />
-          ${
-            game.categories?.[0]
-              ? `<span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-black/80 text-white">${game.categories[0]}</span>`
-              : ""
-          }
-        </div>
-        <div class="game-card__body">
-          <p class="type-card-title line-clamp-2">${game.title}</p>
-          <p class="type-caption text-muted truncate mt-1">${game.publisher?.name || game.categories?.[0] || "Jogo digital"}</p>
-          <span class="type-card-title text-[var(--color-accent-400)] mt-auto pt-2">${formatPrice(game.price)}</span>
+          <div class="game-card__overlay">
+            <p class="game-card__title type-card-title line-clamp-2">${game.title}</p>
+            <p class="type-caption text-muted truncate">${game.publisher?.name || game.categories?.[0] || "Jogo digital"}</p>
+            <span class="type-card-title text-[var(--color-accent-400)]">${formatPrice(game.price)}</span>
+          </div>
         </div>
       </a>
     `;
@@ -41,7 +36,7 @@ export function GameCard(game, { variant = "catalog" } = {}) {
 
   if (variant === "library") {
     return `
-      <div class="game-card bg-surface rounded-xl overflow-hidden card-hover-glow">
+      <div class="game-card bg-surface rounded-xl overflow-hidden card-hover">
         <a href="/game/${game.slug}" data-link class="block">
           <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy"
                class="game-card__media w-full object-cover bg-[var(--color-surface-2)]" />
@@ -50,7 +45,7 @@ export function GameCard(game, { variant = "catalog" } = {}) {
           <p class="type-card-title truncate">${game.title}</p>
           <p class="type-caption text-[var(--color-brand-400)]">${game.categories?.[0] || ""}</p>
           <button data-play="${game.slug}"
-                  class="button-accent w-full py-2 text-xs gap-1.5">
+                  class="button-accent button--sm w-full py-2 gap-1.5">
             ${Icon(icons.play, { className: "w-3.5 h-3.5", fill: "currentColor" })} Jogar Agora
           </button>
         </div>
@@ -61,23 +56,27 @@ export function GameCard(game, { variant = "catalog" } = {}) {
   // variant === "wishlist"
   const freeGame = isFreeGame(game);
   return `
-    <div class="game-card bg-surface rounded-xl overflow-hidden card-hover-glow group">
-      <a href="/game/${game.slug}" data-link class="block">
-        <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy"
-             class="game-card__media w-full object-cover bg-[var(--color-surface-2)]" />
-      </a>
-      <div class="p-4 space-y-2.5">
-        <p class="type-card-title truncate">${game.title}</p>
-        <p class="type-small font-bold text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
-        <div class="flex gap-2">
-          <button ${freeGame ? `data-acquire-free-license="${game.id}"` : `data-add-cart="${game.id}"`}
-                  class="button-primary flex-1 py-1.5 text-xs gap-1.5">
-            ${Icon(freeGame ? icons.library : icons.shoppingCart, { className: "w-3.5 h-3.5" })} ${freeGame ? "Adquirir licença" : "Carrinho"}
-          </button>
-          <button data-remove-wishlist="${game.id}" aria-label="Remover ${game.title} da lista de desejos"
-                  class="px-2.5 py-1.5 border border-red-400/50 text-red-400 text-xs rounded-lg hover:bg-red-500/10 transition-colors">
-            ${Icon(icons.x, { className: "w-4 h-4" })}
-          </button>
+    <div class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover group">
+      <div class="game-card__media w-full bg-[var(--color-surface-3)] relative overflow-hidden">
+        <a href="/game/${game.slug}" data-link class="absolute inset-0 block" aria-label="Ver ${game.title}">
+          <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy"
+               class="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90" />
+        </a>
+        <div class="game-card__overlay">
+          <p class="game-card__title type-card-title line-clamp-2">${game.title}</p>
+          <div class="flex items-center justify-between gap-2 pointer-events-auto">
+            <span class="type-card-title text-[var(--color-accent-400)]">${formatPrice(game.price)}</span>
+            <div class="flex gap-1.5">
+              <button ${freeGame ? `data-acquire-free-license="${game.id}"` : `data-add-cart="${game.id}"`}
+                      class="game-card__icon-btn" aria-label="${freeGame ? "Adquirir licença" : "Adicionar ao carrinho"}">
+                ${Icon(freeGame ? icons.library : icons.shoppingCart, { className: "w-3.5 h-3.5" })}
+              </button>
+              <button data-remove-wishlist="${game.id}"
+                      class="game-card__icon-btn game-card__icon-btn--danger" aria-label="Remover ${game.title} da lista de desejos">
+                ${Icon(icons.x, { className: "w-3.5 h-3.5" })}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

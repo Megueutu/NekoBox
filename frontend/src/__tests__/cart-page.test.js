@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import CartPage, { afterRender } from "../pages/cart/CartPage";
-import { validateCheckout } from "../pages/cart/checkout-validation";
+import CartPage, { afterRender } from "../pages/games/cart/CartPage";
+import { validateCheckout } from "../pages/games/cart/checkout-validation";
 import { Store } from "../store/store";
 import { Actions } from "../store/actions";
 
@@ -10,7 +10,6 @@ const { cart } = vi.hoisted(() => ({
       id: "7",
       title: "Quantity Quest",
       slug: "quantity-quest",
-      short_description: "A cart test.",
       price: 49.9,
       quantity: 1,
       categories: ["RPG"],
@@ -21,13 +20,13 @@ const { cart } = vi.hoisted(() => ({
   ],
 }));
 
-vi.mock("../services/account/account.service", () => ({
+vi.mock("../services/account.service", () => ({
   AccountService: {
     getCart: vi.fn().mockResolvedValue(cart),
   },
 }));
 
-vi.mock("../services/auth/auth.service", () => ({
+vi.mock("../services/auth.service", () => ({
   AuthService: { logout: vi.fn() },
 }));
 
@@ -70,7 +69,6 @@ describe("Cart page", () => {
     document.body.innerHTML = await CartPage();
 
     expect(document.querySelector(".cart-layout")).not.toBeNull();
-    expect(document.querySelector(".checkout-summary__item")).not.toBeNull();
     expect(document.querySelector("[data-quantity-input]")).toBeNull();
     expect(document.querySelector(".cart-item__subtotal").textContent).toContain("49,90");
   });
@@ -78,22 +76,20 @@ describe("Cart page", () => {
   it("should focus the first invalid checkout field", async () => {
     document.body.innerHTML = await CartPage();
     afterRender();
-    document.getElementById("checkout-name").value = "A";
-    document.getElementById("checkout-email").value = "invalid";
+    document.getElementById("checkout-payment-method").value = "";
 
     document.getElementById("checkout-form").dispatchEvent(
       new Event("submit", { bubbles: true, cancelable: true })
     );
 
-    expect(document.activeElement).toBe(document.getElementById("checkout-name"));
-    expect(document.getElementById("checkout-name").getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(document.getElementById("checkout-payment-method"));
+    expect(document.getElementById("checkout-payment-method").getAttribute("aria-invalid")).toBe("true");
     expect(Actions.finalizarCheckoutCarrinho).not.toHaveBeenCalled();
   });
 
   it("should show an accessible confirmation after checkout", async () => {
     document.body.innerHTML = await CartPage();
     afterRender();
-    document.getElementById("checkout-terms").checked = true;
 
     document.getElementById("checkout-form").dispatchEvent(
       new Event("submit", { bubbles: true, cancelable: true })
@@ -111,7 +107,6 @@ describe("Cart page", () => {
     Actions.finalizarCheckoutCarrinho.mockRejectedValueOnce(new Error("Saldo insuficiente."));
     document.body.innerHTML = await CartPage();
     afterRender();
-    document.getElementById("checkout-terms").checked = true;
 
     document.getElementById("checkout-form").dispatchEvent(
       new Event("submit", { bubbles: true, cancelable: true })
@@ -125,31 +120,18 @@ describe("Cart page", () => {
 });
 
 describe("Checkout validation", () => {
-  it("should normalize valid checkout values", () => {
-    const result = validateCheckout({
-      name: "  Buyer User  ",
-      email: " buyer@example.com ",
-      paymentMethod: "balance",
-      termsAccepted: true,
-    });
+  it("should accept a valid payment method", () => {
+    const result = validateCheckout({ paymentMethod: "balance" });
 
     expect(result).toMatchObject({
       isValid: true,
-      values: {
-        name: "Buyer User",
-        email: "buyer@example.com",
-      },
+      values: { paymentMethod: "balance" },
     });
   });
 
-  it("should reject an unconfirmed demonstration purchase", () => {
-    const result = validateCheckout({
-      name: "Buyer User",
-      email: "buyer@example.com",
-      paymentMethod: "balance",
-      termsAccepted: false,
-    });
+  it("should reject a missing payment method", () => {
+    const result = validateCheckout({ paymentMethod: "" });
 
-    expect(result.errors.termsAccepted).toBe("Confirme que esta é uma compra de demonstração.");
+    expect(result.errors.paymentMethod).toBe("Selecione uma forma de pagamento válida.");
   });
 });

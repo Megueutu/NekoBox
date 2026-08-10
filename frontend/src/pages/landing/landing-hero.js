@@ -7,7 +7,7 @@ export const LANDING_HERO_INTERVAL_MS = 7000;
 export function getLandingHeroMeta(game) {
   return {
     price: formatPrice(game.price),
-    category: game.categories?.[0] || "",
+    categories: (game.categories || []).slice(0, 5),
   };
 }
 
@@ -17,19 +17,13 @@ export function setupLandingHero(slides) {
   const hero = document.querySelector("[data-hero-carousel]");
   const heroImage = hero?.querySelector("[data-hero-image]");
   const heroTitle = hero?.querySelector("#landing-title");
-  const heroDescription = hero?.querySelector("[data-hero-description]");
   const heroPrice = hero?.querySelector("[data-hero-price]");
-  const heroCategory = hero?.querySelector("[data-hero-category]");
+  const heroCategories = hero?.querySelector("[data-hero-categories]");
   const heroDetails = hero?.querySelector("[data-hero-details]");
-  const heroPause = hero?.querySelector("[data-hero-pause]");
-  const heroIndicators = Array.from(hero?.querySelectorAll("[data-hero-slide]") || []);
-  const prefersReducedMotion =
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-    document.documentElement.dataset.motion === "reduced";
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const revealTargets = Array.from(document.querySelectorAll("[data-reveal]"));
   let activeSlide = 0;
   let rotationTimer = null;
-  let userPaused = prefersReducedMotion;
   let observer = null;
 
   slides.slice(1).forEach(({ url }) => {
@@ -50,15 +44,11 @@ export function setupLandingHero(slides) {
 
     heroImage.src = url;
     heroTitle.textContent = game.title;
-    heroDescription.textContent = game.short_description;
     heroPrice.textContent = meta.price;
-    heroCategory.hidden = !meta.category;
-    heroCategory.textContent = meta.category;
+    heroCategories.innerHTML = meta.categories
+      .map((category) => `<span class="chip">${category}</span>`)
+      .join("");
     heroDetails.href = `/game/${game.slug}`;
-    heroIndicators.forEach((indicator, indicatorIndex) => {
-      if (indicatorIndex === index) indicator.setAttribute("aria-current", "true");
-      else indicator.removeAttribute("aria-current");
-    });
   };
 
   const stopRotation = () => {
@@ -68,28 +58,11 @@ export function setupLandingHero(slides) {
 
   const startRotation = () => {
     stopRotation();
-    if (userPaused || document.hidden || slides.length < 2) return;
+    if (prefersReducedMotion || document.hidden || slides.length < 2) return;
     rotationTimer = window.setInterval(() => {
       renderSlide((activeSlide + 1) % slides.length);
     }, LANDING_HERO_INTERVAL_MS);
   };
-
-  heroIndicators.forEach((indicator) => {
-    indicator.addEventListener("click", () => {
-      renderSlide(Number(indicator.dataset.heroSlide));
-      startRotation();
-    });
-  });
-
-  heroPause?.addEventListener("click", () => {
-    userPaused = !userPaused;
-    heroPause.setAttribute("aria-pressed", String(userPaused));
-    heroPause.textContent = userPaused
-      ? "Retomar troca automática"
-      : "Pausar troca automática";
-    if (userPaused) stopRotation();
-    else startRotation();
-  });
 
   const onVisibilityChange = () => {
     if (document.hidden) stopRotation();

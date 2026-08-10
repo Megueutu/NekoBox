@@ -1,46 +1,18 @@
 import { routes } from "./routes";
-import { matchRoute } from "./matchRoute";
+import { matchRoute } from "./match-route";
 import { navigate } from "./navigate";
-import { setupKeyboardNavigation } from "../accessibility/keyboard";
+import { setupKeyboardNavigation } from "../keyboard";
 import { Store } from "../../store/store";
 import { Icon, icons } from "../../components/ui/Icon";
+import { renderErrorPage } from "../../pages/error/ErrorPage";
 
 export function shouldRedirectAdmin(pathname, token, role) {
   return Boolean(token) && role === "ADMIN" && pathname !== "/admin";
 }
 
-export function renderLoadError() {
-  return `
-    <main class="error-page" aria-labelledby="error-page-title">
-      <div class="error-page__ambient" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <i></i>
-      </div>
-      <section class="error-page__card">
-        <div class="error-page__icon" aria-hidden="true">
-          ${Icon(icons.reset, { className: "w-5 h-5", strokeWidth: 1.8 })}
-        </div>
-        <p class="error-page__eyebrow">Falha de conexão</p>
-        <h1 id="error-page-title">Não foi possível carregar esta página</h1>
-        <p class="error-page__description">
-          Algo interrompeu o carregamento. Verifique sua conexão e tente novamente.
-        </p>
-        <button id="btn-retry-page" type="button" class="button-primary error-page__retry">
-          ${Icon(icons.reset, { className: "w-4 h-4", strokeWidth: 2.2 })}
-          Tentar novamente
-        </button>
-        <p class="error-page__hint">Sua sessão e seus dados permanecem preservados.</p>
-      </section>
-    </main>
-  `;
-}
-
 class RouterManager {
   async atualizarPagina(callback) {
-    const prefersReducedMotion =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
-      document.documentElement.dataset.motion === "reduced";
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
     if (!document.startViewTransition || prefersReducedMotion) {
       await callback();
@@ -121,7 +93,7 @@ class RouterManager {
           navigate("/login");
           return;
         }
-        appContainer.innerHTML = renderLoadError();
+        appContainer.innerHTML = renderErrorPage("load-error");
         const retryButton = document.getElementById("btn-retry-page");
         retryButton?.addEventListener("click", () => {
           retryButton.disabled = true;
@@ -138,16 +110,7 @@ class RouterManager {
     }
 
     // 404
-    appContainer.innerHTML = `
-      <div class="p-12 text-center flex flex-col items-center justify-center min-h-[65vh]">
-        <h1 class="font-display text-7xl font-bold mb-4 text-gradient-brand">404</h1>
-        <p class="type-content-title mb-2 text-[var(--color-ink)]">CATALOG ERROR</p>
-        <p class="text-muted mb-8 max-w-md">O título buscado não foi indexado ou foi movido do catálogo de lançamentos.</p>
-        <button data-link href="/hub" class="button-primary px-6 py-3 cursor-pointer">
-          Retornar ao Hub
-        </button>
-      </div>
-    `;
+    appContainer.innerHTML = renderErrorPage("not-found");
   }
 
   inicializar() {
@@ -159,8 +122,7 @@ class RouterManager {
     );
 
     setupKeyboardNavigation();
-
-    // Interceptador global de cliques SPA — previne recarregamentos
+    
     document.addEventListener("click", (e) => {
       const linkElement = e.target.closest("[data-link]");
       if (!linkElement) return;

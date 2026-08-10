@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AdminService } from "../services/admin/admin.service";
+import { AdminService } from "../services/admin.service";
 
 describe("Admin media service", () => {
   beforeEach(() => {

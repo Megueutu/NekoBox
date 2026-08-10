@@ -8,7 +8,7 @@ export function EmptyState({ icon, title, description, ctaHref, ctaLabel }) {
       <p class="type-body text-[var(--color-muted-2)] mb-7">${description}</p>
       ${
         ctaHref
-          ? `<a href="${ctaHref}" data-link class="button-primary px-5 py-2.5 text-sm">
+          ? `<a href="${ctaHref}" data-link class="button-primary px-5 py-2.5">
                ${ctaLabel}
              </a>`
           : ""
