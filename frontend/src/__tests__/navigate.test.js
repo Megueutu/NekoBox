@@ -10,7 +10,7 @@ describe("navigate", () => {
   it("Deve rolar a página para o topo ao navegar para uma nova rota", () => {
     navigate("/game/cyberpunk-2077");
 
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "instant" });
   });
 
   it("Deve atualizar a URL via pushState", () => {

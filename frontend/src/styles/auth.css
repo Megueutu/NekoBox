@@ -373,6 +373,19 @@
   scrollbar-gutter: stable;
 }
 
+/* O primeiro campo do formulário não tem espaço acima dentro da área com scroll;
+   abrir o tooltip para baixo evita que ele seja cortado pelo overflow-y do modal. */
+.auth-dialog__body #form-content .auth-field:first-child .field-tooltip::after {
+  bottom: auto;
+  top: calc(100% + 0.45rem);
+  transform: translateY(-0.2rem);
+}
+
+.auth-dialog__body #form-content .auth-field:first-child .field-tooltip:hover::after,
+.auth-dialog__body #form-content .auth-field:first-child .field-tooltip:focus-visible::after {
+  transform: none;
+}
+
 #form-content::-webkit-scrollbar {
   display: none;
 }
