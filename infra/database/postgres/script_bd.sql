@@ -34,8 +34,6 @@ CREATE TABLE IF NOT EXISTS produtos (
     data_lancamento DATE,
     status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
     tags_json TEXT NOT NULL DEFAULT '[]',
-    requisitos_json TEXT NOT NULL DEFAULT '[]',
-    idiomas_json TEXT NOT NULL DEFAULT '[]',
     atualizacoes_json TEXT NOT NULL DEFAULT '[]'
 );
 
@@ -47,13 +45,13 @@ CREATE TABLE IF NOT EXISTS fotos (
     produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
     url TEXT NOT NULL,
     public_id TEXT,
-    tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('cover', 'banner', 'screenshot')),
+    tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('cover', 'banner', 'poster', 'screenshot')),
     posicao INT NOT NULL DEFAULT 1 CHECK (posicao > 0)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_fotos_unicas
     ON fotos(produto_id, tipo)
-    WHERE tipo IN ('cover', 'banner');
+    WHERE tipo IN ('cover', 'banner', 'poster');
 
 CREATE TABLE IF NOT EXISTS produtos_categorias (
     produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
@@ -196,11 +194,11 @@ ON CONFLICT (nome) DO NOTHING;
 
 INSERT INTO produtos (
     usuario_id, titulo, slug, descricao_curta, descricao_longa, preco, data_lancamento, status,
-    tags_json, requisitos_json, idiomas_json, atualizacoes_json
+    tags_json, atualizacoes_json
 )
 SELECT
     u.id, g.titulo, g.slug, g.descricao_curta, g.descricao_longa, g.preco, g.data_lancamento,
-    'published'::VARCHAR, g.tags_json, g.requisitos_json, g.idiomas_json, g.atualizacoes_json
+    'published'::VARCHAR, g.tags_json, g.atualizacoes_json
 FROM usuarios u
 CROSS JOIN (VALUES
     (
@@ -213,8 +211,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela CD Projekt RED, o jogo passou por um ciclo extenso de correções desde o lançamento, culminando na expansão Phantom Liberty e em uma reformulação completa dos sistemas de habilidade, veículos e inteligência artificial policial, elevando a direção de arte cyberpunk e a trilha sonora licenciada a um dos pontos altos da produção.',
         199.90, DATE '2020-12-10',
         '["RPG", "Ação", "Ficção Científica", "Cyberpunk", "Mundo Aberto", "Primeira Pessoa", "Narrativa"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i7-6700 ou Ryzen 5 1600","ram":"12 GB","gpu":"GTX 1060 6GB ou RX 580","storage":"70 GB SSD"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i7-12700K ou Ryzen 7 7800X3D","ram":"16 GB","gpu":"RTX 2060 SUPER ou RX 5700 XT","storage":"70 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true},{"name":"Espanhol","interface":true,"subtitles":true,"audio":true}]',
         '[{"id":"cp-21","version":"2.12","title":"Atualização de Desempenho e Ajustes de Gameplay","content":"Aprimoramentos de estabilidade, suporte a novas tecnologias de upscaling e ajustes no sistema de combate cibernético.","created_at":"2024-02-29"}]'
     ),
     (
@@ -227,8 +223,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela CD Projekt RED, o jogo é aclamado por sua escrita madura e pelas expansões Hearts of Stone e Blood and Wine, consideradas referências do gênero. A direção de arte inspirada no folclore eslavo, aliada a uma trilha sonora atmosférica, consolidou Wild Hunt como um marco na narrativa de RPGs.',
         129.90, DATE '2015-05-19',
         '["RPG", "Mundo Aberto", "Fantasia", "Aventura", "História Rica", "Single Player"]',
-        '[{"type":"minimum","os":"Windows 7/8/10 64-bit","cpu":"Core i5-2500K ou Phenom II X4 940","ram":"6 GB","gpu":"GTX 660 ou HD 7870","storage":"50 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-3770 ou FX-8350","ram":"16 GB","gpu":"GTX 1060 ou RX 580","storage":"50 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[{"id":"tw3-nextgen","version":"4.04","title":"Atualização da Nova Geração","content":"Melhorias visuais com Ray Tracing, novos modos de câmera, correções de missões e integração com itens inspirados na série da Netflix.","created_at":"2023-07-19"}]'
     ),
     (
@@ -241,8 +235,6 @@ CROSS JOIN (VALUES
         'Produzido pela Rockstar Games, o título é reconhecido pela reconstrução detalhada do Velho Oeste, com ciclos climáticos, fauna e economia simulados em escala raramente vista. A direção de Dan Houser e a atuação de Roger Clark como Arthur renderam um dos roteiros mais elogiados da indústria.',
         199.90, DATE '2018-10-26',
         '["Ação", "Aventura", "Mundo Aberto", "Faroeste", "Narrativa", "Single Player"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-2500K ou FX-6300","ram":"8 GB","gpu":"GTX 770 2GB ou R9 280 3GB","storage":"150 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-4770K ou Ryzen 5 1500X","ram":"12 GB","gpu":"GTX 1060 6GB ou RX 480 4GB","storage":"150 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[{"id":"rdr2-1.32","version":"1.32","title":"Melhorias de Estabilidade e Correções","content":"Aprimoramentos de desempenho no DirectX 12 e Vulkan, além de correções para suporte a monitores ultra-wide.","created_at":"2024-03-19"}]'
     ),
     (
@@ -255,8 +247,6 @@ CROSS JOIN (VALUES
         'Sob a direção de Hidetaka Miyazaki, com worldbuilding de George R. R. Martin, o jogo venceu múltiplos prêmios de Jogo do Ano e recebeu a expansão Shadow of the Erdtree, expandindo ainda mais seu já vasto universo de fantasia sombria.',
         229.90, DATE '2022-02-25',
         '["RPG", "Ação", "Souls-like", "Mundo Aberto", "Fantasia", "Difícil"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-8400 ou Ryzen 3 3300X","ram":"12 GB","gpu":"GTX 1060 3GB ou RX 580 4GB","storage":"60 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-8700K ou Ryzen 5 3600X","ram":"16 GB","gpu":"GTX 1070 8GB ou RX Vega 56 8GB","storage":"60 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[{"id":"er-1.12","version":"1.12","title":"Ajustes de Balanceamento e Suporte ao DLC","content":"Ajustes de balanceamento de armas em PvP/PvE, correções de bugs em habilidades e preparação para Shadow of the Erdtree.","created_at":"2024-06-20"}]'
     ),
     (
@@ -269,8 +259,6 @@ CROSS JOIN (VALUES
         'Criado por uma equipe pequena na Team Cherry, o jogo se destaca pela direção de arte desenhada à mão e por uma trilha sonora orquestral melancólica, tornando-se referência do gênero indie e abrindo caminho para a aguardada sequência Silksong.',
         46.99, DATE '2017-02-24',
         '["Metroidvania", "Plataforma", "Ação", "Indie", "2D", "Exploração"]',
-        '[{"type":"minimum","os":"Windows 7 64-bit","cpu":"Core 2 Duo E5200","ram":"4 GB","gpu":"GeForce 9800GTX+ (1GB)","storage":"9 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i5","ram":"8 GB","gpu":"GeForce GTX 560","storage":"9 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":false}]',
         '[{"id":"hk-1.5","version":"1.5.78","title":"Godmaster & Ajustes Finais","content":"Edição final contendo todos os 4 pacotes de conteúdo gratuitos integrados nativamente.","created_at":"2021-05-26"}]'
     ),
     (
@@ -283,8 +271,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Supergiant Games, o jogo se destaca por sua direção de arte vibrante inspirada em cerâmica grega antiga e por uma trilha sonora de rock composta por Darren Korb, sendo um dos roguelikes mais premiados e o primeiro do gênero indicado ao prêmio Hugo.',
         73.99, DATE '2020-09-17',
         '["Roguelike", "Ação", "Mitologia", "Indie", "Hack and Slash", "Single Player"]',
-        '[{"type":"minimum","os":"Windows 7 SP1 64-bit","cpu":"Dual Core 2.4 GHz","ram":"4 GB","gpu":"1GB VRAM / DirectX 10+","storage":"15 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Dual Core 3.0 GHz+","ram":"8 GB","gpu":"2GB VRAM / DirectX 11+","storage":"15 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[{"id":"hades-1.0","version":"1.036","title":"Patch de Compatibilidade e Correções","content":"Otimização para resoluções ultra-wide, correções no comportamento dos chefes e localização aprimorada.","created_at":"2021-01-15"}]'
     ),
     (
@@ -297,8 +283,6 @@ CROSS JOIN (VALUES
         'Desenvolvido quase inteiramente por uma única pessoa, Eric "ConcernedApe" Barone, o jogo levou cerca de quatro anos para ficar pronto e recebeu atualizações gratuitas contínuas por quase uma década, incluindo multiplayer, novas áreas e o modo Terreno Ancestral, mantendo uma das comunidades mais fiéis do gênero indie.',
         24.99, DATE '2016-02-26',
         '["Simulação", "Sandbox", "RPG", "Farming", "Coop", "Relaxante"]',
-        '[{"type":"minimum","os":"Windows 7 ou superior","cpu":"2 GHz","ram":"2 GB","gpu":"256 MB VRAM / Shader Model 3.0+","storage":"500 MB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"2.5 GHz+","ram":"4 GB","gpu":"512 MB VRAM","storage":"1 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":false}]',
         '[{"id":"sv-1.6","version":"1.6.8","title":"Grande Atualização 1.6","content":"Novos festivais, novo tipo de fazenda, novas linhas de diálogo, itens inéditos e coop para até 8 jogadores no PC.","created_at":"2024-04-18"}]'
     ),
     (
@@ -311,8 +295,6 @@ CROSS JOIN (VALUES
         'Criado por uma pequena equipe liderada por Maddy Thorson, o jogo é aclamado pela trilha sonora eletrônica de Lena Raine e pela forma como a dificuldade acessível (com modo assistido opcional) convive com um design de precisão hardcore.',
         36.99, DATE '2018-01-25',
         '["Plataforma", "Indie", "Difícil", "Narrativa", "2D", "Trilha Sonora Excelente"]',
-        '[{"type":"minimum","os":"Windows 7 ou superior","cpu":"Intel Core i3 M380","ram":"2 GB","gpu":"Intel HD 4000","storage":"1200 MB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Intel Core i5","ram":"4 GB","gpu":"GeForce GTX 650","storage":"2 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":false}]',
         '[{"id":"celeste-1.4","version":"1.4.0.0","title":"Capítulo Farewell e Ajustes Gerais","content":"Inclusão do Capítulo 9 (Farewell) gratuito e várias melhorias de acessibilidade.","created_at":"2021-09-20"}]'
     ),
     (
@@ -324,8 +306,6 @@ CROSS JOIN (VALUES
         'Publicado pela NetEase Games em parceria com a Marvel Games, o título gratuito recebe atualizações sazonais com novos heróis, mapas e eventos, buscando espaço em um gênero dominado por hero shooters consolidados.',
         0.00, DATE '2024-12-06',
         '["Ação", "Hero Shooter", "Multiplayer", "Marvel"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Intel Core i5-6600K","ram":"12 GB","gpu":"GTX 1060","storage":"70 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Intel Core i5-10400","ram":"16 GB","gpu":"RTX 2060","storage":"70 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -337,8 +317,6 @@ CROSS JOIN (VALUES
         'Sob responsabilidade da Halo Studios, o remake busca equilibrar fidelidade nostálgica com padrões técnicos atuais, reafirmando a importância histórica do título que ajudou a consolidar o gênero FPS em consoles.',
         249.90, DATE '2026-07-28',
         '["Ação", "Ficção Científica", "FPS", "Campanha", "Co-op", "Master Chief"]',
-        '[{"type":"minimum","os":"Windows 10","cpu":"Intel Core i7-975","ram":"8 GB","gpu":"GeForce GTS 450","storage":"55 GB"},{"type":"recommended","os":"Windows 10","cpu":"Intel Core i7-870","ram":"8 GB","gpu":"GeForce GTX 560 Ti","storage":"55 GB"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -350,8 +328,6 @@ CROSS JOIN (VALUES
         'Refeito pela Bluepoint Games para PlayStation 5, o remake reconstrói integralmente os visuais e a trilha sonora original da FromSoftware, sendo aclamado como uma das recriações gráficas mais impressionantes da geração.',
         349.90, DATE '2020-11-12',
         '["RPG", "Ação", "Fantasia", "Souls-like"]',
-        '[{"type":"minimum","os":"Exclusivo de Console","cpu":"-","ram":"-","gpu":"-","storage":"66 GB"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -363,8 +339,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Larian Studios ao longo de mais de seis anos, incluindo um extenso período de acesso antecipado, o jogo é elogiado pela quantidade de conteúdo reativo e pela qualidade das atuações em captura de performance, tendo vencido o prêmio de Jogo do Ano em 2023.',
         219.90, DATE '2023-08-03',
         '["RPG", "Fantasia", "D&D", "Turnos", "Larian Studios", "Co-op"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i7 8700K ou Ryzen 5 3600","ram":"8 GB","gpu":"GTX 1060 Super 6GB ou RX 5500 XT 8GB","storage":"150 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7 8700K ou Ryzen 5 3600","ram":"16 GB","gpu":"RTX 2060 Super 8GB ou RX 5700 XT 8GB","storage":"150 GB SSD"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true},{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false}]',
         '[{"id":"bg3-patch7","version":"Patch 7","title":"Epílogos e Melhorias","content":"Novos epílogos, melhorias de performance e correções de bugs.","created_at":"2024-01-10"}]'
     ),
     (
@@ -376,8 +350,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Rockstar North, o jogo é um dos produtos de entretenimento mais lucrativos já criados, sustentado por uma direção de mundo aberto minuciosa, humor satírico afiado e uma trilha sonora com rádios licenciadas que definiram a cultura pop da década de 2010.',
         99.90, DATE '2013-09-17',
         '["Ação", "Mundo Aberto", "Aventura", "Rockstar", "Los Santos", "Crime"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-3470 ou FX-8350","ram":"8 GB","gpu":"GTX 660 2GB ou HD 7870 2GB","storage":"72 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i7-3770 ou FX-9590","ram":"16 GB","gpu":"GTX 1060 6GB ou RX 580 4GB","storage":"72 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[{"id":"gta5-1.68","version":"v1.68","title":"Bottom Dollar Bounties","content":"Nova atividade de recompensas no GTA Online com missões de caça.","created_at":"2024-07-10"}]'
     ),
     (
@@ -389,8 +361,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Rockstar Games como sucessor de um dos jogos mais influentes da indústria, o título carrega a expectativa de redefinir os padrões técnicos e narrativos do gênero mundo aberto.',
         0.00, DATE '2026-11-19',
         '["Ação", "Aventura", "Mundo Aberto", "Crime", "Vice City", "Rockstar"]',
-        '[]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -402,8 +372,6 @@ CROSS JOIN (VALUES
         'O suporte pós-lançamento inclui temporadas de conteúdo gratuito, eventos ao vivo e integração com o modo battle royale da série, sustentando uma base ativa de jogadores ao longo de todo o ciclo de vida do título.',
         0.00, NULL,
         '["Ação", "FPS", "Call of Duty", "Multiplayer", "Shooter"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-6600K ou Ryzen 5 1400","ram":"8 GB","gpu":"GTX 960 2GB ou RX 470","storage":"125 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-4770K ou Ryzen 5 1600X","ram":"16 GB","gpu":"GTX 1660 Ti ou RX 5600 XT","storage":"125 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -415,8 +383,6 @@ CROSS JOIN (VALUES
         'Ao adaptar a fórmula Souls para sessões mais curtas e cooperativas, a FromSoftware experimenta um formato inédito dentro do universo de Elden Ring, mantendo a direção de Hidetaka Miyazaki como supervisor do projeto.',
         199.90, DATE '2025-05-30',
         '["Ação", "RPG", "Roguelike", "Soulslike", "Co-op", "FromSoftware"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-8400 ou Ryzen 3 3300X","ram":"12 GB","gpu":"GTX 1060 3GB ou RX 580 4GB","storage":"30 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-8700K ou Ryzen 5 3600X","ram":"16 GB","gpu":"GTX 1070 8GB ou RX Vega 56 8GB","storage":"30 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -428,8 +394,6 @@ CROSS JOIN (VALUES
         'Com pixel art detalhada e chefes de escala monumental, a United Label entrega uma experiência compacta que homenageia o design de Souls-likes clássicos sem depender de um mundo aberto extenso.',
         49.90, DATE '2021-07-29',
         '["Ação", "RPG", "Soulslike", "Boss Rush", "Pixel Art", "Indie"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i3-4160","ram":"4 GB","gpu":"GTX 650","storage":"2 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i5-4460","ram":"8 GB","gpu":"GTX 960","storage":"2 GB SSD"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":false}]',
         '[]'
     ),
     (
@@ -441,8 +405,6 @@ CROSS JOIN (VALUES
         'A Supergiant Games mantém a direção de arte refinada e a trilha sonora marcante da série, desta vez em acesso antecipado, incorporando feedback da comunidade antes do lançamento completo.',
         89.90, DATE '2025-09-25',
         '["Ação", "RPG", "Roguelike", "Mitologia Grega", "Indie", "Supergiant"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Dual Core 2.4 GHz","ram":"4 GB","gpu":"1GB VRAM / DirectX 11+","storage":"20 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Quad Core 3.0 GHz+","ram":"8 GB","gpu":"2GB VRAM / DirectX 11+","storage":"20 GB SSD"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true},{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false}]',
         '[]'
     ),
     (
@@ -454,8 +416,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Santa Monica Studio, o jogo manteve a assinatura de câmera contínua sem cortes e elevou a fidelidade das animações faciais e da direção cinematográfica, sendo aclamado como um dos maiores exclusivos de PlayStation da geração.',
         299.90, DATE '2022-11-09',
         '["Ação", "Aventura", "Hack and Slash", "Kratos", "Mitologia Nórdica", "Santa Monica Studio"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-6600K ou Ryzen 5 2600X","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 5500 XT 8GB","storage":"190 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-7700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 3080 ou RX 6800 XT","storage":"190 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -467,8 +427,6 @@ CROSS JOIN (VALUES
         'Como conclusão da trilogia dirigida por Hidetaka Miyazaki, o jogo recebeu as expansões Ashes of Ariandel e The Ringed City, fechando o ciclo Souls com uma direção de arte gótica que se tornou referência do gênero.',
         299.90, DATE '2016-04-12',
         '["Ação", "RPG", "Fantasia", "Soulslike", "FromSoftware", "Fantasia Sombria"]',
-        '[{"type":"minimum","os":"Windows 7/8.1/10 64-bit","cpu":"Core i3-2100 ou FX-6300","ram":"4 GB","gpu":"GTX 750 Ti ou R7 260X","storage":"25 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i7 ou Ryzen 5","ram":"8 GB","gpu":"GTX 970 ou R9 290","storage":"25 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -480,8 +438,6 @@ CROSS JOIN (VALUES
         'Sob direção de Cory Barlog, a reinvenção de 2018 na Santa Monica Studio é considerada um divisor de águas para a franquia, elevando a narrativa e a atuação de Christopher Judge como Kratos a um novo patamar.',
         199.90, DATE '2018-04-20',
         '["Ação", "Aventura", "Hack and Slash", "Kratos", "Mitologia Nórdica", "Santa Monica Studio"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-2500K ou Ryzen 3 1200","ram":"8 GB","gpu":"GTX 960 4GB ou RX 570 4GB","storage":"70 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i5-6600K ou Ryzen 5 2400G","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 570 8GB","storage":"70 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -493,8 +449,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela pequena Boneless Metal, o jogo se tornou um fenômeno de vídeos e streams justamente pela imprevisibilidade de sua física, consolidando-se como clássico de festa mesmo anos após o lançamento.',
         49.90, DATE '2017-12-05',
         '["Ação", "Festa", "Multijogador", "Indie", "Local Co-op", "Física"]',
-        '[{"type":"minimum","os":"Windows 7 64-bit","cpu":"Dual Core 2.0 GHz","ram":"4 GB","gpu":"512MB VRAM","storage":"2 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Quad Core 2.5 GHz","ram":"8 GB","gpu":"1GB VRAM","storage":"2 GB SSD"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":false,"audio":false}]',
         '[]'
     ),
     (
@@ -506,8 +460,6 @@ CROSS JOIN (VALUES
         'Produzido pela Konami com direção de arte que recria fielmente a visão de Hideo Kojima para o título original de 2004, o remake é tratado como uma reconstrução respeitosa de um dos pilares narrativos dos jogos de furtividade.',
         349.90, DATE '2025-08-28',
         '["Ação", "Aventura", "Furtividade", "Stealth", "Konami", "Remake"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-7500 ou Ryzen 5 1600","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 580 8GB","storage":"90 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-9700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 2070 ou RX 5700 XT","storage":"90 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true},{"name":"Japonês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -519,8 +471,6 @@ CROSS JOIN (VALUES
         'A remasterização pela Bend Studio aprimora iluminação, texturas e desempenho técnico, revisitando um título que, apesar de recepção dividida no lançamento original, conquistou uma base de fãs fiel ao longo dos anos.',
         249.90, DATE '2026-03-01',
         '["Ação", "Aventura", "Sobrevivência", "Mundo Aberto", "Zumbis", "Bend Studio"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-4430 ou Ryzen 3 1200","ram":"8 GB","gpu":"GTX 970 ou RX 570","storage":"70 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-8700K ou Ryzen 5 3600","ram":"16 GB","gpu":"RTX 2060 ou RX 5700","storage":"70 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -532,8 +482,6 @@ CROSS JOIN (VALUES
         'A versão remasterizada pela Santa Monica Studio traz resolução em alta definição e taxa de quadros aprimorada, preservando a direção original de Stig Asmussen para uma nova geração de jogadores.',
         129.90, DATE '2015-07-14',
         '["Ação", "Aventura", "Hack and Slash", "Kratos", "Mitologia Grega", "Remasterizado"]',
-        '[{"type":"minimum","os":"Exclusivo de Console","cpu":"-","ram":"-","gpu":"-","storage":"40 GB"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -545,8 +493,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela EA DICE, o jogo busca retomar a identidade de combate em larga escala e destruição ambiental que consagrou a franquia, após entradas anteriores marcadas por recepção mais morna do público.',
         299.90, DATE '2025-10-10',
         '["Ação", "FPS", "Multijogador", "Guerra", "EA DICE", "Destruição"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-8400 ou Ryzen 5 2600","ram":"12 GB","gpu":"GTX 1060 6GB ou RX 580 8GB","storage":"100 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-9700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 3070 ou RX 6700 XT","storage":"100 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -558,8 +504,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela id Software, o jogo mantém a direção de arte brutal da franquia enquanto experimenta um ritmo de combate mais posicional, complementando a velocidade extrema de DOOM Eternal com confrontos de maior escala.',
         299.90, DATE '2025-05-15',
         '["Ação", "FPS", "Doom Slayer", "id Software", "Demônios", "Medieval"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i7-6700K ou Ryzen 5 2600X","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 590 8GB","storage":"85 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-8700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 2080 ou RX 6800","storage":"85 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -571,8 +515,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela CyberConnect2, estúdio conhecido por adaptações de anime como Naruto: Ultimate Ninja Storm, o jogo aposta em efeitos visuais vibrantes que buscam reproduzir a estética marcante da animação de Demon Slayer.',
         249.90, DATE '2021-10-14',
         '["Ação", "Luta", "Anime", "Arena Fighter", "Demon Slayer", "CyberConnect2"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-4460 ou Ryzen 3 1200","ram":"8 GB","gpu":"GTX 760 ou R9 280","storage":"25 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i7-4790 ou Ryzen 5 1600","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 580","storage":"25 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":false},{"name":"Japonês","interface":false,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -584,8 +526,6 @@ CROSS JOIN (VALUES
         'Após anos de desenvolvimento aguardado pela comunidade, a Team Cherry expande a direção de arte desenhada à mão e a trilha sonora atmosférica da série, prometendo um mundo ainda maior e mais denso que o primeiro jogo.',
         59.90, DATE '2025-09-04',
         '["Ação", "Metroidvania", "Plataforma", "Indie", "2D", "Exploração", "Desafio"]',
-        '[{"type":"minimum","os":"Windows 7 64-bit","cpu":"Core 2 Duo E5200","ram":"4 GB","gpu":"GeForce 9800GTX+ (1GB)","storage":"13 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Core i5","ram":"8 GB","gpu":"GeForce GTX 560","storage":"13 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":false}]',
         '[]'
     ),
     (
@@ -597,8 +537,6 @@ CROSS JOIN (VALUES
         'A recriação revisita um dos capítulos mais queridos da série com tecnologia gráfica atual, prometendo manter a atmosfera de liberdade caribenha que consagrou o jogo original como favorito dos fãs.',
         0.00, NULL,
         '["Ação", "Aventura", "Mundo Aberto", "Piratas", "Naval", "Furtividade", "Caribe"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-6600K ou Ryzen 5 1600","ram":"8 GB","gpu":"GTX 960 4GB ou RX 570 4GB","storage":"55 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-8700K ou Ryzen 5 3600","ram":"16 GB","gpu":"GTX 1660 Ti ou RX 5600 XT","storage":"55 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -610,8 +548,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Spike Chunsoft sob licença da Bandai Namco, o jogo é aguardado havia mais de uma década pelos fãs da franquia, entregando visuais que recriam fielmente a estética do anime em batalhas de escala cinematográfica.',
         279.90, DATE '2024-10-11',
         '["Ação", "Luta", "Anime", "Arena Fighter", "Dragon Ball", "Multiplayer"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-3470 ou Ryzen 3 1200","ram":"8 GB","gpu":"GTX 760 ou R9 280","storage":"90 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-4790 ou Ryzen 5 2600","ram":"16 GB","gpu":"GTX 1070 ou RX 5700","storage":"90 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true},{"name":"Japonês","interface":false,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -623,8 +559,6 @@ CROSS JOIN (VALUES
         'Criado originalmente por Markus "Notch" Persson e hoje mantido pela Mojang Studios, Minecraft se tornou um fenômeno cultural com atualizações constantes, suporte robusto a mods e um dos maiores mercados multiplayer já criados, sendo um dos jogos mais vendidos da história.',
         89.90, DATE '2011-11-18',
         '["Sandbox", "Aventura", "Sobrevivência", "Mojang", "Construção", "Multiplayer", "Criativo"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Intel i3-3210 / AMD A8-7600","ram":"4 GB","gpu":"Intel HD Graphics 4000 / AMD Radeon R5","storage":"4 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Intel i5-4690 / AMD A10-7800","ram":"8 GB","gpu":"NVIDIA GeForce 700 Series / AMD Radeon Rx 200","storage":"8 GB"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -636,8 +570,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela HoYoverse, o jogo é gratuito e monetizado por meio de um sistema de invocação (gacha) para obter novos personagens e armas, sustentando uma das maiores bases de jogadores do mundo com atualizações regulares, trilha sonora orquestral aclamada e eventos sazonais robustos.',
         0.00, DATE '2020-09-28',
         '["RPG", "Ação", "Aventura", "Mundo Aberto", "Gacha", "Anime", "Free to Play"]',
-        '[{"type":"minimum","os":"Windows 7 SP1 64-bit","cpu":"Intel Core i5 ou superior","ram":"8 GB","gpu":"NVIDIA GeForce GT 1030 ou superior","storage":"30 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"Intel Core i7 ou superior","ram":"16 GB","gpu":"NVIDIA GeForce GTX 1060 6GB ou superior","storage":"30 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -649,8 +581,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Riot Games, o título se tornou rapidamente um pilar do cenário competitivo global através do circuito VCT, recebendo novos agentes, mapas e temporadas de passe de batalha em um ciclo constante de conteúdo gratuito.',
         0.00, DATE '2020-06-02',
         '["Ação", "FPS", "Multijogador", "Hero Shooter", "Tático", "Esports"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Intel Core 2 Duo E8400","ram":"4 GB","gpu":"Intel HD 4000","storage":"30 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Intel Core i3-4150","ram":"4 GB","gpu":"GTX 1050 Ti","storage":"30 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -662,8 +592,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Capcom no RE Engine, o título dá continuidade ao renascimento crítico da franquia iniciado com Resident Evil Village, prometendo elevar ainda mais o nível de terror psicológico e imersão visual da saga.',
         349.90, DATE '2026-02-27',
         '["Ação", "Aventura", "Furtividade", "Terror", "Survival Horror", "Capcom"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-7500 ou Ryzen 5 1600","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 580 8GB","storage":"60 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-9700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 2070 ou RX 6700 XT","storage":"60 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -675,8 +603,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Embark Studios, formado por veteranos da série Battlefield, o jogo adotou o modelo free-to-play para ampliar seu alcance, entregando um shooter de extração tecnicamente refinado que rapidamente conquistou uma comunidade fiel.',
         0.00, DATE '2025-10-30',
         '["Ação", "FPS", "Sobrevivência", "Multijogador", "Extraction Shooter", "PvPvE"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-8400 ou Ryzen 5 2600","ram":"12 GB","gpu":"GTX 1060 6GB ou RX 580 8GB","storage":"50 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-10700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 2070 ou RX 6700 XT","storage":"50 GB SSD"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true},{"name":"Português (Brasil)","interface":false,"subtitles":true,"audio":false}]',
         '[]'
     ),
     (
@@ -688,8 +614,6 @@ CROSS JOIN (VALUES
         'Produzido em parceria com a Marvel Games, o título busca reacender o gênero de jogos de luta licenciados com ambições competitivas, unindo fidelidade visual ao material de origem e um sistema de combate pensado tanto para iniciantes quanto para jogadores competitivos.',
         249.90, NULL,
         '["Ação", "Luta", "Marvel", "Arena Fighter", "Multiplayer"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-6600K ou Ryzen 5 1600","ram":"8 GB","gpu":"GTX 1060 6GB ou RX 580 8GB","storage":"40 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-9700K ou Ryzen 7 3700X","ram":"16 GB","gpu":"RTX 2060 ou RX 5700 XT","storage":"40 GB SSD"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -701,8 +625,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Insomniac Games, o jogo eleva o padrão técnico estabelecido pelos títulos anteriores no PlayStation 5, sendo aclamado pela narrativa emocional, pela fluidez de traversal e pela ambição de contar duas histórias de heróis com pesos dramáticos equivalentes.',
         299.90, DATE '2023-10-20',
         '["Ação", "Aventura", "Mundo Aberto", "Marvel", "Super-Herói", "PlayStation"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i3-8100 ou Ryzen 3 1200","ram":"16 GB","gpu":"GTX 1060 6GB ou RX 580 8GB","storage":"75 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i5-10600K ou Ryzen 5 3600","ram":"16 GB","gpu":"RTX 2060 ou RX 5700","storage":"75 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -714,8 +636,6 @@ CROSS JOIN (VALUES
         'Mantido pela Roblox Corporation, o jogo se tornou um fenômeno cultural especialmente entre o público mais jovem, expandindo-se com eventos ao vivo, colaborações com marcas e franquias, e ambições declaradas de se tornar uma plataforma social e criativa duradoura.',
         0.00, DATE '2006-09-01',
         '["Sandbox", "Aventura", "Multijogador", "UGC", "Free to Play", "Criativo"]',
-        '[{"type":"minimum","os":"Windows 7 ou superior","cpu":"1.6 GHz ou superior","ram":"1 GB","gpu":"Compatível com DirectX 9 ou superior","storage":"1 GB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"2.0 GHz ou superior","ram":"4 GB","gpu":"Placa dedicada compatível com DirectX 10+","storage":"2 GB"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -727,8 +647,6 @@ CROSS JOIN (VALUES
         'Publicado pela Garena, subsidiária da Sea Limited, o jogo se tornou um dos títulos mobile mais jogados do mundo, com destaque especial no Brasil, Sudeste Asiático e América Latina, sustentando um cenário competitivo robusto através do Free Fire World Series.',
         0.00, DATE '2017-12-04',
         '["Ação", "Sobrevivência", "Multijogador", "Battle Royale", "Mobile", "Free to Play"]',
-        '[{"type":"minimum","os":"Android 4.4 ou iOS 9.0","cpu":"-","ram":"1 GB","gpu":"-","storage":"1 GB"},{"type":"recommended","os":"Android 9.0 ou iOS 13.0","cpu":"-","ram":"3 GB","gpu":"-","storage":"2 GB"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -740,8 +658,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Riot Games, o jogo se consolidou como um dos esportes eletrônicos mais assistidos do planeta através do Campeonato Mundial, sustentando um ciclo constante de balanceamento, novos campeões e expansões de universo, incluindo a aclamada série animada Arcane.',
         0.00, DATE '2009-10-27',
         '["Ação", "MOBA", "Multijogador", "Esports", "Free to Play"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i3-530","ram":"2 GB","gpu":"Shader Version 2.0 capable","storage":"16 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i5-3300","ram":"4 GB","gpu":"GTX 560","storage":"16 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -753,8 +669,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Insomniac Games, mesmo estúdio por trás de Marvel''s Spider-Man, o jogo promete uma classificação indicativa mais madura que os títulos anteriores do estúdio, aprofundando o tom violento e psicológico do personagem enquanto expande o universo compartilhado da PlayStation Studios.',
         0.00, NULL,
         '["Ação", "Aventura", "Mundo Aberto", "Marvel", "X-Men", "Insomniac Games"]',
-        '[]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -766,8 +680,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Epic Games, o título se tornou um fenômeno cultural global, sustentado por um modelo free-to-play com cosméticos e um passe de batalha sazonal, e expandiu-se para modos como Fortnite Festival e LEGO Fortnite, consolidando-se como uma das plataformas de entretenimento mais lucrativas já criadas.',
         0.00, DATE '2017-07-25',
         '["Ação", "Battle Royale", "Multijogador", "Free to Play", "Epic Games", "Construção"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i3-3225","ram":"4 GB","gpu":"Intel HD 4000","storage":"30 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i5-7300U","ram":"8 GB","gpu":"GTX 960","storage":"30 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -779,8 +691,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Respawn Entertainment e publicado pela Electronic Arts, o jogo se consolidou como um dos principais nomes do gênero battle royale, sustentando um cenário competitivo global através da Apex Legends Global Series e atualizações constantes de novas Lendárias, armas e mapas.',
         0.00, DATE '2019-02-04',
         '["Ação", "FPS", "Battle Royale", "Multijogador", "Hero Shooter", "Free to Play"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i3-6300 ou FX-4350","ram":"6 GB","gpu":"GT 640 ou HD 7730","storage":"22 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i5-3570K ou Ryzen 5 2600X","ram":"8 GB","gpu":"GTX 970 ou R9 290","storage":"22 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -792,8 +702,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Krafton, o jogo é creditado por popularizar o gênero battle royale para o mainstream, migrando para o modelo free-to-play em 2022 e mantendo um cenário competitivo ativo através da PUBG Global Championship, além de expansões de mapas e modos ao longo dos anos.',
         0.00, DATE '2017-12-20',
         '["Ação", "FPS", "Battle Royale", "Multijogador", "Krafton", "Tático"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-4430 ou FX-6300","ram":"8 GB","gpu":"GTX 960 2GB ou RX 460 2GB","storage":"30 GB"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i5-6600K ou Ryzen 5 1600","ram":"16 GB","gpu":"GTX 1060 3GB ou RX 580 4GB","storage":"30 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -805,8 +713,6 @@ CROSS JOIN (VALUES
         'Refeito pela Naughty Dog para PlayStation 5, o remake reconstrói integralmente gráficos, animações faciais e sistemas de jogo baseados em Part II, sendo aclamado por elevar tecnicamente um dos títulos mais premiados da geração PlayStation 4 sem alterar sua narrativa original.',
         299.90, DATE '2022-09-02',
         '["Ação", "Aventura", "Sobrevivência", "Terror", "Naughty Dog", "Narrativa"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i7-4770K ou Ryzen 5 1500X","ram":"16 GB","gpu":"GTX 970 ou RX 570","storage":"115 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-8700K ou Ryzen 5 3600X","ram":"16 GB","gpu":"RTX 2070 ou RX 5700","storage":"115 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
         '[]'
     ),
     (
@@ -818,8 +724,6 @@ CROSS JOIN (VALUES
         'Desenvolvido pela pequena Team Salvato e liderado por Dan Salvato, o jogo é distribuído gratuitamente desde o lançamento, com uma versão expandida paga chamada Plus, tornando-se um fenômeno de culto por subverter o gênero visual novel com uma narrativa que permanece um dos maiores exemplos de terror psicológico independente.',
         0.00, DATE '2017-09-22',
         '["Aventura", "Terror", "Simulação", "Visual Novel", "Psicológico", "Indie"]',
-        '[{"type":"minimum","os":"Windows 7 ou superior","cpu":"1.6 GHz","ram":"2 GB","gpu":"Compatível com DirectX 9","storage":"300 MB"},{"type":"recommended","os":"Windows 10 64-bit","cpu":"2.0 GHz","ram":"4 GB","gpu":"Placa dedicada","storage":"300 MB"}]',
-        '[{"name":"Inglês","interface":true,"subtitles":true,"audio":false}]',
         '[]'
     ),
     (
@@ -831,94 +735,147 @@ CROSS JOIN (VALUES
         'Desenvolvido pela Guerrilla Games, o jogo expande a escala visual e narrativa do universo criado em Horizon Zero Dawn, sendo aclamado pela direção de arte vibrante, pela evolução do combate contra máquinas e pela atuação de Ashly Burch como Aloy, consolidando a franquia como um dos pilares exclusivos da PlayStation.',
         299.90, DATE '2022-02-18',
         '["Ação", "RPG", "Aventura", "Mundo Aberto", "Ficção Científica"]',
-        '[{"type":"minimum","os":"Windows 10 64-bit","cpu":"Core i5-2500K ou Ryzen 5 1500X","ram":"8 GB","gpu":"GTX 780 ou R9 290X","storage":"179 GB SSD"},{"type":"recommended","os":"Windows 10/11 64-bit","cpu":"Core i7-9700K ou Ryzen 5 3600X","ram":"16 GB","gpu":"RTX 2060 Super ou RX 5700 XT","storage":"179 GB SSD"}]',
-        '[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":true},{"name":"Inglês","interface":true,"subtitles":true,"audio":true}]',
+        '[]'
+    ),
+    (
+        'Kandidatos', 'kandidatos',
+        'Em meio a uma disputa eleitoral caricata, Kandidatos transforma a corrida presidencial brasileira em um verdadeiro ringue de boxe, onde carisma, deboche e golpes exagerados decidem quem vence cada round.',
+        'Em meio a uma disputa eleitoral caricata, Kandidatos transforma a corrida presidencial brasileira em um verdadeiro ringue de boxe, onde carisma, deboche e golpes exagerados decidem quem vence cada round.' || E'\n\n' ||
+        'O elenco reúne caricaturas afiadas de figuras públicas e políticos que dominaram o noticiário nacional nos últimos anos, cada uma com trejeitos, frases de efeito e bordões reconhecíveis transformados em golpes de combate, misturando humor ácido com uma estética escrachada tipicamente brasileira.' || E'\n\n' ||
+        'As partidas acontecem em confrontos 1 contra 1 organizados em rounds dentro do ringue, com golpes e combos simples de aprender, mas que recompensam timing e leitura do adversário, favorecendo disputas rápidas e resenhas entre amigos mais do que a profundidade técnica de um jogo de luta tradicional.' || E'\n\n' ||
+        'Desenvolvido pelo estúdio independente brasileiro Guaru Games sob a chancela BR, Kandidatos integra uma cena crescente de jogos de humor e sátira nacional, usando o absurdo da política brasileira como matéria-prima para o entretenimento.',
+        0.00, NULL,
+        '["Ação", "Luta", "Festa", "Indie", "Sátira", "Brasileiro"]',
+        '[]'
+    ),
+    (
+        'Persona 5 Royal', 'persona-5-royal',
+        'Um estudante transferido para Tóquio após ser injustamente condenado assume a identidade de Joker e desperta o poder de invocar Personas, liderando os Ladrões Fantasmas de Coração.',
+        'Um estudante transferido para Tóquio após ser injustamente condenado assume a identidade de Joker e desperta o poder de invocar Personas, dando início a uma dupla vida entre os estudos no colégio Shujin e as incursões dos Ladrões Fantasmas de Coração.' || E'\n\n' ||
+        'Ao lado de um elenco de aliados que também descobrem seus próprios Personas, o protagonista invade Palácios distorcidos criados pela cognição de adultos corruptos, roubando seus "Tesouros" para forçar mudanças de coração e expor abusos de poder escondidos por trás da fachada da sociedade japonesa.' || E'\n\n' ||
+        'O combate por turnos explora fraquezas elementais dos inimigos para encadear ataques All-Out, enquanto o cotidiano fora das masmorras é gerido em um calendário detalhado de relacionamentos (Confidants), estudos e atividades noturnas que fortalecem tanto as habilidades sociais quanto o poder das Personas do protagonista.' || E'\n\n' ||
+        'Esta versão Royal, desenvolvida pela P-Studio e publicada pela Atlus, expande o Persona 5 original com um semestre inteiro adicional, a personagem Kasumi/Violet, o Palácio de Sae Niijima remodelado, a área social Thieves Den e o professor Takuto Maruki, sendo amplamente considerada a versão definitiva da aclamada aventura urbana da série Persona.',
+        299.90, DATE '2019-10-31',
+        '["RPG", "Aventura", "Turnos", "JRPG", "Anime", "Atlus"]',
         '[]'
     )
-) AS g(titulo, slug, descricao_curta, descricao_longa, preco, data_lancamento, tags_json, requisitos_json, idiomas_json, atualizacoes_json)
+) AS g(titulo, slug, descricao_curta, descricao_longa, preco, data_lancamento, tags_json, atualizacoes_json)
 WHERE u.email = 'catalog@nekobox.local'
 ON CONFLICT (slug) DO NOTHING;
 
--- Corrige capas de jogos que já foram semeados anteriormente com URLs erradas/placeholder.
--- O INSERT abaixo é idempotente via WHERE NOT EXISTS(produto_id, tipo, posicao) e por isso
--- não substitui uma foto já existente nesse par (tipo, posicao); por isso as correções de
--- capa precisam de um UPDATE explícito para valer também em bancos já semeados.
-UPDATE fotos f
-SET url = corrigido.url
+-- Remove fotos desatualizadas (URLs antigas da Steam/picsum.photos ou capas provisórias) de
+-- jogos que já foram semeados anteriormente, para permitir a reinserção abaixo com as URLs
+-- corretas. O INSERT de fotos é idempotente via WHERE NOT EXISTS(produto_id, tipo, posicao) e
+-- por isso não substitui uma foto já existente nesse par (tipo, posicao); apagar as linhas
+-- desatualizadas é o que garante a correção também em bancos já semeados.
+DELETE FROM fotos f
+USING produtos p
+WHERE f.produto_id = p.id
+  AND (
+    (p.slug = 'cyberpunk-2077' AND f.tipo IN ('cover', 'banner', 'screenshot')) OR
+    (p.slug = 'the-witcher-3' AND f.tipo IN ('banner', 'screenshot')) OR
+    (p.slug = 'red-dead-redemption-2' AND f.tipo IN ('cover', 'banner', 'screenshot')) OR
+    (p.slug = 'elden-ring' AND f.tipo IN ('banner', 'screenshot')) OR
+    (p.slug = 'hollow-knight' AND f.tipo IN ('banner', 'screenshot')) OR
+    (p.slug = 'hades' AND f.tipo IN ('banner', 'screenshot')) OR
+    (p.slug = 'stardew-valley' AND f.tipo IN ('banner', 'screenshot')) OR
+    (p.slug = 'celeste' AND f.tipo IN ('banner', 'screenshot')) OR
+    (p.slug = 'minecraft' AND f.tipo IN ('cover', 'banner', 'screenshot')) OR
+    (p.slug = 'doki-doki-literature-club' AND f.tipo = 'poster')
+  );
+
+-- Corrige preços de jogos que já foram semeados anteriormente com valores provisórios (0.00).
+UPDATE produtos p
+SET preco = corrigido.preco
 FROM (VALUES
-    ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307423/3f7ee6aa3482b514bd443e116022b038a9728f017916ed37da3f09f731a7d5f2_oql09m.jpg'),
-    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307550/ER-collection-2000x1125-780428_igoswx.png'),
-    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307583/1-tgg1vtswva_vdhblc.png'),
-    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307889/hades_bw1hy6.webp'),
-    ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308164/mixcollage-21-dec-2024-12-41-pm-2315_aggsbe.jpg'),
-    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307843/tile_wayfij.webp'),
-    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308111/apps.21257.71633162879241707.7cf18b3b-9fa5-486f-9a68-067f06d50bf1_iovi27.jpg'),
-    ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786311695/16x9_CallOfDutyModernWarfare4_image1600w_ky8hid.jpg'),
-    ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786311858/god-of-war-iii-remastered-playstation-4-playstation-store-cover_pwfqj1.jpg')
-) AS corrigido(slug, url)
-JOIN produtos p ON p.slug = corrigido.slug
-WHERE f.produto_id = p.id AND f.tipo = 'cover' AND f.url <> corrigido.url;
+    ('doki-doki-literature-club', 39.90),
+    ('assassins-creed-black-flag-remake', 349.90),
+    ('call-of-duty-modern-warfare-4', 349.90),
+    ('arc-raiders', 249.90),
+    ('marvels-wolverine', 0.00)
+) AS corrigido(slug, preco)
+WHERE p.slug = corrigido.slug AND p.preco <> corrigido.preco;
 
 INSERT INTO fotos (produto_id, url, tipo, posicao)
 SELECT p.id, f.url, f.tipo, f.posicao
 FROM produtos p
 JOIN (VALUES
-    ('cyberpunk-2077', 'https://cdn.akamai.steamstatic.com/steam/apps/1091500/library_600x900_2x.jpg', 'cover', 1),
-    ('cyberpunk-2077', 'https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg', 'banner', 1),
-    ('cyberpunk-2077', 'https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_e15c3245ed78c8e104f7d45cf58f5bc6515f22e8.1920x1080.jpg', 'screenshot', 1),
-    ('cyberpunk-2077', 'https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_e0653f58a361ef563f6ee8eb1a92ec2fb947a1d1.1920x1080.jpg', 'screenshot', 2),
-    ('cyberpunk-2077', 'https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_49540b68dc34be6ca1caebaa1e02cd092e039bfd.1920x1080.jpg', 'screenshot', 3),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/bxSj4jO0KBqUgAbH3zuNjCje_hnuhwb.avif', 'cover', 1),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/UjQ1pWQiHwymgQQ6q4pWQkMC_nlek1l.avif', 'banner', 1),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976540/cyber_qoorlm.avif', 'poster', 1),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/4afa4359de58e6c1fe2509b0bf19c3dded734f5d9f7be0ed_t4fubo.avif', 'screenshot', 1),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PT2qWfNzcGncIlTB0SlzFYY9_loktv2.avif', 'screenshot', 2),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806002/To8WFTjfrMQtrX63D0GoCNRj_x4ujy6.avif', 'screenshot', 3),
+    ('cyberpunk-2077', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806002/SWnz126faKV0CbPOVzCk2R3M_bsyghl.avif', 'screenshot', 4),
 
     ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307423/3f7ee6aa3482b514bd443e116022b038a9728f017916ed37da3f09f731a7d5f2_oql09m.jpg', 'cover', 1),
-    ('the-witcher-3', 'https://cdn.akamai.steamstatic.com/steam/apps/292030/header.jpg', 'banner', 1),
-    ('the-witcher-3', 'https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_107600742f1025251a37c95b6cb2f2eb67a42b10.1920x1080.jpg', 'screenshot', 1),
-    ('the-witcher-3', 'https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_3e21544464ea9885e33d2f9b1716270e5b7c02b9.1920x1080.jpg', 'screenshot', 2),
-    ('the-witcher-3', 'https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_26e8573ef8204618e7c00e12e7534d0b13cfb2e6.1920x1080.jpg', 'screenshot', 3),
+    ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/IW5r8hLVZzf0ApOyiOuRnKUe_cvfqcd.jpg', 'banner', 1),
+    ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976541/witcher_hmrpgu.avif', 'poster', 1),
+    ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805987/5DSZkROrbrlYN2PXGfDGedeM_wbjrnr.avif', 'screenshot', 1),
+    ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/iFujqkGQJZKBGjpw1kgAkjWe_flr6bl.avif', 'screenshot', 2),
+    ('the-witcher-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/mfy0530smBKbptFC5oEIaEyi_lwpbw9.avif', 'screenshot', 3),
 
-    ('red-dead-redemption-2', 'https://cdn.akamai.steamstatic.com/steam/apps/1174180/library_600x900_2x.jpg', 'cover', 1),
-    ('red-dead-redemption-2', 'https://cdn.akamai.steamstatic.com/steam/apps/1174180/header.jpg', 'banner', 1),
-    ('red-dead-redemption-2', 'https://cdn.akamai.steamstatic.com/steam/apps/1174180/ss_017be71a6202e8eb065b7417537db387ae4fb21a.1920x1080.jpg', 'screenshot', 1),
-    ('red-dead-redemption-2', 'https://cdn.akamai.steamstatic.com/steam/apps/1174180/ss_8217d84a7e8006b5d9be253fef1c9b60b2df7e8f.1920x1080.jpg', 'screenshot', 2),
-    ('red-dead-redemption-2', 'https://cdn.akamai.steamstatic.com/steam/apps/1174180/ss_b834bb9ec8df20b0ddf5caebf3e2e28329b31278.1920x1080.jpg', 'screenshot', 3),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/Hpl5MtwQgOVF9vJqlfui6SDB5Jl4oBSq_uweazv.jpg', 'cover', 1),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806004/WyHa1BM3ISDVqYSEUMB9VZJs_bfe8u8.avif', 'banner', 1),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/red_ctn8d7.avif', 'poster', 1),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/PREVIEW_SCREENSHOT1_166081_kvyqms.avif', 'screenshot', 1),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806000/PREVIEW_SCREENSHOT4_166081_c0bi3q.avif', 'screenshot', 2),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PREVIEW_SCREENSHOT5_166081_lravql.avif', 'screenshot', 3),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PREVIEW_SCREENSHOT7_166081_rq0mxs.avif', 'screenshot', 4),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PREVIEW_SCREENSHOT10_166081_djlfoi.avif', 'screenshot', 5),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PREVIEW_SCREENSHOT8_166081_f45khu.avif', 'screenshot', 6),
+    ('red-dead-redemption-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PREVIEW_SCREENSHOT9_166081_kounmg.avif', 'screenshot', 7),
 
     ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307550/ER-collection-2000x1125-780428_igoswx.png', 'cover', 1),
-    ('elden-ring', 'https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg', 'banner', 1),
-    ('elden-ring', 'https://cdn.akamai.steamstatic.com/steam/apps/1245620/ss_f8e65839b2cc068d83a152d12e6900a30b053229.1920x1080.jpg', 'screenshot', 1),
-    ('elden-ring', 'https://cdn.akamai.steamstatic.com/steam/apps/1245620/ss_37a1e0bfa900f089601a4e12e7534d0b13cfb2e6.1920x1080.jpg', 'screenshot', 2),
-    ('elden-ring', 'https://cdn.akamai.steamstatic.com/steam/apps/1245620/ss_81e3a109a909477038e6e5a0be5bb105e9a4e0c3.1920x1080.jpg', 'screenshot', 3),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/M2IBVSWR2ao2oHizClzsUaYL_ksajdf.webp', 'banner', 1),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976545/elden_ybyqim.webp', 'poster', 1),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/1fdf69c57c1ef3af7e137bf260510354b59870e71f7a6e8b_wwdkvv.avif', 'screenshot', 1),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805987/5c4a4ddd38c9db0fb0a0cf7c3cddee592c83bc7b180f9267_u20rae.avif', 'screenshot', 2),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/8dcbe67db4fe71d7cb71d0855ec2e5864fdeae7f177b884c_mzlryu.avif', 'screenshot', 3),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/335fda4e507ce5de650984ddd1638c45dc87c74c24ec8c24_rrfqqv.avif', 'screenshot', 4),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/621d598da03399e9788e3028aed34b9df33115e2156102fe_sitfsr.avif', 'screenshot', 5),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/a7a3c819e53f1427fa90f3062217bb6268696a0ebde47539_m3uosh.avif', 'screenshot', 6),
+    ('elden-ring', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/fe7053cb00f45f480737a5cc170fc3f1e9ec47aca48c2475_d9llbk.avif', 'screenshot', 7),
 
     ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307583/1-tgg1vtswva_vdhblc.png', 'cover', 1),
-    ('hollow-knight', 'https://cdn.akamai.steamstatic.com/steam/apps/367520/header.jpg', 'banner', 1),
-    ('hollow-knight', 'https://cdn.akamai.steamstatic.com/steam/apps/367520/ss_07a049d562148ed163e9c402b8b98e854d1d91a9.1920x1080.jpg', 'screenshot', 1),
-    ('hollow-knight', 'https://cdn.akamai.steamstatic.com/steam/apps/367520/ss_bb93dc45ed442488a031e6783d81b953d100fb6a.1920x1080.jpg', 'screenshot', 2),
-    ('hollow-knight', 'https://cdn.akamai.steamstatic.com/steam/apps/367520/ss_30d2ed12852656ef45f28a38c238b693bc2f2165.1920x1080.jpg', 'screenshot', 3),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/91d47e238a9e2cb5f33e10e4b54c911b4beaafcad3e14a9e_kzsgie.avif', 'banner', 1),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976547/hollow_fij6gq.avif', 'poster', 1),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/4ea721a23a20b67707fbf5d69b39a305c4e1d6d320800576_oavrkh.avif', 'screenshot', 1),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/14c9dd1071f9c112cd2463c0b097ffdf2c59f21c655459e6_mbggf1.avif', 'screenshot', 2),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/9937901dc35fe88cc2c947b1eecdb3f9f186ca64269273d8_nfqhlc.avif', 'screenshot', 3),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/a9dbdffcbcd942f97bd1e4418ed250d49f556bc514c80cb2_ddfwod.avif', 'screenshot', 4),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805996/e4e40255c4cef4f9d83e220441cc794bbc49bd9029e3deae_h4skxd.avif', 'screenshot', 5),
+    ('hollow-knight', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805996/f68bed187022f0acb95a1945199f1370a3f332bbe78b1ea0_zcqivj.avif', 'screenshot', 6),
 
     ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307889/hades_bw1hy6.webp', 'cover', 1),
-    ('hades', 'https://cdn.akamai.steamstatic.com/steam/apps/1145360/header.jpg', 'banner', 1),
-    ('hades', 'https://cdn.akamai.steamstatic.com/steam/apps/1145360/ss_d36cb2d2c1e4c7604eb806c92d5be30dbca9418e.1920x1080.jpg', 'screenshot', 1),
-    ('hades', 'https://cdn.akamai.steamstatic.com/steam/apps/1145360/ss_e1f5744cbbf13101bf89bb8e2efad7c6f0daebf2.1920x1080.jpg', 'screenshot', 2),
-    ('hades', 'https://cdn.akamai.steamstatic.com/steam/apps/1145360/ss_5d4d3851b3cdacccb40f2521c7bb39682522bdc4.1920x1080.jpg', 'screenshot', 3),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806002/pYyqTYA34U1a7hv6BCrqgc24_zypcq1.webp', 'banner', 1),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976543/hades_fk6xfc.webp', 'poster', 1),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/327fb169e7af8eb759a72c0aba917194451047e1b3776758_z1lsp5.avif', 'screenshot', 1),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/CWACHJZ2R8OoZp52SH1UqlXl_qh0pwd.avif', 'screenshot', 2),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/h1Tmq8oRqHn1Hiyh8OozLpTi_omuiu9.avif', 'screenshot', 3),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/htIpeQrsndcAUvsQFcUnwlxQ_gzvngm.avif', 'screenshot', 4),
+    ('hades', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/nFLj8gGhCcJnSnUeK06Ns8qe_ae7hal.avif', 'screenshot', 5),
 
     ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307843/tile_wayfij.webp', 'cover', 1),
-    ('stardew-valley', 'https://cdn.akamai.steamstatic.com/steam/apps/413150/header.jpg', 'banner', 1),
-    ('stardew-valley', 'https://cdn.akamai.steamstatic.com/steam/apps/413150/ss_a5a92cfb9d4dfb5dbd0a4aa44b7d08c5067a922d.1920x1080.jpg', 'screenshot', 1),
-    ('stardew-valley', 'https://cdn.akamai.steamstatic.com/steam/apps/413150/ss_75e01eb4a68285910efc60f4c39faeb88f91307b.1920x1080.jpg', 'screenshot', 2),
-    ('stardew-valley', 'https://cdn.akamai.steamstatic.com/steam/apps/413150/ss_51996f0ee405391a32a673067f9d501c51859bfd.1920x1080.jpg', 'screenshot', 3),
-    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307126/PREVIEW_SCREENSHOT1_130501_oyorel.avif', 'screenshot', 4),
-    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307124/PREVIEW_SCREENSHOT3_130501_etm5sw.avif', 'screenshot', 5),
-    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307124/PREVIEW_SCREENSHOT4_130501_nmxigj.avif', 'screenshot', 6),
+    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/yPmlPNe9extT2AVsv90hOKmn_np3zpb.avif', 'banner', 1),
+    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/stardew_f9oz6e.avif', 'poster', 1),
+    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/PREVIEW_SCREENSHOT2_130501_jjz4a1.avif', 'screenshot', 1),
+    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307126/PREVIEW_SCREENSHOT1_130501_oyorel.avif', 'screenshot', 2),
+    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307124/PREVIEW_SCREENSHOT3_130501_etm5sw.avif', 'screenshot', 3),
+    ('stardew-valley', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307124/PREVIEW_SCREENSHOT4_130501_nmxigj.avif', 'screenshot', 4),
 
     ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308111/apps.21257.71633162879241707.7cf18b3b-9fa5-486f-9a68-067f06d50bf1_iovi27.jpg', 'cover', 1),
-    ('celeste', 'https://cdn.akamai.steamstatic.com/steam/apps/504230/header.jpg', 'banner', 1),
-    ('celeste', 'https://cdn.akamai.steamstatic.com/steam/apps/504230/ss_0dfbd2ee4dc3500d0752e25d2b3efaa5bd16382f.1920x1080.jpg', 'screenshot', 1),
-    ('celeste', 'https://cdn.akamai.steamstatic.com/steam/apps/504230/ss_cc873df14bc91ae0bf3fbc4da5c8291583cdd1db.1920x1080.jpg', 'screenshot', 2),
-    ('celeste', 'https://cdn.akamai.steamstatic.com/steam/apps/504230/ss_602c3dc8c2a3b0dbda460cae84f50f2aaedc4091.1920x1080.jpg', 'screenshot', 3),
-    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307117/PREVIEW_SCREENSHOT4_161659_lb0f3q.avif', 'screenshot', 4),
-    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307117/PREVIEW_SCREENSHOT5_161659_brobqd.avif', 'screenshot', 5),
-    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307116/PREVIEW_SCREENSHOT6_161659_nt0hog.avif', 'screenshot', 6),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/hgqlI1LTcsd6zuL7YWVLQ8d00jkBmtCg_pdm532.avif', 'banner', 1),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/celeste_lrby4w.avif', 'poster', 1),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806000/PREVIEW_SCREENSHOT2_161659_izqbbu.avif', 'screenshot', 1),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806000/PREVIEW_SCREENSHOT3_161659_nuwcy3.avif', 'screenshot', 2),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307117/PREVIEW_SCREENSHOT4_161659_lb0f3q.avif', 'screenshot', 3),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307117/PREVIEW_SCREENSHOT5_161659_brobqd.avif', 'screenshot', 4),
+    ('celeste', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307116/PREVIEW_SCREENSHOT6_161659_nt0hog.avif', 'screenshot', 5),
 
     ('marvel-rivals', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805994/aeb816655b966f6e96a0fc4929afba02da754badf872f10f_zzjj6k.avif', 'cover', 1),
     ('marvel-rivals', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/907bba0da07662df166e58a65ef6fff1c23439ae11c31db7_vecwuu.avif', 'banner', 1),
+    ('marvel-rivals', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976539/Marvel_Rivals_ogypwa.avif', 'poster', 1),
     ('marvel-rivals', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/7ca0dd31fecc5a0263171dc1ac1ea6befc8c68a65cbf6ed1_xzjqag.avif', 'screenshot', 1),
     ('marvel-rivals', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/034f754b52a25a00736af4b882a9c6d26246dc634b36c62d_n6njhn.avif', 'screenshot', 2),
     ('marvel-rivals', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/1497203e1cb92ca05a9aba5f9f945123509dbe98bbc319b3_vtgs7z.avif', 'screenshot', 3),
@@ -926,6 +883,7 @@ JOIN (VALUES
 
     ('halo-campaign-evolved', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/a0d52445fcb5d96d66a361b6759d1b8b959c4644cea70714_zvkgj3.avif', 'cover', 1),
     ('halo-campaign-evolved', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/5102f2929b3357cb4af79022f4fc2234fc5756710947e91a_edmtif.avif', 'banner', 1),
+    ('halo-campaign-evolved', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976352/halo_iijmgv.avif', 'poster', 1),
     ('halo-campaign-evolved', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/7f525c8831b83edd4443bab95a5daae307ef2da814d7b398_ainlx7.avif', 'screenshot', 1),
     ('halo-campaign-evolved', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/7808104862aafa9eede3c8eaacc204b5ac8245d97cf90668_mgdr2d.avif', 'screenshot', 2),
     ('halo-campaign-evolved', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/afba6274e85aa8de25cbb7f07409bab9f87e37d61ffc08c0_cpvtdj.avif', 'screenshot', 3),
@@ -933,6 +891,7 @@ JOIN (VALUES
 
     ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308164/mixcollage-21-dec-2024-12-41-pm-2315_aggsbe.jpg', 'cover', 1),
     ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/brIXKBE5BqYgBSrsDn6Wo18O_gv8k0f.avif', 'banner', 1),
+    ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976352/demons_souls_h4tlbj.webp', 'poster', 1),
     ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/lK4tpxDNLfOxHly1yE5ceKNt_aule4d.avif', 'screenshot', 1),
     ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/NE92EYZjGR8hU8ZcNDgEYEX1_dfe44s.avif', 'screenshot', 2),
     ('demons-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805998/p3BNVCDOeLpb3bWAptk2Hi2t_xzqj7q.avif', 'screenshot', 3),
@@ -942,6 +901,7 @@ JOIN (VALUES
 
     ('baldurs-gate-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786311758/apps.11593.13550459053619040.9c555c73-a698-4992-b0f3-c5084cf18b5e_dkikhk.jpg', 'cover', 1),
     ('baldurs-gate-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305796/95cce955dc59d04e2ea5ab624a823ace14e9c5f7e24dfb8f_qvelus.avif', 'banner', 1),
+    ('baldurs-gate-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305795/ba706e54d68d10a0eb6ab7c36cdad9178c58b7fb7bb03d28_ky0gxn.avif', 'poster', 1),
     ('baldurs-gate-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305796/cf4d6784b45e8821ece8399d310738a386052aba91098a7c_ogmqyn.avif', 'screenshot', 1),
     ('baldurs-gate-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305796/09e502a2ce6e26469b1f4c5bf332f2006340f92c51c969f5_evsyrq.avif', 'screenshot', 2),
     ('baldurs-gate-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305795/5370c71dc10127345d99c8e59b4b568458fa0147f660368b_e3b1ff.avif', 'screenshot', 3),
@@ -949,6 +909,7 @@ JOIN (VALUES
 
     ('gta-5', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305802/gtavcover_ymqnr8.avif', 'cover', 1),
     ('gta-5', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305802/bZ1JTRXzoyl3hkcsloKcCgdBGTAV_banner_vthhn4.webp', 'banner', 1),
+    ('gta-5', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305802/oltI7Zc96usbdvhVVXcV1EAigtasquare_epfps5.webp', 'poster', 1),
     ('gta-5', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305801/8kNkdvIIbW8YCoFQkv5tdVU5_lhfnid.avif', 'screenshot', 1),
     ('gta-5', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305801/4aX03Zu8ocLyP0bQui1AiKcotpPFgPeAv6YWMBUg51YyZcdv_yncrrm.avif', 'screenshot', 2),
     ('gta-5', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305801/tpPFgPeAv6YWMBUg51YyZcdv_s158c2.avif', 'screenshot', 3),
@@ -957,6 +918,7 @@ JOIN (VALUES
 
     ('grand-theft-auto-vi', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307693/GTA-VI-article-image-illustration-2_mfoij4.webp', 'cover', 1),
     ('grand-theft-auto-vi', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/1c8e3e304f0bad2d99ffed828ad460ebe5949608cb82a5dd_veylsj.avif', 'banner', 1),
+    ('grand-theft-auto-vi', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976548/gtavi_rerqc6.avif', 'poster', 1),
     ('grand-theft-auto-vi', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/1b1bb3a94bbd1a8a4e7514763d016f510e24247b4d864ff6_iwulpc.avif', 'screenshot', 1),
     ('grand-theft-auto-vi', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/5d18cf5f59260666abe5029f450ba2b5a61d996b0503e1fc_xz5tmd.avif', 'screenshot', 2),
     ('grand-theft-auto-vi', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805987/6e2a7c7eb29de1f04c32820823f66858fbc3d9ab9adf88a9_pojfdm.avif', 'screenshot', 3),
@@ -965,6 +927,7 @@ JOIN (VALUES
 
     ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786311695/16x9_CallOfDutyModernWarfare4_image1600w_ky8hid.jpg', 'cover', 1),
     ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/972f277c6ca05ffd7b4f290ba34ebc0131bffc73e2a7548d_fpyvv4.avif', 'banner', 1),
+    ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976542/modernwar4_nsgjew.avif', 'poster', 1),
     ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805987/6d9d0cb6602f3eb2b655e202e9b7b68114ff74505a20575e_vvrkfq.avif', 'screenshot', 1),
     ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/6efef757dc2f5c06c3ffa95871cc5fc94523ee2739043c83_cbgblf.avif', 'screenshot', 2),
     ('call-of-duty-modern-warfare-4', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805994/ade65b9e9216d88cb89f864f445e52b5f3d7a6b6ae57b0ff_tfo9yq.avif', 'screenshot', 3),
@@ -972,14 +935,18 @@ JOIN (VALUES
 
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307466/Elden-Ring-Nightreign-290525_l46qa4.png', 'cover', 1),
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805994/b21fc6bafea0353ad8578dec61cd2690020b615f161c416e_mbr7zx.avif', 'banner', 1),
+    ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976545/night_aiiepe.avif', 'poster', 1),
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/1d7f60c58f6efbe48079d1ff8773c49c32c341c9ae992e0f_iqljbz.avif', 'screenshot', 1),
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/7a8b663566237f74b48758e7faba85ff9e3f565178e82253_liyraa.avif', 'screenshot', 2),
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/45e68fda0fcfe7fe3523b5012ab9af14e88db2a1387388af_lhnoth.avif', 'screenshot', 3),
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/75caece2da1c88c118907670406d83b6d29a73869f9426fe_grre7z.avif', 'screenshot', 4),
     ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/109df616efc3f73a6de74967928346e6b891ec31c3952c5c_adb82h.avif', 'screenshot', 5),
+    ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805997/fe69b66a0f2e238fa1b2577fac5681733bc69fc2849ceac3_u1nplv.avif', 'screenshot', 6),
+    ('elden-ring-nightreign', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806001/PREVIEW_SCREENSHOT7_109885_ywf51r.avif', 'screenshot', 7),
 
     ('eldest-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308050/apps.29240.14189158524560144.27914bed-e8a1-42b9-ae1b-8794ad1be952_mkzgps.jpg', 'cover', 1),
     ('eldest-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/bOtJXHmvkx4iJCU21kFH1APZ_fdg4da.avif', 'banner', 1),
+    ('eldest-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976544/eldest_c72xw6.webp', 'poster', 1),
     ('eldest-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/1sUjGLkgvlBbb6EU1egjgoYS_w1tnog.avif', 'screenshot', 1),
     ('eldest-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/7nyQkp1Pe6bHcri1T3LI0OYy_myivul.avif', 'screenshot', 2),
     ('eldest-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806002/R5uwFp2MAdNDWGRCxUlZWDNy_zg8xex.avif', 'screenshot', 3),
@@ -988,6 +955,7 @@ JOIN (VALUES
 
     ('hades-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308084/MV5BYmU1MzVkYjMtNmI2Ny00NWQzLWE5MjQtZTIzNzgzMGY3ODEyXkEyXkFqcGc._V1_FMjpg_UX1000__qqr7sl.jpg', 'cover', 1),
     ('hades-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/93f66b17d66159f2a06f2f001b0e28cb485b524c9204797b_pqwyv8.avif', 'banner', 1),
+    ('hades-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976543/hades2_aexewa.avif', 'poster', 1),
     ('hades-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/1ddcec87d4be70acd848473572c14128024db5786ec46ee7_l3yyss.avif', 'screenshot', 1),
     ('hades-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805987/2dff06b0be12903fbddbc2bd578bcdbe6136730ec2e18bac_ahtvuf.avif', 'screenshot', 2),
     ('hades-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/08c5b674ef49cc0139791254f2ca1528a8239c3922842621_qp0qwg.avif', 'screenshot', 3),
@@ -997,6 +965,7 @@ JOIN (VALUES
 
     ('god-of-war-ragnarok', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308241/God_of_War_Ragnar_C3_B6k_capa.jpg_cajyo5.jpg', 'cover', 1),
     ('god-of-war-ragnarok', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305791/1f4bf1ee42276b3841e71ebb812510493ce78bfc307d3296_qdf1d2.avif', 'banner', 1),
+    ('god-of-war-ragnarok', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305767/P8AN9kNfSJtfSx0PmlT93mnN_g2ooq8.avif', 'poster', 1),
     ('god-of-war-ragnarok', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305790/NbH8trRlNM7tXO8cPm4Bfkew_zsdw8i.avif', 'screenshot', 1),
     ('god-of-war-ragnarok', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305790/bs47a1TJb585Z0MtRQKRW5er_wvl1sy.avif', 'screenshot', 2),
     ('god-of-war-ragnarok', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305790/WERD9QwOeuJ257snQnLhOob8_nrudgg.avif', 'screenshot', 3),
@@ -1006,6 +975,7 @@ JOIN (VALUES
 
     ('dark-souls-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308192/images_wcxjkm.jpg', 'cover', 1),
     ('dark-souls-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785806003/zA0pyOR4JXOtGGIY7Jp2FJZP_p8ismg.avif', 'banner', 1),
+    ('dark-souls-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976351/darksouls_a2x95o.jpg', 'poster', 1),
     ('dark-souls-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/PREVIEW_SCREENSHOT1_77921_ayuygk.avif', 'screenshot', 1),
     ('dark-souls-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/PREVIEW_SCREENSHOT2_77921_cmp1ja.avif', 'screenshot', 2),
     ('dark-souls-3', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805999/PREVIEW_SCREENSHOT1_109885_q6jtln.avif', 'screenshot', 3),
@@ -1019,6 +989,7 @@ JOIN (VALUES
 
     ('god-of-war', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305791/LsaRVLF2IU2L1FNtu9d3MKLq_bpzydt.avif', 'cover', 1),
     ('god-of-war', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305793/KAmUQWQ5V9QF3XDzmty1VkKj_xdyurb.avif', 'banner', 1),
+    ('god-of-war', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305742/ax0V5TYMax06mLzmkWeQMiwH_q3xbhp.jpg', 'poster', 1),
     ('god-of-war', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305793/PREVIEW_SCREENSHOT1_152721_fstpqi.avif', 'screenshot', 1),
     ('god-of-war', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305793/PREVIEW_SCREENSHOT2_152721_qjekvt.avif', 'screenshot', 2),
     ('god-of-war', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305792/PREVIEW_SCREENSHOT6_152721_kqxrsm.avif', 'screenshot', 3),
@@ -1029,6 +1000,7 @@ JOIN (VALUES
 
     ('gang-beasts', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307619/apps.35593.68150164172276526.ddc374d7-ef5e-43b9-940a-bbc04440bb33_k0tho9.jpg', 'cover', 1),
     ('gang-beasts', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305795/pXC7nJzBiN8m9VswrBZUid4S_fak1wy.webp', 'banner', 1),
+    ('gang-beasts', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307127/DaMDXP75LV9pti5nA2IALzhO_qxi3ul.webp', 'poster', 1),
     ('gang-beasts', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305795/2kZcm1OOdNpBufLRjkzZtfnv_ml6lmi.avif', 'screenshot', 1),
     ('gang-beasts', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305795/1h3ap4ZwW7zYZXgBnTSSJdoC_ohrrxa.avif', 'screenshot', 2),
     ('gang-beasts', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305794/q4Exwcr9q3dnb4lNkV9DcXF3_geinzf.avif', 'screenshot', 3),
@@ -1038,6 +1010,7 @@ JOIN (VALUES
 
     ('metal-gear-solid-delta', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308021/13093424477046.jpg_ojghav.jpg', 'cover', 1),
     ('metal-gear-solid-delta', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305800/40644e8efe1a34b361adcd5d22283444e0ee12fcf9783479_qojrlt.avif', 'banner', 1),
+    ('metal-gear-solid-delta', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307123/d35b305652ee922a72b4020bd5d6ef36675cf526dd4945d1_uxxixv.avif', 'poster', 1),
     ('metal-gear-solid-delta', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305800/46104018b61828982144fb4143fa22feb8af8dd3b6928557_bgdzj0.avif', 'screenshot', 1),
     ('metal-gear-solid-delta', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305800/17ebc3943be34b5f2939be89cbe0224cb6497b6f0de6cbe1_jmu6fw.avif', 'screenshot', 2),
     ('metal-gear-solid-delta', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305800/7c1a55246937ca9cd0b97f27406b160ed12ab1ecf3e40f5e_r2dcap.avif', 'screenshot', 3),
@@ -1048,6 +1021,7 @@ JOIN (VALUES
 
     ('days-gone-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305797/a2fa690381bb625c8efca0bbd5210811b9e044ed6f116ab8_qbwkuk.avif', 'cover', 1),
     ('days-gone-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305798/cdf6431ee3f30fde3c13b42857d41edc42142da11e1bdc61_a0hd1p.avif', 'banner', 1),
+    ('days-gone-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305797/a2fa690381bb625c8efca0bbd5210811b9e044ed6f116ab8_qbwkuk.avif', 'poster', 1),
     ('days-gone-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305798/fd748611c48677afcef1bc86f54f434975725490922037f3_toqxn8.avif', 'screenshot', 1),
     ('days-gone-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305798/07e3cbc0ef39ec3a4bd862ac25688ae528dea1ef1c9a32b5_ajnpdy.avif', 'screenshot', 2),
     ('days-gone-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305798/ff80f7cceea59534c7ed676b383ce6c3d954d98cea2045fd_uvzuvf.avif', 'screenshot', 3),
@@ -1058,6 +1032,7 @@ JOIN (VALUES
 
     ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786311858/god-of-war-iii-remastered-playstation-4-playstation-store-cover_pwfqj1.jpg', 'cover', 1),
     ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305742/qKv4pRqoGFvnoUKyDSLg17ne_b1kv5w.avif', 'banner', 1),
+    ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786311858/god-of-war-iii-remastered-playstation-4-playstation-store-cover_pwfqj1.jpg', 'poster', 1),
     ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305741/gow3_8_jgxx0b.avif', 'screenshot', 1),
     ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305741/gow3_2_rryxoj.avif', 'screenshot', 2),
     ('god-of-war-3-remastered', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305741/gow3_9_svji1w.avif', 'screenshot', 3),
@@ -1065,6 +1040,7 @@ JOIN (VALUES
 
     ('battlefield-6', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305739/aa972ae00b4f52514faa64d6626c43fe92ca880b250fa485_pzozlf.avif', 'cover', 1),
     ('battlefield-6', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305740/499e810a69aecf9bca5e65daa391ad9fb212b6d17bd230a3_c0f3y0.avif', 'banner', 1),
+    ('battlefield-6', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305739/aa972ae00b4f52514faa64d6626c43fe92ca880b250fa485_pzozlf.avif', 'poster', 1),
     ('battlefield-6', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305740/1dc001a065e8494cff98c986044363bcd2702a6c7442f926_cdkng0.avif', 'screenshot', 1),
     ('battlefield-6', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305739/16e87f0ace49b69774dd829c279fcf032eb21927818f1473_pk8sg8.avif', 'screenshot', 2),
     ('battlefield-6', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305739/4b0674c633720a66d0811adf557162b98cd4011aeb06df4b_xalylg.avif', 'screenshot', 3),
@@ -1075,6 +1051,7 @@ JOIN (VALUES
 
     ('doom-the-dark-ages', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305736/bb3f89ae3425f3aa86041ff71646fc5d44d7705f3a383427_q7twzo.avif', 'cover', 1),
     ('doom-the-dark-ages', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305738/9cce1948120d31351ecd5d9715fffe9ffc0041be81767b45_nvrzgr.avif', 'banner', 1),
+    ('doom-the-dark-ages', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305736/bb3f89ae3425f3aa86041ff71646fc5d44d7705f3a383427_q7twzo.avif', 'poster', 1),
     ('doom-the-dark-ages', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305737/6e2b6c98d0288a93def5d186504a68efc2860c7a8262ed20_lhytwa.avif', 'screenshot', 1),
     ('doom-the-dark-ages', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305737/b2f73f8185e0deda697df52f80091ae99199fb19fdcbbf46_wfeijq.avif', 'screenshot', 2),
     ('doom-the-dark-ages', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305737/78ee91a3dc2ac0f05e2eabaab691eab94e8546be8e860747_csjdng.avif', 'screenshot', 3),
@@ -1084,6 +1061,7 @@ JOIN (VALUES
 
     ('demon-slayer-hinokami-chronicles', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786308270/2ZfAUG5CTXdM34S1OhmMW1zF_yfq4sm.jpg', 'cover', 1),
     ('demon-slayer-hinokami-chronicles', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305736/9b8b59b311dd2d8555f7d3a862369e888c2ebcd389ca88d2_cxm2kh.avif', 'banner', 1),
+    ('demon-slayer-hinokami-chronicles', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786307116/JzL1NLQvok7Pghe9W5PP2XNV_wflum1.jpg', 'poster', 1),
     ('demon-slayer-hinokami-chronicles', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305736/ddfc7334f0360433a48686cf67ed8f5bd0ba4d4fa5a60d4b_jcjabc.avif', 'screenshot', 1),
     ('demon-slayer-hinokami-chronicles', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305736/58ef9804d2fe7d273e0e40ac1f7d09ebaff15fccebbed785_znxhig.avif', 'screenshot', 2),
     ('demon-slayer-hinokami-chronicles', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786305736/eb4ce78fc4ffada1440240b1e15870a42daeeb1999cd75f6_unpzka.avif', 'screenshot', 3),
@@ -1091,32 +1069,45 @@ JOIN (VALUES
 
     ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/9396dc04cc0161e5a17f8775402f2c3afdcb5d8043a7ebf8_ielpmn.avif', 'cover', 1),
     ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/9396dc04cc0161e5a17f8775402f2c3afdcb5d8043a7ebf8_ielpmn.avif', 'banner', 1),
+    ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976546/silk_mbrzoi.avif', 'poster', 1),
     ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/4c666cab506dfdf3e9469c4835f51ee3e472ab350b03b4a3_ypwsf2.avif', 'screenshot', 1),
     ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/08b19c7ef4fcc3a6ca370ce65c6ea3bb855e36b584e4044a_uhf4ng.avif', 'screenshot', 2),
     ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/52f93db9eed66234db64703fc279d673cbc83dec97eb6bb2_lr0kew.avif', 'screenshot', 3),
     ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/155e14df406bbfea7ea5ffea758936061396bf91803da6a2_gf28gw.avif', 'screenshot', 4),
+    ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/3980a8757252ca77f4627bd0e0e505348da978f6c2b3a453_sskxvh.avif', 'screenshot', 5),
+    ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/6145661f43db3aa357cfcf1406e2b9ef5604adac91af04cf_wwxz6v.avif', 'screenshot', 6),
+    ('hollow-knight-silksong', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805996/df324b3ee1c4f136f5749164e21ba6656c18d5a6e1790e75_nzoxki.avif', 'screenshot', 7),
 
     ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/30972495c4d1b567dcd015b80c0d3af9c946efc8822944d7_qwsind.avif', 'cover', 1),
     ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805996/f1fe921628640e04e0019a7c874a0215dbe26bec1f4b6df2_t8iedq.avif', 'banner', 1),
+    ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976546/blackflag_ns2rvc.avif', 'poster', 1),
     ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805986/0d9e9f056f2d03bbf86ee2dcb1815bc071504109baa86b88_xkuict.avif', 'screenshot', 1),
     ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805992/8063607e29c74f35e590945fa66ac18de08ef03c6cc09f85_pdvohz.avif', 'screenshot', 2),
     ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805994/b4e22cd44ad3f5fb7a9dc551401c1a9991a58bb6df3cd8df_n294ij.avif', 'screenshot', 3),
     ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/d478cb56002fd2cb2e04d8cfd8490942fced08e62db2933e_gf0lgt.avif', 'screenshot', 4),
+    ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805995/dd35830fb3d2c5e8bc08b5ed6be69fd1904b9a1a7d354855_gw0rlt.avif', 'screenshot', 5),
+    ('assassins-creed-black-flag-remake', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805996/e8b9a90a1b989b14aec6fca118bccdfced151d199994ab52_mmjie4.avif', 'screenshot', 6),
 
     ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/881aeea06b117a39f1724a4d7ebf66b152a088475e4467e4_nfucut.avif', 'cover', 1),
     ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805989/70bf2b0857ebc50a44d0e281d711cede69f592785da33d97_k5nozh.avif', 'banner', 1),
+    ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976541/sparkign_wdn07w.avif', 'poster', 1),
     ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805987/3b49de028249b81b51a531debf39f65aa6fc08c65f865101_rmk7re.avif', 'screenshot', 1),
     ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/7de725f13584a8b7b4426cecefb30714801740b6365798ce_zhnrf2.avif', 'screenshot', 2),
     ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/905d6d57a028928cc8f7f623643c339ab2bd2a2fc1183370_zjb4os.avif', 'screenshot', 3),
     ('dragon-ball-sparking-zero', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805994/bba7d02ae9cae5f4b87c87bc4e86a215eb28ae70a2908e14_i8x5ac.avif', 'screenshot', 4),
 
-    ('minecraft', 'https://picsum.photos/seed/minecraft/400/600', 'cover', 1),
-    ('minecraft', 'https://picsum.photos/seed/minecraftb/1920/1080', 'banner', 1),
-    ('minecraft', 'https://picsum.photos/seed/minecrafts1/800/450', 'screenshot', 1),
-    ('minecraft', 'https://picsum.photos/seed/minecrafts2/800/450', 'screenshot', 2),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805991/670c294ded3baf4fa11068db2ec6758c63f7daeb266a35a1_sjezdo.avif', 'cover', 1),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/91fe046f742042e3b31e57f7731dbe2226e1fd1e02a36223_issij9.avif', 'banner', 1),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785976539/mine_a464rw.avif', 'poster', 1),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805988/6fe83bf38f93a06816c21b46ce73945f157260319c4a77d2_prt4b6.avif', 'screenshot', 1),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/94dd1a47ceec2cd4fbd4839938ddfcc51d8cad604b57c595_p6ksxx.avif', 'screenshot', 2),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805990/0193d3b773501fffe0609513ab4e134ff14759ede12d4423_r2mwbm.avif', 'screenshot', 3),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805993/51311490f915043da2f955969ac22133541f122c78c168f5_kum8cu.avif', 'screenshot', 4),
+    ('minecraft', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1785805996/fc3e64baae92f6976c2ec81e4020e7862c9afaaf103c1317_p0fwmg.avif', 'screenshot', 5),
 
     ('genshin-impact', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334454/genshin-impact-40jjf_bhspko.jpg', 'cover', 1),
     ('genshin-impact', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333492/588720a686e20fc3d0ed0fa5d42b10d0981341dde320e3c6_le2n0z.avif', 'banner', 1),
+    ('genshin-impact', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333490/30935168a0f21b6710dc2bd7bb37c23ed937fb9fa747d84c_dyvivu.avif', 'poster', 1),
     ('genshin-impact', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333491/ee8fc561d32640042cfc52f98f1eddb9e7529eafc39c60a0_ivgfir.avif', 'screenshot', 1),
     ('genshin-impact', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333491/acdc8c4afc1b17bbeb7c961a4c2dbb2636e20b8cf0515a0a_vtdidz.avif', 'screenshot', 2),
     ('genshin-impact', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333491/c50d3976bafdb642fd8c384a22a9dd81affb5f1bf363c04f_ycwqgd.avif', 'screenshot', 3),
@@ -1125,6 +1116,7 @@ JOIN (VALUES
 
     ('valorant', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334412/apps.21507.13663857844271189.4c1de202-3961-4c40-a0aa-7f4f1388775a_kxqhwh.jpg', 'cover', 1),
     ('valorant', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333490/f70950c34b58491e273fa8ef1bcb0022bc633537921934d8_meaz5j.avif', 'banner', 1),
+    ('valorant', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334425/tecnologia_20e_20games-games-valorant-call_of_duty-1721677606_emjfbj.jpg', 'poster', 1),
     ('valorant', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333489/2c1e9886a14f934916259b5dc12e95e5d3857aa789cf07b5_dksuvy.avif', 'screenshot', 1),
     ('valorant', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333489/57ba040780f841303f990276a1163357db7ddd4fc73e891e_edjprg.avif', 'screenshot', 2),
     ('valorant', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333489/31ecfb2e24d112b6a4cd318470b2b1ce80bd340885feac97_loclbb.avif', 'screenshot', 3),
@@ -1133,6 +1125,7 @@ JOIN (VALUES
 
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334340/images_gkkjyq.jpg', 'cover', 1),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333488/3878ff92261c1fda7ce03772ac149514ce6f6bf5c715e64b_ay64zk.avif', 'banner', 1),
+    ('resident-evil-requiem', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd_cGm3ACx_qEEXzynLmHgBVaqYRM0ZxmmRP0xbkfn2Js6k9ks1GCgaw8&s=10', 'poster', 1),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333488/b2ee4bb116cbc638d085ccf6f8a70926e23a945810ef8696_hvryvg.avif', 'screenshot', 1),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333487/0defaa05f3a37f4340975cb80cbd328462d6f9af93c115b0_jfso0t.avif', 'screenshot', 2),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333487/42738d3e42f78fab129efa703bd39b56c223d1e9aff488cd_okovcg.avif', 'screenshot', 3),
@@ -1143,6 +1136,7 @@ JOIN (VALUES
 
     ('arc-raiders', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334174/apps.1218.13550041517005289.7f3b0841-0084-4cae-88f4-8996d95d574f_ejtndw.jpg', 'cover', 1),
     ('arc-raiders', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333485/1ba134fed235d21ae7ae2588ed379fbb2eb24e1574dd6dad_crpzlp.avif', 'banner', 1),
+    ('arc-raiders', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334294/images_dmoyfc.jpg', 'poster', 1),
     ('arc-raiders', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333485/d8fe1cbb0a3f30673003363089667bc932e5bd1f2f4ab4b2_fjelb8.avif', 'screenshot', 1),
     ('arc-raiders', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333485/545919c3eb68b7a80f26585a9eb213f62cd8bfa1da4c52a5_jfxogb.avif', 'screenshot', 2),
     ('arc-raiders', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333485/1854db4af5285cf9e6a2d5e64188f2cf61dcf373e12cc8db_e3cdwz.avif', 'screenshot', 3),
@@ -1151,6 +1145,7 @@ JOIN (VALUES
 
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334153/cover_voessc.jpg', 'cover', 1),
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333484/71b37be111798b6f8e9f9413474e882603867affbbea6b4d_clj0eh.avif', 'banner', 1),
+    ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334130/marvel-tokon-fighting-souls_dc82_a7svp3.jpg', 'poster', 1),
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333484/4815eb3172d0243de81381930283979e6c50857cb51aafc1_dels6m.avif', 'screenshot', 1),
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333483/00158ca9b06407610e5e73c38547f46538e4c4f4c87ee052_rzngcx.avif', 'screenshot', 2),
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333483/eea10430815adb7a5995097fd5ab8d30002e2ffeb4b95712_sz3x1p.avif', 'screenshot', 3),
@@ -1159,9 +1154,12 @@ JOIN (VALUES
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333482/973f3b7807d55b4c3cc556d50ba38f8056545bf5f42e937e_k7brjh.avif', 'screenshot', 6),
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333481/61ca8f3b7dc02bdf0a3719be7d4771c549617fc4e9773ccd_jgyoya.avif', 'screenshot', 7),
     ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333481/2786fb5d2958f181e836bc8d7c2c2424b0ad6b9a47f04724_f028fa.avif', 'screenshot', 8),
+    ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333481/f127f61a7cdf328577b55767b95a8a0e5a9f9c6fc3cfddbd_mw6a6i.avif', 'screenshot', 9),
+    ('marvel-tokon-fighting-souls', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333480/47646bc6f0b4d839aa64a21350978f84956db3dd979244ab_hzid8b.avif', 'screenshot', 10),
 
     ('spider-man-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334040/e66c4ae18c5d8e3986a24599b293162a6f5c9eba22968d2c_mlcj65.jpg', 'cover', 1),
     ('spider-man-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333480/97e9f5fa6e50c185d249956c6f198a2652a9217e69a59ecd_kcwazg.avif', 'banner', 1),
+    ('spider-man-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334040/e66c4ae18c5d8e3986a24599b293162a6f5c9eba22968d2c_mlcj65.jpg', 'poster', 1),
     ('spider-man-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333480/2c98c3222259f47462e6d7cd596e7e6bb2c9c0ff2ed314f6_fxynbj.avif', 'screenshot', 1),
     ('spider-man-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333479/21b32023d0332afe6f2fa5ae74d66ceea4fa82212922135a_zoedzd.avif', 'screenshot', 2),
     ('spider-man-2', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333479/e2293c139402f6a14ffb7b69ea4da5fbfd58939bd9bccd5b_rbeug2.avif', 'screenshot', 3),
@@ -1170,6 +1168,7 @@ JOIN (VALUES
 
     ('roblox', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333943/roblox_ensino_j6uqjp.jpg', 'cover', 1),
     ('roblox', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333478/6157a74f216f5fd380f33d326132130e6d1d7578291da74c_mqucsh.avif', 'banner', 1),
+    ('roblox', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333478/12278d7eaa31b8e9afe79e98f5017d4522b3ac51c7635826_smbidm.avif', 'poster', 1),
     ('roblox', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333478/44cc9e6950a383e88a43b0876d7926cf32a678c8788ecbbd_dmn2q8.avif', 'screenshot', 1),
     ('roblox', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333477/ad591a0097eee07d2ac0de67d464d0ffcf4e86c40a2ed023_udr6xf.avif', 'screenshot', 2),
     ('roblox', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333477/8055b401120af0b02f837e042937bce377844b34bd70936d_ythrve.avif', 'screenshot', 3),
@@ -1178,6 +1177,7 @@ JOIN (VALUES
 
     ('free-fire', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333476/MV5BMTI3MTE3ZGQtNWJmMi00MTAzLWI2MzYtZTFiMDRkMzU0ZjE0XkEyXkFqcGc._V1__ogfwwd.jpg', 'cover', 1),
     ('free-fire', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333474/65fef1213324415a00e170bef3a51e2b_tmmriz.jpg', 'banner', 1),
+    ('free-fire', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333476/garena-free-fire_2e8s_quw5e0.jpg', 'poster', 1),
     ('free-fire', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333473/maxresdefault_2_gvqstl.jpg', 'screenshot', 1),
     ('free-fire', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333476/images_iikqog.jpg', 'screenshot', 2),
     ('free-fire', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333475/maxresdefault_1_kgvzjr.jpg', 'screenshot', 3),
@@ -1187,6 +1187,7 @@ JOIN (VALUES
 
     ('league-of-legends', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333473/apps.18996.14127010465288187.f9de4a96-0ee4-4da3-bf66-d4132b38c599_jic6oh.jpg', 'cover', 1),
     ('league-of-legends', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333899/image_principale_lol_0d328e25-2895-428d-a871-34cccfda67ae_v7vvna.jpg', 'banner', 1),
+    ('league-of-legends', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333473/lol-banner_jr3grz.webp', 'poster', 1),
     ('league-of-legends', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333473/99691af754da3fdb0f9c122530db5048c7a2e168-1920x1080_tphmvi.jpg', 'screenshot', 1),
     ('league-of-legends', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333473/images_2_ruzmac.jpg', 'screenshot', 2),
     ('league-of-legends', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333473/Udyr_3.jpg_l2nzov.webp', 'screenshot', 3),
@@ -1244,7 +1245,7 @@ JOIN (VALUES
 
     ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336528/MV5BZmJhMTkwMDEtNDU2Yi00MjNkLWIwNDYtMTZhNWM1ODgyZDI3XkEyXkFqcGc._V1__fhswb3.jpg', 'cover', 1),
     ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336568/3xIQlFWEBEUNrbSOpbUxu7Pd_ydsj1t.jpg', 'banner', 1),
-    ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336552/cfef7634adfd013fc6429f00e0284ddef85c0f857ed5da8d319710cbc249cac3_tm4zkd.jpg', 'poster', 1),
+    ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369812/N7ihNMs56mxfYpLu3h7KjtGi_nuagi5.jpg', 'poster', 1),
     ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336565/ss_3941e57f278958dd15c9855f42ab069da3a19608.1920x1080_ha5q0f.jpg', 'screenshot', 1),
     ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336637/ss_2ba08e22d1a3226a85b19e682b3cf88960c9f190.1920x1080_q9cftd.jpg', 'screenshot', 2),
     ('doki-doki-literature-club', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336640/RjN13xW3n1RxqMyFSM2nEzqU_yvswvf.jpg', 'screenshot', 3),
@@ -1260,7 +1261,24 @@ JOIN (VALUES
     ('horizon-forbidden-west', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336762/S6OtFMhSYw0m1GYRTykhGDs6_bo1pzd.jpg', 'screenshot', 3),
     ('horizon-forbidden-west', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336764/JEpfvm4xHpYTmXyz12vWRCR5_y216tt.jpg', 'screenshot', 4),
     ('horizon-forbidden-west', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336772/VYOttvPGju7LvJKD65OGeT41_uousfs.jpg', 'screenshot', 5),
-    ('horizon-forbidden-west', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336775/goSNxvzTBXhNy965YPXGM906_z2wu1g.jpg', 'screenshot', 6)
+    ('horizon-forbidden-west', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786336775/goSNxvzTBXhNy965YPXGM906_z2wu1g.jpg', 'screenshot', 6),
+
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369002/4e6d49ddedcb7c3edde61148ceda4953_r8ymg6.png', 'cover', 1),
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369021/maxresdefault_fblvmp.jpg', 'banner', 1),
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786368986/3320953-5358214920-rOW6cDC8QLo8y2xzF7104pXMmiXSyLC6RVMjl3YYl6cBkpYNWf18dxTYTsvkMfP5GZw_3Ds180_yhqkmb.jpg', 'poster', 1),
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369038/ss_2acf9559421dd59bd85822eaf17ca0e5262831d7.1920x1080_omknin.jpg', 'screenshot', 1),
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369074/ss_5164c684ce6e1f46cf4a275ff700b77c0d7f3843.1920x1080_vwknfy.jpg', 'screenshot', 2),
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369070/ss_9156e5d4fde11b878f9219c13b7f5762a8d504ed.1920x1080_i147eh.jpg', 'screenshot', 3),
+    ('kandidatos', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369056/ss_eae1222db15cbca40e97ce4606104102f0e632cf.1920x1080_wtuzvu.jpg', 'screenshot', 4),
+
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369475/899500_front_qaf8ku.jpg', 'cover', 1),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369284/ksJmxHAF3c4PV9N7MRvLCeWb_usfwo7.jpg', 'banner', 1),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369252/OjPcc6QP2W8kImOhWSnzojn3_ftucvg.jpg', 'poster', 1),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369290/oAyxg9w4rLSSbIK91wzvaby6_jbeyuq.jpg', 'screenshot', 1),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369322/rKJ656smMK3g3cAwIVFeAdgS_a8tdht.jpg', 'screenshot', 2),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369333/QZuvnoBy0DhHj8CH5znQLIpL_vu4jgg.jpg', 'screenshot', 3),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369313/F4rgmdmQH5Wvj9cA0sLHOKxj_un05kv.jpg', 'screenshot', 4),
+    ('persona-5-royal', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786369351/CKIWUxnh85P9sLV1vRfXCqMj_jncnez.jpg', 'screenshot', 5)
 ) AS f(slug, url, tipo, posicao) ON p.slug = f.slug
 WHERE NOT EXISTS (
     SELECT 1 FROM fotos existente
@@ -1318,7 +1336,9 @@ JOIN categorias c ON (
     (p.slug = 'pubg' AND c.nome IN ('Ação', 'FPS', 'Battle Royale', 'Multijogador')) OR
     (p.slug = 'the-last-of-us-part-1' AND c.nome IN ('Ação', 'Aventura', 'Sobrevivência', 'Terror')) OR
     (p.slug = 'doki-doki-literature-club' AND c.nome IN ('Aventura', 'Terror', 'Simulação')) OR
-    (p.slug = 'horizon-forbidden-west' AND c.nome IN ('Ação', 'RPG', 'Aventura', 'Mundo Aberto'))
+    (p.slug = 'horizon-forbidden-west' AND c.nome IN ('Ação', 'RPG', 'Aventura', 'Mundo Aberto')) OR
+    (p.slug = 'kandidatos' AND c.nome IN ('Ação', 'Luta', 'Festa')) OR
+    (p.slug = 'persona-5-royal' AND c.nome IN ('RPG', 'Aventura', 'Turnos'))
 )
 ON CONFLICT (produto_id, categoria_id) DO NOTHING;
 
