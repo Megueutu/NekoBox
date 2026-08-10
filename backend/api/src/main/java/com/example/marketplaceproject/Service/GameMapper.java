@@ -40,8 +40,6 @@ public class GameMapper {
                 "id", produto.getUsuario().getId().toString(),
                 "name", produto.getUsuario().getNomeUsuario(),
                 "logo_url", produto.getUsuario().getUrlAvatar() == null ? "" : produto.getUsuario().getUrlAvatar()));
-        game.put("system_requirements", parseList(produto.getRequisitosJson()));
-        game.put("languages", parseList(produto.getIdiomasJson()));
         game.put("updates", parseList(produto.getAtualizacoesJson()));
         game.put("reviews", avaliacaoService.listarPorProduto(produto.getId()).stream().map(this::toReview).toList());
         return game;

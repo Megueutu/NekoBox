@@ -60,8 +60,6 @@ public class ProdutoService {
         produto.setSlug(gerarSlugUnico(titulo));
         produto.setStatus(validarStatus(produto.getStatus()));
         produto.setTagsJson(produto.getTagsJson() == null ? "[]" : produto.getTagsJson());
-        produto.setRequisitosJson(produto.getRequisitosJson() == null ? "[]" : produto.getRequisitosJson());
-        produto.setIdiomasJson(produto.getIdiomasJson() == null ? "[]" : produto.getIdiomasJson());
         produto.setAtualizacoesJson(produto.getAtualizacoesJson() == null ? "[]" : produto.getAtualizacoesJson());
 
         Produto produtoSalvo = produtoRepository.save(produto);
@@ -86,8 +84,6 @@ public class ProdutoService {
         produto.setDataLancamento(novosDados.getDataLancamento());
         produto.setStatus(validarStatus(novosDados.getStatus()));
         produto.setTagsJson(jsonOuVazio(novosDados.getTagsJson()));
-        produto.setRequisitosJson(jsonOuVazio(novosDados.getRequisitosJson()));
-        produto.setIdiomasJson(jsonOuVazio(novosDados.getIdiomasJson()));
         produto.setAtualizacoesJson(jsonOuVazio(novosDados.getAtualizacoesJson()));
 
         sincronizarCategorias(produto, categorias);

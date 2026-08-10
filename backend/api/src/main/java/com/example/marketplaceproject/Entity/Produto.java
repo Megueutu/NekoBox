@@ -61,14 +61,6 @@ public class Produto {
     @Builder.Default
     private String tagsJson = "[]";
 
-    @Column(name = "requisitos_json", nullable = false, columnDefinition = "TEXT")
-    @Builder.Default
-    private String requisitosJson = "[]";
-
-    @Column(name = "idiomas_json", nullable = false, columnDefinition = "TEXT")
-    @Builder.Default
-    private String idiomasJson = "[]";
-
     @Column(name = "atualizacoes_json", nullable = false, columnDefinition = "TEXT")
     @Builder.Default
     private String atualizacoesJson = "[]";
