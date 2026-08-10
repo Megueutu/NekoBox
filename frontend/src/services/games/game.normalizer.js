@@ -30,12 +30,6 @@ export function normalizeGame(game) {
     publisher: game.publisher
       ? { ...game.publisher, id: text(game.publisher.id), name: text(game.publisher.name) }
       : null,
-    system_requirements: Array.isArray(game.system_requirements)
-      ? game.system_requirements.map((item) => ({ ...item, ...safeFields(item, ["type", "os", "cpu", "ram", "gpu", "storage"]) }))
-      : [],
-    languages: Array.isArray(game.languages)
-      ? game.languages.map((item) => ({ ...item, name: text(item.name) }))
-      : [],
     updates: Array.isArray(game.updates)
       ? game.updates.map((item) => ({ ...item, ...safeFields(item, ["version", "title", "content"]) }))
       : [],

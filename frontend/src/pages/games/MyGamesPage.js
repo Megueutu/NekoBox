@@ -139,8 +139,6 @@ async function submitGameForm(form) {
       release_date: data.get("data_lancamento") || null,
       status: data.get("status"),
       tags: String(data.get("tags") || "").split(",").map((tag) => tag.trim()).filter(Boolean),
-      system_requirements: [],
-      languages: [],
       updates: [],
       categoria_ids: [],
     };

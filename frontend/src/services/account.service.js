@@ -37,19 +37,31 @@ export const AccountService = {
     return normalizeUser(await ApiClient.put("/api/usuarios/me", { username, bio, avatar_url: avatarUrl }));
   },
 
+  async deleteAccount() {
+    await ApiClient.delete("/api/usuarios/me");
+  },
+
   async getCart() {
     const response = await ApiClient.get("/api/carrinho");
     return normalizeGames(response.items);
   },
 
-  async addToCart(id) {
-    const response = await ApiClient.post("/api/carrinho/itens", { produto_id: payloadProductId(id) });
+  async addToCart(id, forGift = false) {
+    const response = await ApiClient.post("/api/carrinho/itens", {
+      produto_id: payloadProductId(id),
+      para_presente: forGift,
+    });
     return normalizeGames(response.items);
   },
 
   async removeFromCart(id) {
     await ApiClient.delete(`/api/carrinho/itens/${productId(id)}`);
     return this.getCart();
+  },
+
+  async updateCartItemQuantity(id, quantity) {
+    const response = await ApiClient.patch(`/api/carrinho/itens/${productId(id)}`, { quantidade: quantity });
+    return normalizeGames(response.items);
   },
 
   async getWishlist() {

@@ -8,6 +8,7 @@ export function WalletDialog() {
     <dialog id="wallet-dialog" class="wallet-dialog" aria-labelledby="wallet-title" aria-describedby="wallet-description">
       <div class="wallet-dialog__header">
         <div class="wallet-dialog__title">
+          <span class="wallet-dialog__title-icon" aria-hidden="true">${Icon(icons.wallet, { className: "w-5 h-5" })}</span>
           <div>
             <p class="wallet-dialog__eyebrow">Carteira NekoBox</p>
             <h2 id="wallet-title">Adicionar saldo</h2>
@@ -17,6 +18,8 @@ export function WalletDialog() {
           ${Icon(icons.x)}
         </button>
       </div>
+
+      <p id="wallet-description" class="sr-only">Confira seu saldo atual e adicione um novo valor à sua carteira.</p>
 
       <section class="wallet-balance" aria-labelledby="wallet-balance-label">
         <div>
@@ -36,6 +39,7 @@ export function WalletDialog() {
           <button type="submit" class="button-primary">Adicionar saldo</button>
         </div>
       </form>
+      <p id="wallet-status" class="wallet-status" role="status" aria-live="polite"></p>
     </dialog>
   `;
 }

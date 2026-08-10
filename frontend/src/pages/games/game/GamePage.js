@@ -9,18 +9,9 @@ import { getCoverUrl, getBannerUrl } from "../../../utils/media";
 import { Section } from "../../../components/ui/Section";
 import { Icon, icons } from "../../../components/ui/Icon";
 import { renderScreenshotGallery } from "./game-gallery";
-import {
-  renderAboutGame,
-  renderLanguages,
-  renderSystemRequirements,
-} from "./game-information";
+import { renderAboutGame } from "./game-information";
 
-export {
-  renderScreenshotGallery,
-  renderAboutGame,
-  renderLanguages,
-  renderSystemRequirements,
-};
+export { renderScreenshotGallery, renderAboutGame };
 
 export default async function GamePage({ slug }) {
   const game = await GamesService.getBySlug(slug);
@@ -42,7 +33,8 @@ export default async function GamePage({ slug }) {
 
   const { cart, wishlist, library } = Store.getState();
   const inLibrary = library.some((g) => g.id === game.id);
-  const inCart = cart.some((g) => g.id === game.id);
+  const inPersonalCart = cart.some((g) => g.id === game.id && !g.for_gift);
+  const inGiftCart = cart.some((g) => g.id === game.id && g.for_gift);
   const inWishlist = wishlist.some((g) => g.id === game.id);
   const freeGame = isFreeGame(game);
 
@@ -54,9 +46,9 @@ export default async function GamePage({ slug }) {
     ? `<button id="btn-acquire-free-license" class="button-primary w-full py-3">
          Adquirir licença gratuitamente
        </button>`
-    : inCart
+    : inPersonalCart
     ? `<a href="${ACCOUNT_PATHS.cart}" data-link class="block w-full py-3 bg-[var(--color-surface-3)] text-white font-bold rounded-lg text-center text-sm hover:bg-[var(--color-brand-700)]/50 transition-colors">
-         Item no Carrinho
+         Item no carrinho
        </a>`
     : `<button id="btn-add-cart" class="button-primary w-full py-3">
          Comprar

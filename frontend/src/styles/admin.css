@@ -463,6 +463,13 @@
   font-size: 0.64rem;
 }
 
+.admin-form-section-heading__title {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  font-weight: 750;
+  color: var(--color-muted-2);
+}
+
 .admin-form-group {
   display: grid;
   gap: 1rem;
@@ -615,8 +622,8 @@
   align-items: center;
   gap: 0.7rem;
   padding: 0.8rem;
-  border: 0;
-  border-radius: 0;
+  border: 1.5px dashed color-mix(in srgb, var(--color-brand-300) 30%, transparent);
+  border-radius: 0.65rem;
   color: var(--color-ink);
   background: transparent;
   cursor: pointer;
@@ -630,6 +637,7 @@
   background: var(--color-surface-2);
 }
 .admin-media-picker:hover {
+  border-color: color-mix(in srgb, var(--color-brand-400) 55%, transparent);
   background: color-mix(in srgb, var(--color-brand-500) 9%, transparent);
 }
 .admin-media-picker:focus-within {
@@ -637,6 +645,25 @@
   z-index: 1;
   outline: 2px solid var(--color-brand-400);
   outline-offset: -2px;
+}
+.admin-media-picker--dragover {
+  border-style: solid;
+  border-color: var(--color-brand-400);
+  background: color-mix(in srgb, var(--color-brand-500) 16%, transparent);
+  transform: scale(1.01);
+}
+.admin-media-picker--filled {
+  border-style: solid;
+  border-color: color-mix(in srgb, #34d399 45%, transparent);
+}
+.admin-media-picker--filled .admin-media-picker__icon {
+  color: #34d399;
+  background: color-mix(in srgb, #34d399 20%, transparent);
+}
+.admin-media-picker--filled .admin-media-picker__action {
+  color: #34d399;
+  border-color: color-mix(in srgb, #34d399 40%, transparent);
+  background: color-mix(in srgb, #34d399 14%, transparent);
 }
 .admin-media-picker input {
   position: absolute;

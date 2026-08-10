@@ -32,8 +32,6 @@ public class CarteiraService {
     public record Recarga(BigDecimal valorAdicionado, BigDecimal saldo) {
     }
 
-    private static final BigDecimal VALOR_MAXIMO_RECARGA = new BigDecimal("5000.00");
-
     @Transactional(readOnly = true)
     public BigDecimal consultarSaldo(Integer usuarioId) {
         return usuarioService.buscarPorId(usuarioId).getSaldo();
@@ -45,9 +43,6 @@ public class CarteiraService {
             throw new CampoInvalidoException("O valor da recarga deve ser maior que zero.");
         }
         BigDecimal valorNormalizado = valor.setScale(2, RoundingMode.HALF_EVEN);
-        if (valorNormalizado.compareTo(VALOR_MAXIMO_RECARGA) > 0) {
-            throw new CampoInvalidoException("O valor da recarga nao pode ultrapassar R$ 5.000,00 por operacao.");
-        }
 
         Usuario usuario = usuarioService.buscarPorIdParaAtualizacao(usuarioId);
         BigDecimal novoSaldo = usuario.getSaldo().add(valorNormalizado).setScale(2, RoundingMode.HALF_EVEN);

@@ -33,15 +33,6 @@ Desenvolvido pela CD Projekt RED, o jogo passou por um ciclo extenso de correç�
     categories: ["RPG", "Ficção Científica", "Mundo Aberto"],
     tags: ["Cyberpunk", "Keanu Reeves", "Primeira Pessoa", "CD Projekt Red"],
     publisher: { id: "p1", name: "CD PROJEKT RED", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10 64-bit", cpu: "Core i5-3570K ou FX-8310", ram: "12 GB", gpu: "GTX 780 ou Radeon RX 470", storage: "70 GB SSD" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Core i7-4790 ou Ryzen 3 3200G", ram: "16 GB", gpu: "GTX 1060 6GB ou Radeon RX 590", storage: "70 GB SSD" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: true },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-      { name: "Espanhol", interface: true, subtitles: true, audio: false },
-    ],
     updates: [
       { id: "u1", version: "v2.12", title: "Patch de Estabilidade", content: "Correções de crash e otimizações gerais de Ray Tracing.", created_at: "2024-02-20" },
       { id: "u2", version: "v2.0", title: "Phantom Liberty Overhaul", content: "Reformulação completa da árvore de habilidades e combate veicular.", created_at: "2023-09-21" },
@@ -71,14 +62,6 @@ Desenvolvido pela CD Projekt RED, o jogo é aclamado por sua escrita madura e pe
     categories: ["RPG", "Fantasia", "Mundo Aberto"],
     tags: ["Bruxo", "Geralt", "História Rica", "CD Projekt Red"],
     publisher: { id: "p1", name: "CD PROJEKT RED", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 7/8 64-bit", cpu: "Intel i5-2500K ou Phenom II X4", ram: "6 GB", gpu: "GTX 660 ou HD 7870", storage: "40 GB" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Intel i7-3770 ou FX-8350", ram: "8 GB", gpu: "GTX 770 ou R9 290", storage: "40 GB" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: true },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-    ],
     updates: [],
   },
   {
@@ -106,14 +89,6 @@ Produzido pela Rockstar Games, o título é reconhecido pela reconstrução deta
     categories: ["Ação", "Aventura", "Mundo Aberto"],
     tags: ["Faroeste", "Rockstar", "Cavalo", "Narrativa"],
     publisher: { id: "p2", name: "ROCKSTAR GAMES", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10 64-bit", cpu: "Intel i5-2500K ou AMD FX-6300", ram: "8 GB", gpu: "Nvidia GTX 770 ou AMD Radeon R9 280", storage: "150 GB SSD" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Intel i7-4770K ou AMD Ryzen 5 1500X", ram: "12 GB", gpu: "Nvidia GTX 1060 6GB ou AMD Radeon RX 480", storage: "150 GB SSD" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-    ],
     updates: [
       { id: "u3", version: "v1.31", title: "Atualização de Fevereiro", content: "Correções de bugs e melhorias gerais de estabilidade.", created_at: "2023-02-15" },
     ],
@@ -142,15 +117,6 @@ Sob a direção de Hidetaka Miyazaki, com worldbuilding de George R. R. Martin, 
     categories: ["RPG", "Ação", "Fantasia"],
     tags: ["Souls-like", "FromSoftware", "George R.R. Martin", "Mundo Aberto"],
     publisher: { id: "p3", name: "BANDAI NAMCO", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10/11 64-bit", cpu: "INTEL CORE I5-8400 / AMD RYZEN 3 3300X", ram: "12 GB", gpu: "NVIDIA GEFORCE GTX 1060 3 GB / AMD RADEON RX 580 4 GB", storage: "60 GB SSD" },
-      { type: "recommended", os: "Windows 10/11 64-bit", cpu: "INTEL CORE I7-8700K / AMD RYZEN 5 3600X", ram: "16 GB", gpu: "NVIDIA GEFORCE GTX 1070 8 GB / AMD RADEON RX VEGA 56 8 GB", storage: "60 GB SSD" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-      { name: "Japonês", interface: true, subtitles: true, audio: true },
-    ],
     updates: [
       { id: "u4", version: "v1.12", title: "Shadow of the Erdtree DLC", content: "Nova expansão com área massiva, novos bosses, armas e histórias.", created_at: "2024-06-21" },
     ],
@@ -180,14 +146,6 @@ Desenvolvido pela Santa Monica Studio, o jogo manteve a assinatura de câmera co
     categories: ["Ação", "Aventura", "Hack and Slash"],
     tags: ["Kratos", "Mitologia Nórdica", "Santa Monica Studio", "PS5"],
     publisher: { id: "p4", name: "SONY INTERACTIVE", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10 64-bit", cpu: "Intel i5-6600K / AMD Ryzen 5 2600X", ram: "8 GB", gpu: "NVIDIA GTX 1060 (6 GB) / AMD RX 5500 XT (8 GB)", storage: "190 GB SSD" },
-      { type: "recommended", os: "Windows 10/11 64-bit", cpu: "Intel i7-7700K / AMD Ryzen 7 3700X", ram: "16 GB", gpu: "NVIDIA RTX 3080 / AMD RX 6800 XT", storage: "190 GB SSD" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: true },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-    ],
     updates: [],
   },
   {
@@ -214,14 +172,6 @@ Criado por uma equipe pequena na Team Cherry, o jogo se destaca pela direção d
     categories: ["Ação", "Plataforma", "Metroidvania"],
     tags: ["Indie", "Metroidvania", "Team Cherry", "2D"],
     publisher: { id: "p5", name: "TEAM CHERRY", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 7 64-bit", cpu: "Intel Core 2 Duo E5200", ram: "4 GB", gpu: "GeForce 9800GTX+ 1GB", storage: "9 GB" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Intel Core i5", ram: "8 GB", gpu: "GeForce GTX 560 1GB", storage: "9 GB" },
-    ],
-    languages: [
-      { name: "Inglês", interface: true, subtitles: true, audio: false },
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-    ],
     updates: [],
   },
   {
@@ -249,14 +199,6 @@ Desenvolvido pela Larian Studios ao longo de mais de seis anos, incluindo um ext
     categories: ["RPG", "Fantasia", "Turnos"],
     tags: ["D&D", "Larian Studios", "Co-op", "Escolhas Morais"],
     publisher: { id: "p6", name: "LARIAN STUDIOS", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10 64-bit", cpu: "Intel i7 8700K / AMD Ryzen 5 3600", ram: "8 GB", gpu: "Nvidia GTX 1060 Super 6GB / AMD RX 5500 XT 8GB", storage: "150 GB SSD" },
-      { type: "recommended", os: "Windows 10/11 64-bit", cpu: "Intel i7 8700K / AMD Ryzen 5 3600", ram: "16 GB", gpu: "Nvidia RTX 2060 Super 8GB / AMD RX 5700 XT 8GB", storage: "150 GB SSD" },
-    ],
-    languages: [
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-    ],
     updates: [
       { id: "u5", version: "Patch 7", title: "Epilogos e Melhorias", content: "Novos epilogos, melhorias de performance e correções de bugs.", created_at: "2024-01-10" },
     ],
@@ -285,14 +227,6 @@ Criado originalmente por Markus "Notch" Persson e hoje mantido pela Mojang Studi
     categories: ["Sandbox", "Aventura", "Sobrevivência"],
     tags: ["Mojang", "Construção", "Multiplayer", "Criativo"],
     publisher: { id: "p7", name: "MOJANG STUDIOS", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10 64-bit", cpu: "Intel i3-3210 / AMD A8-7600", ram: "4 GB", gpu: "Intel HD Graphics 4000 / AMD Radeon R5", storage: "4 GB" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Intel i5-4690 / AMD A10-7800", ram: "8 GB", gpu: "NVIDIA GeForce 700 Series / AMD Radeon Rx 200", storage: "8 GB" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-    ],
     updates: [
       { id: "u6", version: "1.21", title: "Tricky Trials", content: "Novas masmorras de câmara de julgamento, novos mobs e novos itens.", created_at: "2024-06-13" },
     ],
@@ -321,14 +255,6 @@ Desenvolvido quase inteiramente por uma única pessoa, Eric "ConcernedApe" Baron
     categories: ["Simulação", "RPG", "Fazenda"],
     tags: ["Indie", "ConcernedApe", "Relaxante", "Pixel Art"],
     publisher: { id: "p8", name: "CONCERNEDAPE", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows Vista ou mais recente", cpu: "2 Ghz", ram: "2 GB", gpu: "256mb video memory, capable of Shader Model 3.0+", storage: "500 MB" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Intel i5", ram: "4 GB", gpu: "512 MB VRAM dedicada", storage: "500 MB" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-      { name: "Inglês", interface: true, subtitles: true, audio: false },
-    ],
     updates: [
       { id: "u7", version: "1.6", title: "Grande Atualização de Conteúdo", content: "Novos eventos, itens, e melhorias de QoL para multiplayer.", created_at: "2024-03-19" },
     ],
@@ -357,14 +283,6 @@ Desenvolvido pela Supergiant Games, o jogo se destaca por sua direção de arte 
     categories: ["Ação", "RPG", "Roguelike"],
     tags: ["Indie", "Supergiant", "Mitologia Grega", "Dungeon Crawler"],
     publisher: { id: "p9", name: "SUPERGIANT GAMES", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 7 SP1 64-bit", cpu: "Dual Core 2.4 GHz", ram: "4 GB", gpu: "1GB VRAM / DirectX 10+ support", storage: "15 GB" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Dual Core 3.0 GHz+", ram: "8 GB", gpu: "2GB VRAM / DirectX 10+ support", storage: "15 GB" },
-    ],
-    languages: [
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-    ],
     updates: [],
   },
   {
@@ -391,14 +309,6 @@ Desenvolvido pela Rockstar North, o jogo é um dos produtos de entretenimento ma
     categories: ["Ação", "Mundo Aberto", "Aventura"],
     tags: ["Rockstar", "Los Santos", "Crime", "Online"],
     publisher: { id: "p2", name: "ROCKSTAR GAMES", logo_url: "" },
-    system_requirements: [
-      { type: "minimum", os: "Windows 10 64-bit", cpu: "Intel Core i5-3470 / AMD X8 FX-8350", ram: "8 GB", gpu: "NVIDIA GTX 660 2GB / AMD HD 7870 2GB", storage: "72 GB" },
-      { type: "recommended", os: "Windows 10 64-bit", cpu: "Intel Core i7-3770 / AMD FX-9590", ram: "16 GB", gpu: "NVIDIA GTX 1060 6GB / AMD RX 580 4GB", storage: "72 GB SSD" },
-    ],
-    languages: [
-      { name: "Português (Brasil)", interface: true, subtitles: true, audio: false },
-      { name: "Inglês", interface: true, subtitles: true, audio: true },
-    ],
     updates: [
       { id: "u8", version: "v1.68", title: "Bottom Dollar Bounties", content: "Nova atividade de recompensas no GTA Online com missões de caça.", created_at: "2024-07-10" },
     ],

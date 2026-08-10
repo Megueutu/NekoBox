@@ -200,7 +200,14 @@ public class UsuarioService {
     }
 
     public void excluirPeloAdmin(Integer usuarioId) {
-        Usuario usuario = buscarPorId(usuarioId);
+        excluir(buscarPorId(usuarioId));
+    }
+
+    public void excluirPropriaConta(Integer usuarioId) {
+        excluir(buscarPorId(usuarioId));
+    }
+
+    private void excluir(Usuario usuario) {
         if (usuario.getPapel() == PapelUsuario.ADMIN) {
             throw new ConflitoDeDadosException("O administrador unico nao pode ser excluido.");
         }

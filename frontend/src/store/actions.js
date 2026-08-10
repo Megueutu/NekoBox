@@ -16,8 +16,13 @@ export const Actions = {
     window.dispatchEvent(new CustomEvent("rerender"));
   },
 
-  async adicionarAoCarrinho(game) {
-    const cart = await AccountService.addToCart(game.id);
+  async adicionarAoCarrinho(game, forGift = false) {
+    const cart = await AccountService.addToCart(game.id, forGift);
+    Store.setState((state) => ({ ...state, cart }));
+  },
+
+  async atualizarQuantidadeCarrinho(gameId, quantity) {
+    const cart = await AccountService.updateCartItemQuantity(gameId, quantity);
     Store.setState((state) => ({ ...state, cart }));
   },
 

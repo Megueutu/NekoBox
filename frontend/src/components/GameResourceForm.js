@@ -28,7 +28,7 @@ export function GameResourceForm({
         <span>${introDescription}</span>
       </div>
       <section class="admin-form-group admin-form-wide" aria-labelledby="${idPrefix}-content-title">
-
+        <h3 id="${idPrefix}-content-title" class="admin-form-section-heading__title">Conteúdo do catálogo</h3>
         <div class="admin-form-grid">
           <div class="admin-field admin-field--wide">
             ${fieldLabel(`${idPrefix}-title`, "Título", { required: true, help: "Use o nome pelo qual o jogo é conhecido." })}
@@ -41,6 +41,7 @@ export function GameResourceForm({
         </div>
       </section>
       <section class="admin-form-group admin-form-wide" aria-labelledby="${idPrefix}-publication-title">
+        <h3 id="${idPrefix}-publication-title" class="admin-form-section-heading__title">Publicação e descoberta</h3>
         <div class="admin-form-grid">
           <div class="admin-field">
             ${fieldLabel(`${idPrefix}-price`, "Preço", { required: true, help: "Se o valor for inferior a zero, ele será disponibilizado gratuitamente." })}
@@ -64,8 +65,8 @@ export function GameResourceForm({
         <legend>Mídias do jogo</legend>
         <p>JPG, JPEG, PNG ou GIF de até 10 MB.</p>
         <div class="admin-media-inputs">
-          ${["cover", "banner", "poster"].map((type) => `<label class="admin-media-picker"><input name="${type}" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"><span class="admin-media-picker__icon">${Icon(icons.upload, { className: "w-4 h-4" })}</span><span><strong>${mediaLabel(type)}</strong><small>${type === "poster" ? "Imagem quadrada usada na grade \"Todos os jogos\"" : "Enviar imagem"}</small></span><span class="admin-media-picker__action">Selecionar</span></label>`).join("")}
-          <label class="admin-media-picker admin-media-picker--screenshots"><input name="screenshots" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" multiple><span class="admin-media-picker__icon">${Icon(icons.upload, { className: "w-4 h-4" })}</span><span><strong>Capturas de tela</strong><small>Selecione várias imagens</small></span><output class="admin-media-picker__count" data-screenshot-count>0 / 10 capturas</output></label>
+          ${["cover", "banner", "poster"].map((type) => `<label class="admin-media-picker" data-media-picker data-media-type="${type}"><input name="${type}" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"><span class="admin-media-picker__icon" data-media-picker-icon>${Icon(icons.upload, { className: "w-4 h-4" })}</span><span><strong>${mediaLabel(type)}</strong><small>${type === "poster" ? "Imagem quadrada usada na grade \"Todos os jogos\"" : "Enviar imagem ou arraste aqui"}</small></span><span class="admin-media-picker__action" data-media-picker-action>Selecionar</span></label>`).join("")}
+          <label class="admin-media-picker admin-media-picker--screenshots" data-media-picker data-media-type="screenshots"><input name="screenshots" type="file" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" multiple><span class="admin-media-picker__icon" data-media-picker-icon>${Icon(icons.upload, { className: "w-4 h-4" })}</span><span><strong>Capturas de tela</strong><small>Selecione ou arraste várias imagens</small></span><output class="admin-media-picker__count" data-screenshot-count>0 / 10 capturas</output></label>
         </div>
         <p class="admin-media-selection-status" data-media-selection-status role="status" aria-live="polite"></p>
         <div class="admin-media-preview" data-media-preview aria-live="polite">
