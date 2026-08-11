@@ -8,14 +8,6 @@ import { MISSING_MEDIA_URL } from "./media-fallback";
 
 export { MISSING_MEDIA_URL } from "./media-fallback";
 
-/**
- * Gera uma URL otimizada do Cloudinary (crop "fill" + gravidade automática +
- * formato/qualidade automáticos) a partir de um public_id.
- *
- * Retorna null quando o Cloudinary não está configurado (env ausente) ou
- * quando o item de mídia não tem public_id — nesses casos o chamador deve
- * cair de volta para a URL externa já existente (ver getCoverUrl/getBannerUrl).
- */
 export function buildCloudinaryUrl(publicId, { width, height } = {}) {
   if (!cld || !publicId) return null;
 
@@ -31,10 +23,6 @@ export function buildCloudinaryUrl(publicId, { width, height } = {}) {
     .toURL();
 }
 
-/**
- * Resolve a URL final de um item de mídia: usa Cloudinary quando o item tem
- * public_id e a integração está configurada; senão usa a URL externa/mock.
- */
 function resolveMediaUrl(mediaItem, { width, height, fallback }) {
   if (!mediaItem) return fallback;
   return (

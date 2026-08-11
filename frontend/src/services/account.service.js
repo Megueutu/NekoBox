@@ -1,8 +1,7 @@
-import { ApiClient } from "./api.client";
+import { ApiClient, toResourceId } from "./api.client";
 import { normalizeGame, normalizeGames } from "./games/game.normalizer";
 import { escapeHtml } from "../utils/escape";
 
-const productId = (id) => encodeURIComponent(String(id));
 const payloadProductId = (id) =>
   import.meta.env.MODE === "development" && Boolean(import.meta.env.VITE_USE_MOCK_API) ? String(id) : Number(id);
 const normalizeUser = (user) => ({
@@ -55,12 +54,12 @@ export const AccountService = {
   },
 
   async removeFromCart(id) {
-    await ApiClient.delete(`/api/carrinho/itens/${productId(id)}`);
+    await ApiClient.delete(`/api/carrinho/itens/${toResourceId(id)}`);
     return this.getCart();
   },
 
   async updateCartItemQuantity(id, quantity) {
-    const response = await ApiClient.patch(`/api/carrinho/itens/${productId(id)}`, { quantidade: quantity });
+    const response = await ApiClient.patch(`/api/carrinho/itens/${toResourceId(id)}`, { quantidade: quantity });
     return normalizeGames(response.items);
   },
 
@@ -69,11 +68,11 @@ export const AccountService = {
   },
 
   async addToWishlist(id) {
-    return normalizeGame(await ApiClient.post(`/api/wishlist/${productId(id)}`));
+    return normalizeGame(await ApiClient.post(`/api/wishlist/${toResourceId(id)}`));
   },
 
   async removeFromWishlist(id) {
-    await ApiClient.delete(`/api/wishlist/${productId(id)}`);
+    await ApiClient.delete(`/api/wishlist/${toResourceId(id)}`);
   },
 
   async getLibrary() {
@@ -81,7 +80,7 @@ export const AccountService = {
   },
 
   async acquireFreeLicense(id) {
-    return normalizeGame(await ApiClient.post(`/api/biblioteca/licencas-gratuitas/${productId(id)}`));
+    return normalizeGame(await ApiClient.post(`/api/biblioteca/licencas-gratuitas/${toResourceId(id)}`));
   },
 
   async checkout() {

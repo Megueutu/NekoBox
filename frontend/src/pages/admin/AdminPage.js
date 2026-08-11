@@ -9,9 +9,9 @@ import { formatPrice } from "../../utils/format";
 import { formatDate, money } from "./admin-format";
 import {
   cleanupSelectedMedia,
-  getSelectedMediaUploads,
   removeSelectedMedia,
   renderSelectedMedia,
+  saveGameWithMedia,
   selectMediaFiles,
   updateGamePreview,
 } from "./admin-game-preview";
@@ -171,7 +171,6 @@ function openGameDialog(game = null) {
       idPrefix: "admin-game",
       game,
       submitLabel: game ? "Salvar alterações" : "Cadastrar jogo",
-      introDescription: "Comece pelo conteúdo que aparece para quem está navegando pela loja.",
       mediaDeleteAttribute: "data-admin-delete-media",
     })}`;
   dialog.showModal();
@@ -208,13 +207,7 @@ async function submitResourceForm(form) {
         tags: String(data.get("tags") || "").split(",").map((tag) => tag.trim()).filter(Boolean),
         categoria_ids: current?.categoria_ids || [],
       };
-      const savedGame = id
-        ? await AdminService.updateGame(id, payload)
-        : await AdminService.createGame(payload);
-      const uploads = getSelectedMediaUploads(form);
-      for (const upload of uploads) {
-        await AdminService.uploadGameMedia(savedGame.id, upload.type, upload.file);
-      }
+      await saveGameWithMedia(AdminService, id, payload, form);
     }
     document.getElementById("admin-dialog").close();
     window.dispatchEvent(new CustomEvent("rerender"));

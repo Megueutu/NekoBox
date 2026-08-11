@@ -1,13 +1,13 @@
-import { Store } from "../../store/store";
+import { Store, isAuthenticated } from "../../store/store";
 import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { Icon, icons } from "../ui/Icon";
 import { WalletDialog } from "../WalletDialog";
 
 export function Navbar() {
   const { cart, wishlist, user } = Store.getState();
-  const isAuthenticated = Boolean(localStorage.getItem("access_token") && user);
-  const isAdmin = isAuthenticated && user.role === "ADMIN";
-  const isCustomer = isAuthenticated && !isAdmin;
+  const authenticated = isAuthenticated();
+  const isAdmin = authenticated && user.role === "ADMIN";
+  const isCustomer = authenticated && !isAdmin;
   const currentPath = window.location.pathname;
   const isHub = currentPath === "/hub";
   const isLanding = currentPath === "/";
@@ -40,7 +40,7 @@ export function Navbar() {
           ${navIcon("/acessibilidade", "Acessibilidade", icons.accessibility, "hidden sm:flex")}
 
           ${
-            isAuthenticated
+            authenticated
               ? `<details class="lg:hidden relative order-last">
             <summary class="list-none [&::-webkit-details-marker]:hidden flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer" aria-label="Abrir menu de navegação">
               ${Icon(icons.menu)}
@@ -100,7 +100,7 @@ export function Navbar() {
                    style="background-image: url('${user.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}')"></div>
             </a>
           `
-              : !isAuthenticated
+              : !authenticated
                 ? `
                   <a href="/login" data-login-trigger class="nav-icon-link" aria-label="Entrar" aria-haspopup="dialog" aria-controls="auth-dialog">
                     ${Icon(icons.logIn, { className: "w-4 h-4 sm:w-4.5 sm:h-4.5" })}

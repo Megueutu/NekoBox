@@ -1,7 +1,3 @@
-/**
- * Cabeçalho padrão de página autenticada (título + subtítulo opcional).
- * Usado por Library, Wishlist, Cart e Profile para manter tipografia consistente.
- */
 export function PageHeader({ title, subtitle }) {
   return `
     <header class="page-heading">

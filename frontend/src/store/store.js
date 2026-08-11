@@ -27,6 +27,10 @@ if (!hasActiveSession) {
 
 export const Store = createStore(hasActiveSession ? loadPersistedState() || defaultState : defaultState);
 
+export function isAuthenticated() {
+  return Boolean(localStorage.getItem("access_token") && Store.getState().user);
+}
+
 export function clearSessionState() {
   Store.setState(() => ({
     user: null,

@@ -146,12 +146,14 @@ label:has(.ui-control[required]:valid) > span > .field-required,
   border-radius: 999px;
   color: var(--color-muted-2);
 }
+
 .field-tooltip:hover,
 .field-tooltip:focus-visible,
 .field-tooltip--open {
   color: var(--color-brand-300);
   background: color-mix(in srgb, var(--color-brand-400) 12%, transparent);
 }
+
 .field-tooltip::after {
   position: absolute;
   z-index: 20;
@@ -175,6 +177,7 @@ label:has(.ui-control[required]:valid) > span > .field-required,
     opacity 0.16s ease,
     transform 0.16s ease;
 }
+
 .field-tooltip:hover::after,
 .field-tooltip:focus-visible::after,
 .field-tooltip--open::after {
@@ -205,31 +208,38 @@ label:has(.ui-control[required]:valid) > span > .field-required,
   color: white;
   background: var(--color-brand-600);
 }
+
 .button-primary:hover:not(:disabled) {
   background: var(--color-brand-500);
 }
+
 .button-accent {
   color: #17110a;
   background: var(--color-accent-400);
 }
+
 .button-accent:hover:not(:disabled) {
   background: var(--color-accent-300);
 }
+
 .button-secondary,
 .button-outline {
   color: var(--color-ink);
   background: var(--color-surface-2);
 }
+
 .button-secondary:hover:not(:disabled),
 .button-outline:hover:not(:disabled) {
   background: var(--color-surface-3);
 }
+
 .button-primary:active:not(:disabled),
 .button-accent:active:not(:disabled),
 .button-secondary:active:not(:disabled),
 .button-outline:active:not(:disabled) {
   transform: translateY(1px);
 }
+
 .button-primary:disabled,
 .button-accent:disabled,
 .button-secondary:disabled,
@@ -237,6 +247,7 @@ label:has(.ui-control[required]:valid) > span > .field-required,
   opacity: 0.58;
   cursor: not-allowed;
 }
+
 .button--sm {
   font-size: var(--font-size-small);
 }
@@ -422,6 +433,7 @@ img {
   color: var(--color-muted);
   font-size: 0.78rem;
 }
+
 .wallet-balance strong {
   display: block;
   margin-top: 0.25rem;
@@ -429,6 +441,7 @@ img {
   font-size: clamp(1.8rem, 8vw, 2.25rem);
   line-height: 1;
 }
+
 .wallet-balance__icon {
   display: grid;
   width: 2.5rem;
@@ -439,6 +452,7 @@ img {
   color: var(--color-muted);
   background: var(--color-surface-3);
 }
+
 .wallet-topup-form {
   margin: 0 1.25rem;
   padding: 1rem;

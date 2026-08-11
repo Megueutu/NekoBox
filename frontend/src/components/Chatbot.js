@@ -35,7 +35,7 @@ export function renderChatbot() {
         </div>
         <form class="chatbot__form" data-chatbot-form>
           <label class="sr-only" for="chatbot-input">Mensagem para o GameBot</label>
-          <textarea id="chatbot-input" name="message" rows="1" maxlength="2000" placeholder="Pergunte sobre jogos..." required></textarea>
+          <input id="chatbot-input" name="message" rows="1" maxlength="2000" placeholder="Pergunte sobre jogos..." required></input>
           <button class="chatbot__send" type="submit">${Icon(icons.arrowLeft, { className: "w-4 h-4 chatbot__send-icon" })}</button>
         </form>
       </section>

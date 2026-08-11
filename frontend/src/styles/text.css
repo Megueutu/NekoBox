@@ -21,16 +21,20 @@
 .type-hero-title {
   font-size: var(--font-size-hero-title);
 }
+
 .type-page-title {
   font-size: var(--font-size-page-title);
 }
+
 .type-section-title {
   font-size: var(--font-size-section-title);
 }
+
 .type-content-title {
   font-size: var(--font-size-card-title);
   font-weight: 650;
 }
+
 .type-card-title {
   font-size: 1rem;
   font-weight: 700;
@@ -43,16 +47,19 @@
   font-size: var(--font-size-subtitle);
   line-height: var(--line-height-body);
 }
+
 .type-body {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
 }
+
 .type-small {
   font-family: var(--font-body);
   font-size: var(--font-size-small);
   line-height: 1.5;
 }
+
 .type-caption {
   font-family: var(--font-body);
   font-size: var(--font-size-caption);

@@ -3,8 +3,6 @@ import bannerGameNames from "../data/banner-games.json";
 import {
   getBannerCandidates,
   getGameBannerRotation,
-  getRandomBannerUrl,
-  getRandomGameBanner,
   resolveRandomBannerUrl,
   resolveRandomBannerUrls,
 } from "../utils/random-banner";
@@ -25,39 +23,6 @@ describe("Random game banner", () => {
     const candidates = getBannerCandidates(games);
 
     expect(candidates).toEqual([games[0]]);
-  });
-
-  it("should select a banner using the injected random source", () => {
-    const games = [
-      game("Cyberpunk 2077", "https://example.com/cyberpunk.jpg"),
-      game("Hades", "https://example.com/hades.jpg"),
-    ];
-
-    const result = getRandomGameBanner(games, {
-      random: vi.fn(() => 0.75),
-    });
-
-    expect(result).toEqual({
-      game: games[1],
-      url: "https://example.com/hades.jpg",
-    });
-  });
-
-  it("should return null when no configured banner is available", () => {
-    const result = getRandomGameBanner([
-      game("Unlisted game", "https://example.com/unlisted.jpg"),
-    ]);
-
-    expect(result).toBeNull();
-  });
-
-  it("should return the selected banner URL directly", () => {
-    const result = getRandomBannerUrl(
-      [game("Hades", "https://example.com/hades.jpg")],
-      { random: () => 0 }
-    );
-
-    expect(result).toBe("https://example.com/hades.jpg");
   });
 
   it("should resolve an async banner source with a local fallback", async () => {

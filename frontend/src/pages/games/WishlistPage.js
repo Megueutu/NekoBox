@@ -3,22 +3,23 @@ import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
 import { navigate } from "../../app/router/navigate";
-import { AuthService } from "../../services/auth.service";
 import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { icons } from "../../components/ui/Icon";
 import { AccountService } from "../../services/account.service";
+import { bindSidebarLogout } from "../../components/layout/SidebarAccount";
+import { sameId } from "../../utils/format";
 
 export default async function WishlistPage() {
   const rawWishlist = await AccountService.getWishlist();
   const { library } = Store.getState();
-  const itensJaAdquiridos = rawWishlist.filter((game) => library.some((g) => String(g.id) === String(game.id)));
+  const itensJaAdquiridos = rawWishlist.filter((game) => library.some((g) => sameId(g.id, game.id)));
   if (itensJaAdquiridos.length) {
     await Promise.all(itensJaAdquiridos.map((game) => AccountService.removeFromWishlist(game.id)));
   }
   const wishlist = itensJaAdquiridos.length
-    ? rawWishlist.filter((game) => !itensJaAdquiridos.some((item) => String(item.id) === String(game.id)))
+    ? rawWishlist.filter((game) => !itensJaAdquiridos.some((item) => sameId(item.id, game.id)))
     : rawWishlist;
   Store.setState((state) => ({ ...state, wishlist }));
 
@@ -87,8 +88,5 @@ export async function afterRender() {
     });
   });
 
-  document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
-    await AuthService.logout();
-    navigate("/hub");
-  });
+  bindSidebarLogout();
 }

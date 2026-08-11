@@ -116,9 +116,6 @@ function myGame(game) {
 }
 
 function catalog(state, pathname, searchParams) {
-  if (pathname === "/api/games/media-audit") {
-    return { ausentes: [], nomes_divergentes: [], jogos_sem_screenshots: [], disponiveis: [] };
-  }
   if (pathname === "/api/games") {
     const query = searchParams.get("search")?.trim().toLocaleLowerCase("pt-BR");
     const content = query
@@ -404,7 +401,7 @@ export async function mockApiRequest(path, { body, method = "GET" } = {}) {
     return null;
   }
   if (method === "POST" && url.pathname === "/api/admin/jogos") {
-    const game = { id: crypto.randomUUID(), owner_id: "usr_admin_system_001", title: body.titulo, slug: body.titulo.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [], categories: [], media: [], publisher: null, updates: [] };
+    const game = { id: crypto.randomUUID(), owner_id: "usr_admin_system_001", title: body.titulo, slug: productSlug(body.titulo), long_description: body.descricao_longa || "", price: Number(body.preco), release_date: body.data_lancamento || "", status: body.status, tags: body.tags || [], categories: [], media: [], publisher: null, updates: [] };
     state.games.push(game);
     saveState(state);
     return adminGame(game);

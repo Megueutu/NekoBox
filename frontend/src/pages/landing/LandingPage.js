@@ -5,7 +5,7 @@ import { GamesService } from "../../services/games/games.service";
 import { getBannerUrl } from "../../utils/media";
 import { getGameBannerRotation } from "../../utils/random-banner";
 import { bindNavigationScroll } from "../../utils/nav-scroll";
-import { Store } from "../../store/store";
+import { isAuthenticated } from "../../store/store";
 import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import {
   getLandingHeroMeta,
@@ -18,8 +18,7 @@ let landingHeroSlides = [];
 export { LANDING_HERO_INTERVAL_MS };
 
 export default async function LandingPage() {
-  const { user } = Store.getState();
-  const isAuthenticated = Boolean(localStorage.getItem("access_token") && user);
+  const authenticated = isAuthenticated();
   const games = await GamesService.getAll();
   landingHeroSlides = getGameBannerRotation(games, { limit: 5 });
   const randomBanner = landingHeroSlides[0];
@@ -114,7 +113,7 @@ export default async function LandingPage() {
           bannerUrl: getBannerUrl(membershipGame),
           actionsHtml: `
             ${
-              isAuthenticated
+              authenticated
                 ? `<a href="${ACCOUNT_PATHS.library}" data-link class="button-primary px-5 py-3">Ver biblioteca</a>`
                 : `<a href="/login" data-link class="button-primary px-5 py-3">Criar conta</a>`
             }

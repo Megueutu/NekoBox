@@ -1,4 +1,5 @@
 import { Icon, icons } from "./ui/Icon";
+import { openDialog, closeDialog } from "../utils/dialog";
 
 export function renderAuthDialog() {
   return `
@@ -15,15 +16,6 @@ export function renderAuthDialog() {
 export function setupAuthDialog(root = document) {
   let activeTrigger = null;
 
-  const closeDialog = (dialog) => {
-    if (typeof dialog.close === "function") {
-      dialog.close();
-    } else {
-      dialog.removeAttribute("open");
-      activeTrigger?.focus();
-    }
-  };
-
   const handleClick = async (event) => {
     const trigger = event.target.closest("[data-login-trigger]");
     if (trigger) {
@@ -35,24 +27,19 @@ export function setupAuthDialog(root = document) {
       const { bindAuthInteractions, renderAuthCard } = await import("../pages/auth/LoginPage");
       dialog.querySelector(".auth-dialog__body").innerHTML = renderAuthCard("login", { headingTag: "h2" });
       bindAuthInteractions(dialog, { dialog: true });
-      dialog.addEventListener("close", () => activeTrigger?.focus(), { once: true });
-      if (typeof dialog.showModal === "function") {
-        dialog.showModal();
-      } else {
-        dialog.setAttribute("open", "");
-      }
+      openDialog(dialog, activeTrigger);
       dialog.querySelector("#input-email")?.focus();
       return;
     }
 
     const closeButton = event.target.closest("[data-auth-close]");
     if (closeButton) {
-      closeDialog(closeButton.closest("#auth-dialog"));
+      closeDialog(closeButton.closest("#auth-dialog"), activeTrigger);
       return;
     }
 
     if (event.target.matches?.("#auth-dialog")) {
-      closeDialog(event.target);
+      closeDialog(event.target, activeTrigger);
     }
   };
 

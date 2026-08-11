@@ -55,10 +55,6 @@ export const AuthService = {
     return this.loginComEmail(normalizedEmail, password);
   },
 
-  async enviarRedefinicaoSenha() {
-    throw new Error("A recuperação de senha ainda não está disponível.");
-  },
-
   async logout() {
     try {
       await ApiClient.post("/api/auth/logout");

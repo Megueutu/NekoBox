@@ -1,4 +1,5 @@
 import { Icon, icons } from "./Icon";
+import { fieldTooltip } from "./field-tooltip";
 
 export function FormField({
   id,
@@ -15,9 +16,7 @@ export function FormField({
   const isPassword = type === "password";
   const fieldIcon = type === "email" ? icons.mail : isPassword ? icons.lock : icons.user;
   const resolvedAutocomplete = autocomplete ?? (isPassword ? "current-password" : type);
-  const help = helpText
-    ? `<button class="field-tooltip" type="button" aria-label="${label}: ${helpText}" data-tooltip="${helpText}">${Icon(icons.help, { className: "w-3.5 h-3.5" })}</button>`
-    : "";
+  const help = fieldTooltip(label, helpText);
 
   return `
     <div class="auth-field">

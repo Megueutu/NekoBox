@@ -45,11 +45,18 @@ async function request(path, { body, headers = {}, ...options } = {}) {
   return payload;
 }
 
+export const toResourceId = (id) => encodeURIComponent(String(id));
+
 export const ApiClient = {
   get: (path) => request(path),
   post: (path, body) => request(path, { method: "POST", body }),
   put: (path, body) => request(path, { method: "PUT", body }),
   patch: (path, body) => request(path, { method: "PATCH", body }),
   delete: (path) => request(path, { method: "DELETE" }),
-  postForm: (path, body) => request(path, { method: "POST", body }),
+  uploadMedia(path, type, file) {
+    const body = new FormData();
+    body.append("tipo", type);
+    body.append("arquivo", file);
+    return request(path, { method: "POST", body });
+  },
 };

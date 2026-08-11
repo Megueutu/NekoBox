@@ -3,7 +3,7 @@ import { GamesService } from "../../services/games/games.service";
 import { GameCard } from "../../components/ui/GameCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { getBannerUrl } from "../../utils/media";
-import { formatPrice } from "../../utils/format";
+import { formatPrice, isFreeGame } from "../../utils/format";
 import { Icon, icons } from "../../components/ui/Icon";
 import { bindNavigationScroll } from "../../utils/nav-scroll";
 
@@ -133,14 +133,13 @@ export default async function HubPage() {
     .filter((game) => game.release_date)
     .sort((a, b) => b.release_date.localeCompare(a.release_date))
     .slice(0, 8);
-  const freeToPlay = allGames.filter((game) => Number(game.price) === 0).slice(0, 8);
+  const freeToPlay = allGames.filter(isFreeGame).slice(0, 8);
   const rolePlaying = allGames.filter((game) => game.categories.includes("RPG")).slice(0, 8);
 
   const filteredGames = filterCatalogGames(allGames, searchQuery, activeCategories);
 
   const content = `
     <div class="site-container page-stack">
-    <!-- Hero: destaque da semana -->
     <section class="hero-panel"
          style="background-image: url('${getBannerUrl(heroGame)}')">
       <div class="absolute inset-0 bg-black/60"></div>
@@ -165,7 +164,6 @@ export default async function HubPage() {
       ${coverRail("Jogue sem custo", "Gratuitos para começar", "Títulos disponíveis agora", freeToPlay)}
       ${coverRail("Para sua próxima aventura", "RPGs para explorar", "Histórias, mundos e escolhas", rolePlaying)}
 
-      <!-- Busca, contagem e filtros -->
       <section class="space-y-6">
         <div class="section-heading mb-0">
           <div>
@@ -200,7 +198,6 @@ export default async function HubPage() {
         </div></div>
       </section>
 
-      <!-- Grid do Catálogo -->
       <section class="-mt-8">
         <h3 id="catalog-results-heading" class="sr-only">${catalogHeadingText()}</h3>
         <div id="catalog-grid" class="catalog-grid">

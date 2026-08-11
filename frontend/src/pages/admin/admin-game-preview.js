@@ -212,6 +212,17 @@ export function renderSelectedMedia(form) {
   updateGamePreview(form);
 }
 
+export async function saveGameWithMedia(service, id, payload, form) {
+  const savedGame = id
+    ? await service.updateGame(id, payload)
+    : await service.createGame(payload);
+  const uploads = getSelectedMediaUploads(form);
+  for (const upload of uploads) {
+    await service.uploadGameMedia(savedGame.id, upload.type, upload.file);
+  }
+  return savedGame;
+}
+
 export function cleanupSelectedMedia(dialog) {
   dialog.querySelectorAll("[data-selected-media] img").forEach((image) => {
     URL.revokeObjectURL(image.src);

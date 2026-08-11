@@ -1,21 +1,15 @@
 import { ApiClient } from "../api.client";
 import { normalizeGame, normalizeGames } from "./game.normalizer";
-import { auditCatalogMedia } from "./catalog-media.audit";
-
-let catalogMediaAudit = null;
 
 export const GamesService = {
   async getAll() {
     const response = await ApiClient.get("/api/games?size=100");
-    const games = normalizeGames(response.content);
-    catalogMediaAudit ||= auditCatalogMedia(games);
-    return catalogMediaAudit;
+    return normalizeGames(response.content);
   },
 
   async getBySlug(slug) {
     try {
-      const game = normalizeGame(await ApiClient.get(`/api/games/${encodeURIComponent(slug)}`));
-      return (await auditCatalogMedia([game]))[0];
+      return normalizeGame(await ApiClient.get(`/api/games/${encodeURIComponent(slug)}`));
     } catch (error) {
       if (error.status === 404) return null;
       throw error;

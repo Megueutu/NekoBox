@@ -75,6 +75,7 @@
   z-index: 1;
   margin-bottom: 1.5rem;
 }
+
 .auth-card__header p {
   color: var(--color-brand-400);
   font-family: var(--font-display);
@@ -152,6 +153,7 @@
   letter-spacing: 0.01em;
   transition: color 0.18s ease;
 }
+
 .auth-field__heading {
   display: flex;
   align-items: center;
@@ -201,6 +203,7 @@
   caret-color: var(--color-brand-400);
   outline: none;
 }
+
 .auth-field__input:focus,
 .auth-field__input:focus-visible {
   box-shadow: none;
@@ -245,23 +248,6 @@
   transition: background-color 9999s ease-out;
 }
 
-.auth-form__assist {
-  margin-top: -0.4rem;
-  text-align: right;
-}
-
-.auth-form__assist button,
-.auth-back {
-  color: var(--color-muted-2);
-  font-size: 0.75rem;
-  font-weight: 650;
-}
-
-.auth-form__assist button:hover,
-.auth-back:hover {
-  color: var(--color-accent-400);
-}
-
 .auth-submit {
   width: 100%;
   min-height: 3rem;
@@ -270,19 +256,13 @@
   margin-top: 0.6rem;
 }
 
-.auth-back {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-height: 2.5rem;
-}
 .auth-feedback {
   min-height: 1.25rem;
   color: var(--color-accent-400);
   font-size: 0.72rem;
   text-align: center;
 }
+
 .auth-feedback--error {
   color: var(--color-danger);
 }
@@ -301,6 +281,7 @@
   text-decoration: underline;
   text-underline-offset: 0.2rem;
 }
+
 .auth-legal a:hover {
   color: var(--color-ink);
 }
@@ -513,6 +494,7 @@ sub {
 .card-hover {
   transition: background-color 0.18s ease;
 }
+
 .card-hover:hover {
   background: var(--color-surface-2);
 }
