@@ -30,11 +30,26 @@ public class CarteiraController {
     public record ResgateGiftCardResponse(BigDecimal valorCreditado, BigDecimal saldo) {
     }
 
+    public record RecargaRequest(BigDecimal valor) {
+    }
+
+    public record RecargaResponse(BigDecimal valorAdicionado, BigDecimal saldo) {
+    }
+
     @GetMapping
     public ResponseEntity<SaldoResponse> consultarSaldo(
             @RequestHeader("Authorization") String authorization) {
         Integer usuarioId = sessaoService.autenticar(authorization).getId();
         return ResponseEntity.ok(new SaldoResponse(carteiraService.consultarSaldo(usuarioId)));
+    }
+
+    @PostMapping("/recargas")
+    public ResponseEntity<RecargaResponse> adicionarSaldo(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody RecargaRequest request) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
+        CarteiraService.Recarga recarga = carteiraService.adicionarSaldo(usuarioId, request.valor());
+        return ResponseEntity.ok(new RecargaResponse(recarga.valorAdicionado(), recarga.saldo()));
     }
 
     @PostMapping("/gift-cards/resgates")

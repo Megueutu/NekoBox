@@ -1,6 +1,8 @@
 import { formatPrice } from "../../utils/format";
+import { Icon, icons } from "../../components/ui/Icon";
 
 const MAX_SCREENSHOTS = 10;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const mediaSelections = new WeakMap();
 
 function getSelection(form) {
@@ -32,23 +34,29 @@ function updateMediaStatus(form, message = "") {
 
 export function selectMediaFiles(form, input) {
   const selection = getSelection(form);
-  const files = Array.from(input.files || []).filter((file) => file instanceof File && file.size > 0);
-  if (!files.length) return;
+  const candidates = Array.from(input.files || []).filter((file) => file instanceof File && file.size > 0);
+  if (!candidates.length) return;
+
+  const oversized = candidates.filter((file) => file.size > MAX_FILE_SIZE);
+  const files = candidates.filter((file) => file.size <= MAX_FILE_SIZE);
+  const messages = [];
+  if (oversized.length) {
+    messages.push(
+      `${oversized.length > 1 ? "Arquivos acima" : "Arquivo acima"} de 10 MB ignorado${oversized.length > 1 ? "s" : ""}: ${oversized.map((file) => file.name).join(", ")}.`
+    );
+  }
 
   if (input.name === "screenshots") {
     const remaining = Math.max(0, MAX_SCREENSHOTS - existingScreenshotCount(form) - selection.screenshots.length);
     selection.screenshots.push(...files.slice(0, remaining));
-    updateMediaStatus(
-      form,
-      files.length > remaining
-        ? `Só é possível manter até ${MAX_SCREENSHOTS} capturas por jogo.`
-        : ""
-    );
+    if (files.length > remaining) {
+      messages.push(`Só é possível manter até ${MAX_SCREENSHOTS} capturas por jogo.`);
+    }
   } else if (["cover", "banner", "poster"].includes(input.name)) {
-    selection[input.name] = files.slice(-1);
-    updateMediaStatus(form);
+    if (files.length) selection[input.name] = files.slice(-1);
   }
 
+  updateMediaStatus(form, messages.join(" "));
   input.value = "";
   renderSelectedMedia(form);
 }
@@ -94,6 +102,20 @@ function setPreviewImage(container, url, alt) {
   }
 }
 
+function syncMediaPickers(form) {
+  const selection = getSelection(form);
+  ["cover", "banner", "poster"].forEach((type) => {
+    const picker = form.querySelector(`[data-media-picker][data-media-type="${type}"]`);
+    if (!picker) return;
+    const filled = selection[type].length > 0 || Boolean(form.querySelector(`[data-existing-media][data-media-type="${type}"]`));
+    picker.classList.toggle("admin-media-picker--filled", filled);
+    const action = picker.querySelector("[data-media-picker-action]");
+    if (action) action.textContent = filled ? "Trocar" : "Selecionar";
+    const icon = picker.querySelector("[data-media-picker-icon]");
+    if (icon) icon.innerHTML = filled ? Icon(icons.check, { className: "w-4 h-4" }) : Icon(icons.upload, { className: "w-4 h-4" });
+  });
+}
+
 export function updateGamePreview(form) {
   const preview = form?.querySelector("[data-game-preview]");
   if (!preview) return;
@@ -128,6 +150,8 @@ export function updateGamePreview(form) {
 
   setPreviewImage(preview.querySelector("[data-preview-cover]"), coverUrl, `Capa de ${title}`);
   setPreviewImage(preview.querySelector("[data-preview-banner]"), bannerUrl, `Banner de ${title}`);
+
+  syncMediaPickers(form);
 
   const screenshotsContainer = preview.querySelector("[data-preview-screenshots]");
   screenshotsContainer.replaceChildren();

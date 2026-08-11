@@ -49,8 +49,7 @@ public class ProdutoController {
     public record ProdutoRequest(
             String titulo, String descricaoCurta, String descricaoLonga,
             BigDecimal preco, LocalDate releaseDate, String status,
-            List<String> tags, List<Map<String, Object>> systemRequirements,
-            List<Map<String, Object>> languages, List<Map<String, Object>> updates,
+            List<String> tags, List<Map<String, Object>> updates,
             List<Integer> categoriaIds) {
     }
 
@@ -157,8 +156,6 @@ public class ProdutoController {
                 .dataLancamento(request.releaseDate())
                 .status(request.status())
                 .tagsJson(toJson(request.tags()))
-                .requisitosJson(toJson(request.systemRequirements()))
-                .idiomasJson(toJson(request.languages()))
                 .atualizacoesJson(toJson(request.updates()))
                 .build();
     }

@@ -57,7 +57,17 @@ export function GameCard(game, { variant = "catalog" } = {}) {
   const freeGame = isFreeGame(game);
   return `
     <div class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover group">
-      <div class="game-card__media w-full bg-[var(--color-surface-3)] relative overflow-hidden">
+    <div class="game-card__media w-full bg-[var(--color-surface-3)] relative overflow-hidden">
+      <div class="game-card__actions flex gap-1.5">
+        <button ${freeGame ? `data-acquire-free-license="${game.id}"` : `data-add-cart="${game.id}"`}
+                class="game-card__icon-btn" aria-label="${freeGame ? "Adquirir licença" : "Adicionar ao carrinho"}">
+          ${Icon(freeGame ? icons.library : icons.shoppingCart, { className: "w-3.5 h-3.5" })}
+        </button>
+        <button data-remove-wishlist="${game.id}"
+                class="game-card__icon-btn game-card__icon-btn--danger" aria-label="Remover ${game.title} da lista de desejos">
+          ${Icon(icons.x, { className: "w-3.5 h-3.5" })}
+        </button>
+      </div>
         <a href="/game/${game.slug}" data-link class="absolute inset-0 block" aria-label="Ver ${game.title}">
           <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy"
                class="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90" />
@@ -66,16 +76,6 @@ export function GameCard(game, { variant = "catalog" } = {}) {
           <p class="game-card__title type-card-title line-clamp-2">${game.title}</p>
           <div class="flex items-center justify-between gap-2 pointer-events-auto">
             <span class="type-card-title text-[var(--color-accent-400)]">${formatPrice(game.price)}</span>
-            <div class="flex gap-1.5">
-              <button ${freeGame ? `data-acquire-free-license="${game.id}"` : `data-add-cart="${game.id}"`}
-                      class="game-card__icon-btn" aria-label="${freeGame ? "Adquirir licença" : "Adicionar ao carrinho"}">
-                ${Icon(freeGame ? icons.library : icons.shoppingCart, { className: "w-3.5 h-3.5" })}
-              </button>
-              <button data-remove-wishlist="${game.id}"
-                      class="game-card__icon-btn game-card__icon-btn--danger" aria-label="Remover ${game.title} da lista de desejos">
-                ${Icon(icons.x, { className: "w-3.5 h-3.5" })}
-              </button>
-            </div>
           </div>
         </div>
       </div>

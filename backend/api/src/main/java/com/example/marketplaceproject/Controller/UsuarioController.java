@@ -85,6 +85,13 @@ public class UsuarioController {
         return ResponseEntity.ok(paraPerfilResponse(usuario));
     }
 
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> excluirMinhaConta(@RequestHeader("Authorization") String authorization) {
+        Integer usuarioId = sessaoService.autenticar(authorization).getId();
+        usuarioService.excluirPropriaConta(usuarioId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/me/senha")
     public ResponseEntity<Void> alterarSenha(
             @RequestHeader("Authorization") String authorization, @RequestBody AlterarSenhaRequest request) {

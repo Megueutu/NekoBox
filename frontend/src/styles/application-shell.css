@@ -517,13 +517,6 @@
   box-shadow: none;
 }
 
-.app-shell .catalog-toolbar input:focus,
-.app-shell--private input:not([type="checkbox"]):not([type="radio"]):focus,
-.app-shell--private textarea:focus {
-  background: var(--color-surface-3);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-focus-primary) 38%, transparent);
-}
-
 .app-shell .content-hero {
   border: 0;
   box-shadow: var(--shadow-elevated);

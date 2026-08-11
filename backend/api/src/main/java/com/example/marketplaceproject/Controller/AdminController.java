@@ -157,8 +157,6 @@ public class AdminController {
                 .dataLancamento(request.dataLancamento())
                 .status(request.status())
                 .tagsJson(toJson(request.tags()))
-                .requisitosJson("[]")
-                .idiomasJson("[]")
                 .atualizacoesJson("[]")
                 .build();
     }

@@ -75,8 +75,6 @@ class AuthenticationFlowTests {
                                   "release_date":"2026-07-21",
                                   "status":"published",
                                   "tags":["RPG","Co-op"],
-                                  "system_requirements":[{"type":"minimum","os":"Windows 11","ram":"8 GB"}],
-                                  "languages":[{"name":"Português (Brasil)","interface":true,"subtitles":true,"audio":false}],
                                   "updates":[],
                                   "categoria_ids":[]
                                 }
@@ -92,7 +90,6 @@ class AuthenticationFlowTests {
                 .andExpect(jsonPath("$.slug").value("integration-quest"))
                 .andExpect(jsonPath("$.short_description").isString())
                 .andExpect(jsonPath("$.tags[0]").value("RPG"))
-                .andExpect(jsonPath("$.system_requirements[0].type").value("minimum"))
                 .andExpect(jsonPath("$.media").isArray())
                 .andExpect(jsonPath("$.reviews").isArray());
 

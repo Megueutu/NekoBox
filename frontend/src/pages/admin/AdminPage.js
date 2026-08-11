@@ -295,6 +295,30 @@ export function afterRender() {
     cleanupSelectedMedia(event.currentTarget);
   });
 
+  document.getElementById("admin-dialog")?.addEventListener("dragover", (event) => {
+    const picker = event.target.closest("[data-media-picker]");
+    if (!picker) return;
+    event.preventDefault();
+    picker.classList.add("admin-media-picker--dragover");
+  });
+
+  document.getElementById("admin-dialog")?.addEventListener("dragleave", (event) => {
+    const picker = event.target.closest("[data-media-picker]");
+    if (!picker || picker.contains(event.relatedTarget)) return;
+    picker.classList.remove("admin-media-picker--dragover");
+  });
+
+  document.getElementById("admin-dialog")?.addEventListener("drop", (event) => {
+    const picker = event.target.closest("[data-media-picker]");
+    if (!picker) return;
+    event.preventDefault();
+    picker.classList.remove("admin-media-picker--dragover");
+    const input = picker.querySelector("input[type=file]");
+    if (!input || !event.dataTransfer?.files?.length) return;
+    input.files = event.dataTransfer.files;
+    selectMediaFiles(input.form, input);
+  });
+
   document.getElementById("admin-dialog")?.addEventListener("click", async (event) => {
     const selectedMedia = event.target.closest("[data-remove-selected-media]");
     if (selectedMedia) {

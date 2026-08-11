@@ -66,7 +66,7 @@ public class CloudinaryService {
             }
             byte[] bytes = arquivo.getBytes();
             if (ImageIO.read(new ByteArrayInputStream(bytes)) == null) {
-                throw new RegraNegocioException("O conteudo enviado nao e uma imagem valida.");
+                throw new RegraNegocioException("O conteudo enviado não é uma imagem valida.");
             }
             Map<?, ?> resultado = cloudinary.uploader()
                     .upload(bytes, ObjectUtils.asMap("folder", pasta, "resource_type", "image"));

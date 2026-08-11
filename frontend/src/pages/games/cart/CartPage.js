@@ -17,7 +17,7 @@ export default async function CartPage() {
   Store.setState((state) => ({ ...state, cart }));
 
   const user = Store.getState().user;
-  const total = cart.reduce((acc, game) => acc + game.price, 0);
+  const total = cart.reduce((acc, game) => acc + game.price * game.quantity, 0);
 
   const content = `
     <div class="cart-page space-y-8">
@@ -54,10 +54,18 @@ export default async function CartPage() {
                 </a>
                 <!-- Infos -->
                 <div class="cart-item__content">
+                  ${
+                    game.for_gift
+                      ? `<span class="cart-item__mode">${Icon(icons.gift, { className: "w-3 h-3" })} Presente</span>`
+                      : ""
+                  }
                   <a href="/game/${game.slug}" data-link class="type-card-title hover:text-[var(--color-brand-400)] truncate block transition-colors">${game.title}</a>
                   <p class="type-caption text-[var(--color-muted-2)] mt-1">${game.publisher?.name || ""}</p>
-                  <p class="type-small font-bold mt-1.5 text-[var(--color-accent-400)]">${formatPrice(game.price)}</p>
+                  <p class="type-small font-bold mt-1.5 text-[var(--color-accent-400)]">${game.categories?.[0] || ""}</p>
                 </div>
+
+                <!-- Subtotal -->
+                <p class="cart-item__subtotal">${formatPrice(game.price * game.quantity)}</p>
 
                 <!-- Remover -->
                 <button type="button" data-remove-cart="${game.id}"
@@ -139,6 +147,29 @@ export async function afterRender() {
         showFeedback(error.message || "Não foi possível remover o item.", true);
       }
     });
+  });
+
+  const changeQuantity = async (gameId, delta, btn) => {
+    const cartItem = Store.getState().cart.find((game) => String(game.id) === String(gameId));
+    if (!cartItem) return;
+    const nextQuantity = cartItem.quantity + delta;
+    if (nextQuantity < 1 || nextQuantity > 10) return;
+    btn.disabled = true;
+    try {
+      await Actions.atualizarQuantidadeCarrinho(gameId, nextQuantity);
+      navigate(ACCOUNT_PATHS.cart);
+    } catch (error) {
+      btn.disabled = false;
+      showFeedback(error.message || "Não foi possível atualizar a quantidade.", true);
+    }
+  };
+
+  document.querySelectorAll("[data-qty-decrease]").forEach((btn) => {
+    btn.addEventListener("click", () => changeQuantity(btn.getAttribute("data-qty-decrease"), -1, btn));
+  });
+
+  document.querySelectorAll("[data-qty-increase]").forEach((btn) => {
+    btn.addEventListener("click", () => changeQuantity(btn.getAttribute("data-qty-increase"), 1, btn));
   });
 
   const form = document.getElementById("checkout-form");

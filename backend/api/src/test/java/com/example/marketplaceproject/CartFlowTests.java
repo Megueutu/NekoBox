@@ -93,8 +93,6 @@ class CartFlowTests {
                                   "release_date":"2026-07-24",
                                   "status":"published",
                                   "tags":["Test"],
-                                  "system_requirements":[],
-                                  "languages":[],
                                   "updates":[],
                                   "categoria_ids":[]
                                 }

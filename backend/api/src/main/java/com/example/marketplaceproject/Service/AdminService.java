@@ -9,6 +9,7 @@ import com.example.marketplaceproject.Entity.Enuns.PapelUsuario;
 import com.example.marketplaceproject.Entity.Enuns.StatusPagamento;
 import com.example.marketplaceproject.Entity.Enuns.TipoFoto;
 import com.example.marketplaceproject.Exception.CampoInvalidoException;
+import com.example.marketplaceproject.Exception.RegraNegocioException;
 import com.example.marketplaceproject.Repository.CartaoPresenteRepository;
 import com.example.marketplaceproject.Repository.FotoRepository;
 import com.example.marketplaceproject.Repository.PagamentoRepository;
@@ -236,8 +237,6 @@ public class AdminService {
             String authorization, Integer id, Produto produto, List<Integer> categoriaIds) {
         exigirAdmin(authorization);
         Produto atual = produtoService.buscarPorId(id);
-        produto.setRequisitosJson(atual.getRequisitosJson());
-        produto.setIdiomasJson(atual.getIdiomasJson());
         produto.setAtualizacoesJson(atual.getAtualizacoesJson());
         return toJogoResumo(produtoService.atualizarProduto(id, produto, categoriaIds));
     }

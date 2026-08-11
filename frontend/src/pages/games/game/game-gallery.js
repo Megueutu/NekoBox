@@ -49,7 +49,7 @@ export function renderScreenshotGallery(gameTitle, screenshots = []) {
   const dots =
     visibleScreenshots.length > 1
       ? `
-    <div class="screenshot-carousel__dots" role="tablist" aria-label="Selecionar captura de tela">
+    <div class="screenshot-carousel__dots" role="group" aria-label="Selecionar captura de tela">
       ${visibleScreenshots
         .map(
           (_, index) => `

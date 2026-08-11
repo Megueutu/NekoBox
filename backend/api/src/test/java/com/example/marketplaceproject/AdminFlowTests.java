@@ -171,9 +171,19 @@ class AdminFlowTests {
                 1, fotoRepository.findByProduto_IdAndTipo(gameId, TipoFoto.POSTER).size());
 
         when(cloudinaryService.existe(anyString())).thenReturn(CompletableFuture.completedFuture(true));
-        mockMvc.perform(get("/api/games/media-audit"))
+        String mediaAuditBody = mockMvc.perform(get("/api/games/media-audit"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.disponiveis[0].public_id").value("generated-public-id"));
+                .andReturn().getResponse().getContentAsString();
+        JsonNode disponiveis = objectMapper.readTree(mediaAuditBody).get("disponiveis");
+        boolean encontrouMidiaEnviada = false;
+        for (JsonNode midia : disponiveis) {
+            if ("generated-public-id".equals(midia.get("public_id").asText())) {
+                encontrouMidiaEnviada = true;
+                break;
+            }
+        }
+        org.junit.jupiter.api.Assertions.assertTrue(
+                encontrouMidiaEnviada, "A midia recem enviada deveria constar como disponivel.");
     }
 
     @Test

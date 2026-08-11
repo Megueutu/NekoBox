@@ -29,9 +29,26 @@ public class CarteiraService {
     public record Resgate(BigDecimal valorCreditado, BigDecimal saldo) {
     }
 
+    public record Recarga(BigDecimal valorAdicionado, BigDecimal saldo) {
+    }
+
     @Transactional(readOnly = true)
     public BigDecimal consultarSaldo(Integer usuarioId) {
         return usuarioService.buscarPorId(usuarioId).getSaldo();
+    }
+
+    @Transactional
+    public Recarga adicionarSaldo(Integer usuarioId, BigDecimal valor) {
+        if (valor == null || valor.signum() <= 0) {
+            throw new CampoInvalidoException("O valor da recarga deve ser maior que zero.");
+        }
+        BigDecimal valorNormalizado = valor.setScale(2, RoundingMode.HALF_EVEN);
+
+        Usuario usuario = usuarioService.buscarPorIdParaAtualizacao(usuarioId);
+        BigDecimal novoSaldo = usuario.getSaldo().add(valorNormalizado).setScale(2, RoundingMode.HALF_EVEN);
+        usuario.setSaldo(novoSaldo);
+        usuarioService.salvar(usuario);
+        return new Recarga(valorNormalizado, novoSaldo);
     }
 
     @Transactional

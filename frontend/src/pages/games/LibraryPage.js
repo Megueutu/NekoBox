@@ -31,7 +31,6 @@ function LibraryCard(game) {
     <article class="library-card">
       <a href="/game/${game.slug}" data-link class="library-card__cover">
         <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}" loading="lazy" />
-        <span class="library-card__owned">${Icon(icons.circleCheck, { className: "w-3.5 h-3.5" })} Adquirido</span>
       </a>
       <div class="library-card__content">
         <div>
@@ -92,7 +91,6 @@ export default async function LibraryPage() {
             <input id="library-search" class="ui-control" type="search" placeholder="Buscar por jogo, gênero ou publicadora" autocomplete="off" />
           </label>
           <label class="collection-sort">
-            <span>Ordenar por</span>
             <select id="library-sort" class="ui-control">
               <option value="recent">Adicionados recentemente</option>
               <option value="title">Título (A–Z)</option>

@@ -71,17 +71,6 @@
     padding: 1rem;
   }
 
-  .game-requirement-list > div {
-    grid-template-columns: 1fr;
-    gap: 0.2rem;
-  }
-
-  .game-language-card__support {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
   .screenshot-carousel__rail {
     --screenshot-slide-w: min(84vw, 28rem);
     gap: 0.65rem;
