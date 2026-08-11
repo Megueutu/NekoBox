@@ -11,7 +11,15 @@ import { icons } from "../../components/ui/Icon";
 import { AccountService } from "../../services/account.service";
 
 export default async function WishlistPage() {
-  const wishlist = await AccountService.getWishlist();
+  const rawWishlist = await AccountService.getWishlist();
+  const { library } = Store.getState();
+  const itensJaAdquiridos = rawWishlist.filter((game) => library.some((g) => String(g.id) === String(game.id)));
+  if (itensJaAdquiridos.length) {
+    await Promise.all(itensJaAdquiridos.map((game) => AccountService.removeFromWishlist(game.id)));
+  }
+  const wishlist = itensJaAdquiridos.length
+    ? rawWishlist.filter((game) => !itensJaAdquiridos.some((item) => String(item.id) === String(game.id)))
+    : rawWishlist;
   Store.setState((state) => ({ ...state, wishlist }));
 
   const content = `

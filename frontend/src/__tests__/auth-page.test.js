@@ -45,6 +45,18 @@ describe("Authentication page", () => {
     expect(container.querySelector("#input-reg-username")?.getAttribute("autocomplete")).toBe("username");
   });
 
+  it("should open and close the username tooltip on click, for touch devices without hover", () => {
+    document.body.innerHTML = renderAuthPage("register");
+    bindAuthInteractions();
+    const tooltip = document.querySelector("#register-form .field-tooltip");
+
+    tooltip.click();
+    expect(tooltip.classList.contains("field-tooltip--open")).toBe(true);
+
+    document.body.click();
+    expect(tooltip.classList.contains("field-tooltip--open")).toBe(false);
+  });
+
   it("should render password recovery with a registered email field", () => {
     const container = document.createElement("div");
 

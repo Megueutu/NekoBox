@@ -8,7 +8,6 @@ export function WalletDialog() {
     <dialog id="wallet-dialog" class="wallet-dialog" aria-labelledby="wallet-title" aria-describedby="wallet-description">
       <div class="wallet-dialog__header">
         <div class="wallet-dialog__title">
-          <span class="wallet-dialog__title-icon" aria-hidden="true">${Icon(icons.wallet, { className: "w-5 h-5" })}</span>
           <div>
             <p class="wallet-dialog__eyebrow">Carteira NekoBox</p>
             <h2 id="wallet-title">Adicionar saldo</h2>
@@ -39,13 +38,15 @@ export function WalletDialog() {
           <button type="submit" class="button-primary">Adicionar saldo</button>
         </div>
       </form>
-      <p id="wallet-status" class="wallet-status" role="status" aria-live="polite"></p>
     </dialog>
   `;
 }
 
+const WALLET_BALANCE_LIMIT = 5000;
+
 export function setupWalletDialog() {
   let activeTrigger = null;
+  let currentBalance = 0;
 
   const setStatus = (message, isError = false) => {
     const status = document.getElementById("wallet-status");
@@ -65,6 +66,7 @@ export function setupWalletDialog() {
     dialog.addEventListener("close", () => activeTrigger?.focus(), { once: true });
     try {
       const wallet = await AccountService.getWallet();
+      currentBalance = wallet.saldo;
       const balance = document.getElementById("wallet-balance-value");
       if (balance) balance.textContent = formatPrice(wallet.saldo);
       setStatus("");
@@ -102,12 +104,22 @@ export function setupWalletDialog() {
     const form = event.target;
     const button = form.querySelector('button[type="submit"]');
     const valueInput = form.elements.valor;
+    const addedValue = Number(valueInput.value);
+
+    if (currentBalance > WALLET_BALANCE_LIMIT || currentBalance + addedValue > WALLET_BALANCE_LIMIT) {
+      const message = `O saldo não pode ultrapassar ${formatPrice(WALLET_BALANCE_LIMIT)}.`;
+      setStatus(message, true);
+      window.alert(message);
+      return;
+    }
+
     button.disabled = true;
     form.setAttribute("aria-busy", "true");
     setStatus("Adicionando saldo...");
 
     try {
       const result = await AccountService.addBalance(valueInput.value);
+      currentBalance = result.saldo;
       const balance = document.getElementById("wallet-balance-value");
       if (balance) balance.textContent = formatPrice(result.saldo);
       Store.setState((state) => ({

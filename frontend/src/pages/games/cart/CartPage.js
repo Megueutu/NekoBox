@@ -106,17 +106,6 @@ export default async function CartPage() {
             </form>
           </div>
         </div>
-
-        <section id="checkout-confirmation" class="checkout-confirmation panel" tabindex="-1"
-                 aria-labelledby="checkout-confirmation-title" role="status" aria-live="polite" hidden>
-          <span>${Icon(icons.circleCheck, { className: "w-5 h-5" })}</span>
-          <div>
-            <p>Pedido confirmado</p>
-            <h2 id="checkout-confirmation-title">Compra concluída com sucesso</h2>
-            <p id="checkout-confirmation-description"></p>
-          </div>
-          <a href="${ACCOUNT_PATHS.library}" data-link class="button-primary">Abrir biblioteca</a>
-        </section>
       `
       }
     </div>
@@ -227,14 +216,18 @@ export async function afterRender() {
 
     try {
       const { payments } = await Actions.finalizarCheckoutCarrinho();
+      window.alert("Compra concluída!");
+      document.querySelectorAll("[data-remove-cart]").forEach((btn) => btn.remove());
       const confirmation = document.getElementById("checkout-confirmation");
       const description = document.getElementById("checkout-confirmation-description");
       if (description) {
         description.textContent = `${payments.length} jogo${payments.length !== 1 ? "s" : ""} adicionado${payments.length !== 1 ? "s" : ""} à sua biblioteca.`;
       }
       form.hidden = true;
-      confirmation.hidden = false;
-      confirmation.focus();
+      if (confirmation) {
+        confirmation.hidden = false;
+        confirmation.focus();
+      }
     } catch (error) {
       form.removeAttribute("aria-busy");
       button.disabled = false;

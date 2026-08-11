@@ -150,6 +150,25 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
     dialogElement.querySelector(focusTarget || "input, button")?.focus();
   };
 
+  root.querySelectorAll(".field-tooltip").forEach((tooltip) => {
+    tooltip.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const wasOpen = tooltip.classList.contains("field-tooltip--open");
+      document
+        .querySelectorAll(".field-tooltip--open")
+        .forEach((open) => open.classList.remove("field-tooltip--open"));
+      if (!wasOpen) tooltip.classList.add("field-tooltip--open");
+    });
+  });
+  if (!document.__fieldTooltipOutsideBound) {
+    document.__fieldTooltipOutsideBound = true;
+    document.addEventListener("click", () => {
+      document
+        .querySelectorAll(".field-tooltip--open")
+        .forEach((open) => open.classList.remove("field-tooltip--open"));
+    });
+  }
+
   root.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
       const input = find(`#${toggle.dataset.passwordToggle}`);

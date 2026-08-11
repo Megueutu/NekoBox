@@ -42,9 +42,6 @@ function LibraryCard(game) {
           <div><dt>Tempo jogado</dt><dd>${formatPlaytime(game.playtime_minutes)}</dd></div>
           <div><dt>Na biblioteca desde</dt><dd>${game.acquired_at ? formatDate(game.acquired_at) : "Data indisponível"}</dd></div>
         </dl>
-        <a href="/game/${game.slug}" data-link class="button-accent library-card__action">
-          ${Icon(icons.play, { className: "w-4 h-4", fill: "currentColor" })} Ver jogo
-        </a>
       </div>
     </article>
   `;

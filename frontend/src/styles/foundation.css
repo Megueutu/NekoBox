@@ -148,7 +148,8 @@ label:has(.ui-control[required]:valid) > span > .field-required,
   color: var(--color-muted-2);
 }
 .field-tooltip:hover,
-.field-tooltip:focus-visible {
+.field-tooltip:focus-visible,
+.field-tooltip--open {
   color: var(--color-brand-300);
   background: color-mix(in srgb, var(--color-brand-400) 12%, transparent);
 }
@@ -176,7 +177,8 @@ label:has(.ui-control[required]:valid) > span > .field-required,
     transform 0.16s ease;
 }
 .field-tooltip:hover::after,
-.field-tooltip:focus-visible::after {
+.field-tooltip:focus-visible::after,
+.field-tooltip--open::after {
   opacity: 1;
   transform: none;
 }
@@ -374,17 +376,6 @@ img {
   min-width: 0;
   align-items: center;
   gap: 0.75rem;
-}
-
-.wallet-dialog__title-icon {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: var(--radius-control);
-  color: white;
-  background: var(--color-brand-600);
 }
 
 .wallet-dialog__eyebrow {

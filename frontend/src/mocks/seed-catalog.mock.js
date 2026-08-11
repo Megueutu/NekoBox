@@ -863,7 +863,7 @@ export const seedPosterBySlug = {
   valorant:
     "https://res.cloudinary.com/meguitooooooo/image/upload/v1786334425/tecnologia_20e_20games-games-valorant-call_of_duty-1721677606_emjfbj.jpg",
   "resident-evil-requiem":
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd_cGm3ACx_qEEXzynLmHgBVaqYRM0ZxmmRP0xbkfn2Js6k9ks1GCgaw8&s=10",
+    "https://res.cloudinary.com/meguitooooooo/image/upload/v1786334338/resident-evil-9_q75h_futvg4.jpg",
   "arc-raiders":
     "https://res.cloudinary.com/meguitooooooo/image/upload/v1786334294/images_dmoyfc.jpg",
   "marvel-tokon-fighting-souls":

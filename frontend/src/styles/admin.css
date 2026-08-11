@@ -484,6 +484,7 @@
   align-items: start;
   gap: 0.65rem;
 }
+
 .admin-form-group__heading > span {
   display: grid;
   flex: 0 0 auto;
@@ -497,16 +498,19 @@
   font-size: 0.58rem;
   font-weight: 850;
 }
+
 .admin-form-group__heading h3 {
   font-size: 0.78rem;
   font-weight: 850;
 }
+
 .admin-form-group__heading p {
   margin-top: 0.15rem;
   color: var(--color-muted-2);
   font-size: 0.62rem;
   line-height: 1.4;
 }
+
 .admin-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -556,15 +560,18 @@
   margin-left: 0.75rem;
   color: var(--color-muted);
 }
+
 .admin-resource-form .admin-input-prefix input {
   min-width: 0;
   border: 0;
   background: transparent;
   box-shadow: none;
 }
+
 .admin-resource-form .admin-input-prefix input:focus-visible {
   outline: 0;
 }
+
 .admin-resource-form input[type="number"]::-webkit-inner-spin-button,
 .admin-resource-form input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
@@ -575,13 +582,16 @@
   min-height: 2.8rem;
   font-size: 0.75rem;
 }
+
 .admin-resource-form .ui-control--area {
   min-height: 8.5rem;
 }
+
 .admin-resource-form .button-primary {
   min-height: 2.8rem;
   margin-top: 0.2rem;
 }
+
 .admin-form-error {
   color: var(--color-danger);
   font-size: 0.68rem;
@@ -602,6 +612,7 @@
   font-size: 0.82rem;
   font-weight: 850;
 }
+
 .admin-media-fields > p {
   color: var(--color-muted-2);
   font-size: 0.62rem;
@@ -616,13 +627,13 @@
   border-radius: 0.8rem;
   background: transparent;
 }
+
 .admin-media-picker {
   display: flex;
   min-height: 5rem;
   align-items: center;
   gap: 0.7rem;
   padding: 0.8rem;
-  border: 1.5px dashed color-mix(in srgb, var(--color-brand-300) 30%, transparent);
   border-radius: 0.65rem;
   color: var(--color-ink);
   background: transparent;
@@ -633,38 +644,41 @@
     box-shadow 160ms ease,
     transform 160ms ease;
 }
-.admin-media-picker + .admin-media-picker {
+
+.admin-media-inputs > * {
   background: var(--color-surface-2);
 }
-.admin-media-picker:hover {
-  border-color: color-mix(in srgb, var(--color-brand-400) 55%, transparent);
-  background: color-mix(in srgb, var(--color-brand-500) 9%, transparent);
-}
+
 .admin-media-picker:focus-within {
   position: relative;
   z-index: 1;
   outline: 2px solid var(--color-brand-400);
   outline-offset: -2px;
 }
+
 .admin-media-picker--dragover {
   border-style: solid;
   border-color: var(--color-brand-400);
   background: color-mix(in srgb, var(--color-brand-500) 16%, transparent);
   transform: scale(1.01);
 }
+
 .admin-media-picker--filled {
   border-style: solid;
   border-color: color-mix(in srgb, #34d399 45%, transparent);
 }
+
 .admin-media-picker--filled .admin-media-picker__icon {
   color: #34d399;
   background: color-mix(in srgb, #34d399 20%, transparent);
 }
+
 .admin-media-picker--filled .admin-media-picker__action {
   color: #34d399;
   border-color: color-mix(in srgb, #34d399 40%, transparent);
   background: color-mix(in srgb, #34d399 14%, transparent);
 }
+
 .admin-media-picker input {
   position: absolute;
   width: 1px;
@@ -676,6 +690,7 @@
   white-space: nowrap;
   border: 0;
 }
+
 .admin-media-picker__icon {
   display: grid;
   flex: 0 0 auto;
@@ -683,23 +698,27 @@
   height: 2.2rem;
   place-items: center;
   border: 0;
-  border-radius: 0.65rem;
-  color: var(--color-brand-100);
-  background: color-mix(in srgb, var(--color-brand-500) 24%, transparent);
+  border-radius: var(--radius-control);
+  color: var(--color-muted);
+  background: var(--color-surface-3);
 }
+
 .admin-media-picker > span:nth-of-type(2) {
   display: grid;
   gap: 0.15rem;
   min-width: 0;
 }
+
 .admin-media-picker strong {
   font-size: 0.72rem;
 }
+
 .admin-media-picker small {
   color: var(--color-muted);
   font-size: 0.6rem;
   line-height: 1.35;
 }
+
 .admin-media-picker__action,
 .admin-media-picker__count {
   margin-left: auto;
@@ -713,6 +732,7 @@
   line-height: 1;
   white-space: nowrap;
 }
+
 .admin-media-picker__count {
   color: var(--color-ink);
   background: color-mix(
@@ -721,14 +741,9 @@
     var(--color-surface-3)
   );
 }
+
 .admin-media-picker--screenshots {
   grid-column: auto;
-}
-.admin-media-selection-status {
-  min-height: 1.1rem;
-  margin: 0;
-  color: #fbbf24;
-  font-size: 0.62rem;
 }
 
 .admin-media-preview {

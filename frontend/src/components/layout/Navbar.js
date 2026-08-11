@@ -31,7 +31,7 @@ export function Navbar() {
           <img src="/logo.svg" class="site-brand__logo" alt="NekoBox" />
         </a>
 
-        <div class="flex items-center gap-0 sm:gap-2">
+        <div class="flex items-center gap-2 sm:gap-2">
           ${navIcon("/", "Início", icons.home)}
           ${navIcon("/hub", "Catálogo", icons.search)}
           ${isCustomer ? navIcon(ACCOUNT_PATHS.library, "Minha Biblioteca", icons.library, "hidden sm:flex") : ""}
@@ -95,9 +95,9 @@ export function Navbar() {
             isCustomer
               ? `
             <a href="${ACCOUNT_PATHS.profile}" data-link class="hidden sm:flex items-center gap-2" aria-label="Meu perfil">
-              <div class="w-8 h-8 rounded-full bg-cover bg-center bg-[var(--color-surface-3)] border-2 border-[var(--color-brand-500)]/60 hover:border-[var(--color-accent-400)] transition-colors"
+              <div class="w-8 h-8 rounded-full bg-cover bg-center transition-colors"
                    role="img" aria-label="Avatar de ${user.username || "usuário"}"
-                   style="background-image: url('${user.avatar_url}')"></div>
+                   style="background-image: url('${user.avatar_url || "https://picsum.photos/seed/defaultavatar/150/150"}')"></div>
             </a>
           `
               : !isAuthenticated

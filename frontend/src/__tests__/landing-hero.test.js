@@ -4,6 +4,7 @@ import LandingPage, {
   LANDING_HERO_INTERVAL_MS,
 } from "../pages/landing/LandingPage";
 import { GamesService } from "../services/games/games.service";
+import { Store, clearSessionState } from "../store/store";
 
 const gameCategories = ["Ação", "Aventura", "RPG", "Mundo Aberto", "Fantasia", "Roguelike", "Indie"];
 
@@ -45,6 +46,8 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   document.body.innerHTML = "";
+  clearSessionState();
+  localStorage.clear();
 });
 
 describe("Landing hero rotation", () => {
@@ -132,5 +135,16 @@ describe("Landing membership call to action", () => {
       .map((link) => link.getAttribute("href"));
 
     expect(destinations).toEqual(["/login", "/hub"]);
+  });
+
+  it("should invite an authenticated user to their library instead of account creation", async () => {
+    localStorage.setItem("access_token", "token");
+    Store.setState((state) => ({ ...state, user: { id: "1", role: "USER" } }));
+
+    document.body.innerHTML = await LandingPage();
+
+    const actions = [...document.querySelectorAll(".landing-membership .content-hero__actions a")];
+    expect(actions.map((link) => link.getAttribute("href"))).toEqual(["/conta/biblioteca", "/hub"]);
+    expect(actions[0].textContent).toBe("Ver biblioteca");
   });
 });

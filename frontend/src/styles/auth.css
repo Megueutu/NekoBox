@@ -346,6 +346,7 @@
   min-height: 0;
   flex-direction: column;
   padding: 1.5rem;
+  padding-bottom: 0;
   overflow: visible;
   border: 0;
   border-radius: 0;
@@ -382,7 +383,8 @@
 }
 
 .auth-dialog__body #form-content .auth-field:first-child .field-tooltip:hover::after,
-.auth-dialog__body #form-content .auth-field:first-child .field-tooltip:focus-visible::after {
+.auth-dialog__body #form-content .auth-field:first-child .field-tooltip:focus-visible::after,
+.auth-dialog__body #form-content .auth-field:first-child .field-tooltip--open::after {
   transform: none;
 }
 

@@ -28,11 +28,19 @@ export const Actions = {
 
   async adquirirLicencaGratuita(game) {
     const acquiredGame = await AccountService.acquireFreeLicense(game.id);
+    const { wishlist } = Store.getState();
+    const wasWishlisted = wishlist.some((item) => String(item.id) === String(acquiredGame.id));
+    if (wasWishlisted) {
+      await AccountService.removeFromWishlist(acquiredGame.id);
+    }
     Store.setState((state) => ({
       ...state,
       library: state.library.some((item) => String(item.id) === String(acquiredGame.id))
         ? state.library
         : [...state.library, acquiredGame],
+      wishlist: wasWishlisted
+        ? state.wishlist.filter((item) => String(item.id) !== String(acquiredGame.id))
+        : state.wishlist,
     }));
   },
 
@@ -42,8 +50,10 @@ export const Actions = {
   },
 
   async alternarListaDesejos(game) {
-    const { wishlist } = Store.getState();
+    const { wishlist, library } = Store.getState();
     const existe = wishlist.some((item) => String(item.id) === String(game.id));
+    const jaAdquirido = library.some((item) => String(item.id) === String(game.id));
+    if (!existe && jaAdquirido) return;
     if (existe) {
       await AccountService.removeFromWishlist(game.id);
     } else {
@@ -55,7 +65,19 @@ export const Actions = {
 
   async finalizarCheckoutCarrinho() {
     const { payments, library } = await AccountService.checkout();
-    Store.setState((state) => ({ ...state, library, cart: [] }));
+    const { wishlist } = Store.getState();
+    const itensAdquiridos = wishlist.filter((item) => library.some((g) => String(g.id) === String(item.id)));
+    if (itensAdquiridos.length) {
+      await Promise.all(itensAdquiridos.map((item) => AccountService.removeFromWishlist(item.id)));
+    }
+    Store.setState((state) => ({
+      ...state,
+      library,
+      cart: [],
+      wishlist: itensAdquiridos.length
+        ? state.wishlist.filter((item) => !itensAdquiridos.some((p) => String(p.id) === String(item.id)))
+        : state.wishlist,
+    }));
     return { payments };
   },
 

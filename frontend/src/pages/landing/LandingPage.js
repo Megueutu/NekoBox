@@ -5,6 +5,8 @@ import { GamesService } from "../../services/games/games.service";
 import { getBannerUrl } from "../../utils/media";
 import { getGameBannerRotation } from "../../utils/random-banner";
 import { bindNavigationScroll } from "../../utils/nav-scroll";
+import { Store } from "../../store/store";
+import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 import {
   getLandingHeroMeta,
   LANDING_HERO_INTERVAL_MS,
@@ -16,6 +18,8 @@ let landingHeroSlides = [];
 export { LANDING_HERO_INTERVAL_MS };
 
 export default async function LandingPage() {
+  const { user } = Store.getState();
+  const isAuthenticated = Boolean(localStorage.getItem("access_token") && user);
   const games = await GamesService.getAll();
   landingHeroSlides = getGameBannerRotation(games, { limit: 5 });
   const randomBanner = landingHeroSlides[0];
@@ -109,7 +113,11 @@ export default async function LandingPage() {
           description: "Crie sua lista de desejos, organize sua biblioteca e encontre seu próximo jogo sem sair do NekoBox.",
           bannerUrl: getBannerUrl(membershipGame),
           actionsHtml: `
-            <a href="/login" data-link class="button-primary px-5 py-3">Criar conta</a>
+            ${
+              isAuthenticated
+                ? `<a href="${ACCOUNT_PATHS.library}" data-link class="button-primary px-5 py-3">Ver biblioteca</a>`
+                : `<a href="/login" data-link class="button-primary px-5 py-3">Criar conta</a>`
+            }
             <a href="/hub" data-link class="button-outline px-5 py-3">Explorar catálogo</a>
           `,
         })}

@@ -88,4 +88,35 @@ describe("Navbar authentication visibility", () => {
     expect(document.querySelector('[data-wallet-trigger]')).toBeNull();
     expect(document.querySelector('a[href="/login"]')).toBeNull();
   });
+
+  it("should fall back to a default picture when the customer has no avatar set", () => {
+    localStorage.setItem("access_token", "user-token");
+    Store.setState({
+      ...initialState,
+      user: { username: "player", avatar_url: "", role: "USER" },
+      cart: [],
+      wishlist: [],
+      library: [],
+    });
+    document.body.innerHTML = Navbar();
+
+    const avatar = document.querySelector(`a[href="${ACCOUNT_PATHS.profile}"] [role="img"]`);
+    expect(avatar?.getAttribute("style")).not.toContain("url('')");
+    expect(avatar?.getAttribute("style")).toContain("https://picsum.photos/seed/defaultavatar/150/150");
+  });
+
+  it("should render the customer's own avatar when one is set", () => {
+    localStorage.setItem("access_token", "user-token");
+    Store.setState({
+      ...initialState,
+      user: { username: "player", avatar_url: "https://example.com/avatar.jpg", role: "USER" },
+      cart: [],
+      wishlist: [],
+      library: [],
+    });
+    document.body.innerHTML = Navbar();
+
+    const avatar = document.querySelector(`a[href="${ACCOUNT_PATHS.profile}"] [role="img"]`);
+    expect(avatar?.getAttribute("style")).toContain("https://example.com/avatar.jpg");
+  });
 });

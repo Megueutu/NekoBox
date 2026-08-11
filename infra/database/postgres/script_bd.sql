@@ -1125,7 +1125,7 @@ JOIN (VALUES
 
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334340/images_gkkjyq.jpg', 'cover', 1),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333488/3878ff92261c1fda7ce03772ac149514ce6f6bf5c715e64b_ay64zk.avif', 'banner', 1),
-    ('resident-evil-requiem', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd_cGm3ACx_qEEXzynLmHgBVaqYRM0ZxmmRP0xbkfn2Js6k9ks1GCgaw8&s=10', 'poster', 1),
+    ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786334338/resident-evil-9_q75h_futvg4.jpg', 'poster', 1),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333488/b2ee4bb116cbc638d085ccf6f8a70926e23a945810ef8696_hvryvg.avif', 'screenshot', 1),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333487/0defaa05f3a37f4340975cb80cbd328462d6f9af93c115b0_jfso0t.avif', 'screenshot', 2),
     ('resident-evil-requiem', 'https://res.cloudinary.com/meguitooooooo/image/upload/v1786333487/42738d3e42f78fab129efa703bd39b56c223d1e9aff488cd_okovcg.avif', 'screenshot', 3),

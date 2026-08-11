@@ -135,19 +135,29 @@ export async function afterRender({ slug }) {
   const game = await GamesService.getBySlug(slug);
   if (!game) return;
 
+  const requireLogin = () => {
+    const isAuthenticated = Boolean(localStorage.getItem("access_token") && Store.getState().user);
+    if (isAuthenticated) return true;
+    window.alert("Você precisa fazer login para continuar.");
+    return false;
+  };
+
   document.getElementById("btn-acquire-free-license")?.addEventListener("click", async () => {
+    if (!requireLogin()) return;
     await Actions.adquirirLicencaGratuita(game);
     navigate(`/game/${slug}`);
   });
 
   // Adicionar ao Carrinho
   document.getElementById("btn-add-cart")?.addEventListener("click", async () => {
+    if (!requireLogin()) return;
     await Actions.adicionarAoCarrinho(game);
     navigate(ACCOUNT_PATHS.cart);
   });
 
   // Alternar Lista de Desejos
   document.getElementById("btn-wishlist")?.addEventListener("click", async () => {
+    if (!requireLogin()) return;
     await Actions.alternarListaDesejos(game);
     navigate(`/game/${slug}`);
   });

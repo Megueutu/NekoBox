@@ -82,20 +82,6 @@ export default async function ProfilePage() {
           </p>
         </div>
       </form>
-
-      <section class="profile-session panel" aria-labelledby="profile-session-title">
-        <div>
-          <span>${Icon(icons.lock, { className: "w-5 h-5" })}</span>
-          <div>
-            <h2 id="profile-session-title">Zona de risco</h2>
-            <p>Excluir sua conta remove permanentemente seu perfil, biblioteca e histórico de compras.</p>
-          </div>
-        </div>
-        <button id="btn-delete-account" type="button" class="profile-logout">
-          ${Icon(icons.trash, { className: "w-4 h-4" })}
-          Excluir conta
-        </button>
-      </section>
     </div>
   `;
 
