@@ -8,6 +8,7 @@ como conformidade.
 import json
 import os
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from statistics import median
 from urllib.parse import urlsplit
@@ -137,18 +138,34 @@ def _load_lighthouse_record(path: Path) -> dict[str, object] | None:
             "url": payload.get("finalUrl") or payload.get("requestedUrl") or path.stem,
             "score": round(score, 1),
             "timestamp": payload.get("fetchTime") or "",
+            "modified_at": path.stat().st_mtime,
         }
-    except (json.JSONDecodeError, TypeError, ValueError):
+    except (json.JSONDecodeError, OSError, TypeError, ValueError):
         return None
 
 
+def _measurement_timestamp(record: dict[str, object]) -> float:
+    """Usa fetchTime do Lighthouse e recorre ao mtime em relatórios legados."""
+    timestamp = str(record.get("timestamp") or "")
+    if timestamp:
+        try:
+            parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed.timestamp()
+        except ValueError:
+            pass
+    return float(record["modified_at"])
+
+
 def _lighthouse_records() -> list[dict[str, object]]:
-    return [record for path in _lighthouse_files() if (record := _load_lighthouse_record(path))]
+    records = [record for path in _lighthouse_files() if (record := _load_lighthouse_record(path))]
+    return sorted(records, key=_measurement_timestamp)
 
 
 def _page_kind(url: object) -> str:
     path = (urlsplit(str(url)).path or "/").rstrip("/") or "/"
-    return "principal" if path in {"/", "/index.html"} else "interna"
+    return "principal" if path in {"/", "/hub", "/index.html"} else "interna"
 
 
 def _summary_for_page(records: list[dict[str, object]], page_name: str) -> str:

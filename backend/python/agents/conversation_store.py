@@ -223,16 +223,47 @@ def load_recent_messages(
 
 
 def save_turn(session_id: str, user_content: str, assistant_content: str) -> bool:
-    """Persiste atomica e exclusivamente um turno público, limitado a 20 mensagens."""
+    """Persiste um turno público no MongoDB, com retenção e minimização de dados."""
     if not user_content.strip() or not assistant_content.strip():
         logger.warning("Turno sem conteúdo público não foi persistido.")
         return False
 
+    def redact_for_storage(content: str) -> str:
+        """Remove identificadores diretos comuns antes de armazenar a conversa."""
+        import re
+
+        redacted = re.sub(
+            r"\b[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+\b",
+            "[e-mail removido]",
+            content,
+        )
+        redacted = re.sub(
+            r"\b\d{3}[.\s-]?\d{3}[.\s-]?\d{3}[-\s]?\d{2}\b",
+            "[CPF removido]",
+            redacted,
+        )
+        redacted = re.sub(
+            r"\b\d{1,2}[.\s]?\d{3}[.\s]?\d{3}[-\s]?[0-9Xx]\b",
+            "[RG removido]",
+            redacted,
+        )
+        redacted = re.sub(
+            r"(?<!\d)(?:\+?55[\s-]?)?(?:\(?\d{2}\)?[\s-]?)?(?:9?\d{4})[\s-]?\d{4}(?!\d)",
+            "[telefone removido]",
+            redacted,
+        )
+        redacted = re.sub(
+            r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)",
+            "[cartão removido]",
+            redacted,
+        )
+        return redacted[:4_000]
+
     try:
         now = _utcnow()
         documents = (
-            {"role": "user", "content": user_content, "created_at": now},
-            {"role": "assistant", "content": assistant_content, "created_at": now},
+            {"role": "user", "content": redact_for_storage(user_content), "created_at": now},
+            {"role": "assistant", "content": redact_for_storage(assistant_content), "created_at": now},
         )
         update_pipeline = [
             {
