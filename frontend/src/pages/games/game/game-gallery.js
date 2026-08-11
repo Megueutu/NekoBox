@@ -32,8 +32,6 @@ export function renderScreenshotGallery(gameTitle, screenshots = []) {
 
   const canLoop = visibleScreenshots.length > 1;
 
-  // Clones dos dois lados: rolar para trás no primeiro item revela a última captura
-  // (e vice-versa), então o carrossel nunca mostra espaço vazio nas pontas.
   const leadingClones = canLoop
     ? visibleScreenshots
         .map((screenshot, index) => screenshotCard(gameTitle, screenshot, index, visibleScreenshots.length, { clone: "leading" }))

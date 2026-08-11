@@ -131,7 +131,6 @@ async function submitGameForm(form) {
   submit.disabled = true;
   error.classList.add("hidden");
   try {
-    const current = myGames.find((game) => String(game.id) === id);
     const payload = {
       titulo: data.get("titulo"),
       descricao_longa: data.get("descricao_longa"),

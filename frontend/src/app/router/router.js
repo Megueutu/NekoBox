@@ -38,7 +38,6 @@ class RouterManager {
     }
 
     for (const route of routes) {
-      // Redireciona rotas que possuem alias (ex: "/" → "/hub")
       if (route.redirect && pathname === route.path) {
         navigate(route.redirect);
         return;
@@ -47,7 +46,6 @@ class RouterManager {
       const params = matchRoute(pathname, route.path);
       if (params === null) continue;
 
-      // Route Guard: rota privada sem token → salva destino e manda pro login
       if (route.private && !tokenAtivo) {
         localStorage.setItem("redirect_target", pathname);
         navigate("/login");
@@ -62,7 +60,6 @@ class RouterManager {
         const module = await route.page();
 
         await this.atualizarPagina(async () => {
-          // Estado de carregamento: evita tela em branco enquanto a página busca seus dados (ex.: HubPage, GamePage)
           appContainer.innerHTML = `
             <div class="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
               <div class="flex flex-col items-center gap-4">
@@ -72,11 +69,9 @@ class RouterManager {
             </div>
           `;
 
-          // Renderiza o HTML bruto da página no container raiz
           const htmlGerado = await module.default(params);
           appContainer.innerHTML = htmlGerado;
 
-          // Ativa os listeners específicos da página após inserção no DOM
           if (module.afterRender) {
             await module.afterRender(params);
           }
@@ -109,7 +104,6 @@ class RouterManager {
       }
     }
 
-    // 404
     appContainer.innerHTML = renderErrorPage("not-found");
   }
 

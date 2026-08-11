@@ -5,12 +5,6 @@
   --app-focus-soft: var(--color-brand-400);
 }
 
-.app-shell .site-nav {
-  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
-  backdrop-filter: blur(12px);
-  box-shadow: none;
-}
-
 .app-shell--public .site-nav--hub {
   background: color-mix(in srgb, var(--color-bg) 72%, transparent);
   backdrop-filter: blur(12px);
@@ -40,18 +34,7 @@
   background: var(--color-surface-2);
 }
 
-.app-shell .hero-panel {
-  border: 0;
-  box-shadow: var(--shadow-elevated);
-}
-
-.app-shell .hero-panel::after {
-  content: none;
-}
-
-.app-shell .catalog-toolbar,
-.app-shell .account-sidebar-panel,
-.app-shell .purchase-card {
+.app-shell .account-sidebar-panel {
   border: 0;
   background: var(--color-surface);
   box-shadow: none;
@@ -70,10 +53,6 @@
   box-shadow: none;
 }
 
-.app-shell .game-card__media::after {
-  content: none;
-}
-
 .app-shell .game-section {
   border: 0;
   border-radius: var(--radius-card);
@@ -81,18 +60,9 @@
   box-shadow: none;
 }
 
-.app-shell .game-section h2,
-.app-shell .page-heading h1 {
-  text-shadow: none;
-}
-
 .app-shell .purchase-card {
   overflow: hidden;
   background: var(--color-surface-2);
-}
-
-.app-shell .purchase-card::before {
-  content: none;
 }
 
 .app-shell .button-primary,
@@ -107,11 +77,6 @@
   background: var(--color-brand-500);
   filter: none;
   box-shadow: none;
-}
-
-.app-shell .button-secondary {
-  border: 0;
-  background: var(--color-surface-2);
 }
 
 .app-shell .surface-chip {
@@ -133,10 +98,6 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-}
-
-.app-shell .page-heading::after {
-  content: none;
 }
 
 .app-shell--private .account-shell {
@@ -164,57 +125,6 @@
   min-height: 25rem;
   padding: 1rem;
   border-radius: var(--radius-card);
-}
-
-.account-sidebar__identity {
-  display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr);
-  gap: 0.85rem;
-  align-items: center;
-  padding: 0.35rem 0.35rem 1.15rem;
-}
-
-.account-sidebar__avatar {
-  width: 3.25rem;
-  aspect-ratio: 1;
-  border: 0;
-  border-radius: 50%;
-  background-color: var(--color-surface-3);
-  background-position: center;
-  background-size: cover;
-  box-shadow: none;
-}
-
-.account-sidebar__user {
-  min-width: 0;
-}
-
-.account-sidebar__user > span {
-  color: var(--color-brand-300);
-  font-family: var(--font-display);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.account-sidebar__user p {
-  margin-top: 0.12rem;
-  overflow: hidden;
-  color: var(--color-ink);
-  font-size: 0.88rem;
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.account-sidebar__user small {
-  display: block;
-  margin-top: 0.12rem;
-  overflow: hidden;
-  color: var(--color-muted-2);
-  font-size: 0.68rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .account-nav {
@@ -437,76 +347,8 @@
   display: none;
 }
 
-.profile-session {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: clamp(1.25rem, 3vw, 1.75rem);
-  background: var(--color-surface);
-}
-
-.profile-session > div {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-}
-
-.profile-session > div > span {
-  display: grid;
-  width: 2.75rem;
-  aspect-ratio: 1;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 0;
-  border-radius: 0.75rem;
-  color: var(--color-muted);
-  background: var(--color-surface-2);
-}
-
-.profile-session h2 {
-  font-size: 0.92rem;
-  font-weight: 750;
-}
-
-.profile-session p {
-  margin-top: 0.2rem;
-  color: var(--color-muted);
-  font-size: 0.74rem;
-}
-
-.profile-logout {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
-  border-radius: 0.65rem;
-  color: var(--color-danger);
-  font-size: 0.74rem;
-  font-weight: 750;
-  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
-}
-
-.profile-logout:hover {
-  border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
-  color: #fecdd3;
-  background: color-mix(in srgb, var(--color-danger) 9%, transparent);
-}
-
-.profile-logout:focus-visible {
-  outline: 2px solid var(--color-danger);
-  outline-offset: 2px;
-}
-
 .app-shell--private .account-content > div {
   min-width: 0;
-}
-
-.app-shell--auth {
-  overflow: hidden;
-  background: var(--color-bg);
 }
 
 .app-shell .catalog-toolbar input,
@@ -515,16 +357,6 @@
   border: 0;
   background: var(--color-surface-2);
   box-shadow: none;
-}
-
-.app-shell .content-hero {
-  border: 0;
-  box-shadow: var(--shadow-elevated);
-}
-
-@media (max-width: 640px) {
-  .app-shell .page-heading { padding: 1.25rem; }
-  .app-shell .game-section { border-radius: 0.75rem; }
 }
 
 .site-nav {

@@ -2,11 +2,6 @@ import { getCoverUrl, getPosterUrl } from "../../utils/media";
 import { formatPrice, isFreeGame } from "../../utils/format";
 import { Icon, icons } from "./Icon";
 
-/**
- * Card de jogo reutilizável.
- * variant: "catalog" (cards de capa no Hub) | "poster" (grade de Todos os jogos) |
- * "library" (Minha Biblioteca) | "wishlist" (Lista de Desejos)
- */
 export function GameCard(game, { variant = "catalog" } = {}) {
   if (variant === "catalog") {
     return `
@@ -53,7 +48,6 @@ export function GameCard(game, { variant = "catalog" } = {}) {
     `;
   }
 
-  // variant === "wishlist"
   const freeGame = isFreeGame(game);
   return `
     <div class="game-card block rounded-[var(--radius-card)] overflow-hidden card-hover group">

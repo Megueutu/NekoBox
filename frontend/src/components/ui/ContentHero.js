@@ -3,7 +3,6 @@
  * Usado por Termos/Privacidade/Acessibilidade (via LegalDocument) e pela landing.
  */
 export function ContentHero({
-  eyebrow,
   titleId,
   title,
   headingTag = "h1",

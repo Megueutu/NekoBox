@@ -51,7 +51,6 @@ export default async function WishlistPage() {
 }
 
 export async function afterRender() {
-  // Remover item da wishlist
   document.querySelectorAll("[data-remove-wishlist]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const gameId = btn.getAttribute("data-remove-wishlist");
@@ -64,7 +63,6 @@ export async function afterRender() {
     });
   });
 
-  // Adicionar ao carrinho a partir da wishlist
   document.querySelectorAll("[data-add-cart]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const gameId = btn.getAttribute("data-add-cart");
@@ -89,7 +87,6 @@ export async function afterRender() {
     });
   });
 
-  // Logout da sidebar
   document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
     await AuthService.logout();
     navigate("/hub");

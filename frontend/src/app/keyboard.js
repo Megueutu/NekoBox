@@ -51,7 +51,7 @@ export function setupKeyboardNavigation(root = document) {
 
     event.preventDefault();
     nextItem.focus();
-    // Grupos de alternância (multi-seleção) só movem o foco; radio/tab também disparam a seleção.
+
     if (!isToggleGroup) nextItem.click();
   };
 

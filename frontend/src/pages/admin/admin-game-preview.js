@@ -123,8 +123,6 @@ export function updateGamePreview(form) {
   const title = form.elements.titulo.value.trim() || "Título do jogo";
   const price = Number(form.elements.preco.value || 0);
   const formattedPrice = formatPrice(Number.isFinite(price) ? price : 0);
-  const status = form.elements.status.value;
-  const statusLabels = { draft: "Rascunho", published: "Publicado", archived: "Arquivado" };
   const tags = form.elements.tags.value
     .split(",")
     .map((tag) => tag.trim())

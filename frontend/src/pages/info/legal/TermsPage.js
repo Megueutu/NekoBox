@@ -70,7 +70,6 @@ const sections = [
 
 export default function TermsPage() {
   return LegalDocument({
-    eyebrow: "Regras da plataforma",
     title: "Termos de Uso",
     introduction: "Estas condições explicam as regras para acessar o NekoBox, adquirir jogos e usar os recursos da sua conta.",
     sections,

@@ -63,7 +63,7 @@ export const AuthService = {
     try {
       await ApiClient.post("/api/auth/logout");
     } catch {
-      // A sessão local também precisa ser encerrada quando o token já expirou.
+      // Ignorar erros de logout, pois o token pode já ter expirado ou sido revogado.
     }
     localStorage.removeItem("access_token");
     localStorage.removeItem("redirect_target");

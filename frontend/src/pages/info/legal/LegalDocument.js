@@ -3,7 +3,7 @@ import { ContentHero } from "../../../components/ui/ContentHero";
 import { GamesService } from "../../../services/games/games.service";
 import { resolveRandomBannerUrl } from "../../../utils/random-banner";
 
-export async function LegalDocument({ eyebrow, title, introduction, sections }) {
+export async function LegalDocument({ title, introduction, sections }) {
   const heroBannerUrl = await resolveRandomBannerUrl(() => GamesService.getAll());
   const shortcuts = sections
     .map(({ id, title: sectionTitle }) => `<a href="#${id}">${sectionTitle}</a>`)

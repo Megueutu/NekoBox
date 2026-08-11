@@ -79,8 +79,7 @@ describe("Hub catalog search", () => {
       <button data-category="Aventura" aria-pressed="false" data-active="false">Aventura</button>
       <button data-category="Roguelike" aria-pressed="false" data-active="false">Roguelike</button>
     `;
-    // O estado do termo de busca é módulo-compartilhado entre testes; garante que nenhum
-    // termo de uma execução anterior interfira no filtro de categorias avaliado aqui.
+
     bindCatalogSearch(games);
     document.getElementById("search-input").dispatchEvent(new Event("input", { bubbles: true }));
 

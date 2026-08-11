@@ -34,7 +34,6 @@ export default async function GamePage({ slug }) {
   const { cart, wishlist, library } = Store.getState();
   const inLibrary = library.some((g) => g.id === game.id);
   const inPersonalCart = cart.some((g) => g.id === game.id && !g.for_gift);
-  const inGiftCart = cart.some((g) => g.id === game.id && g.for_gift);
   const inWishlist = wishlist.some((g) => g.id === game.id);
   const freeGame = isFreeGame(game);
 
@@ -148,14 +147,12 @@ export async function afterRender({ slug }) {
     navigate(`/game/${slug}`);
   });
 
-  // Adicionar ao Carrinho
   document.getElementById("btn-add-cart")?.addEventListener("click", async () => {
     if (!requireLogin()) return;
     await Actions.adicionarAoCarrinho(game);
     navigate(ACCOUNT_PATHS.cart);
   });
 
-  // Alternar Lista de Desejos
   document.getElementById("btn-wishlist")?.addEventListener("click", async () => {
     if (!requireLogin()) return;
     await Actions.alternarListaDesejos(game);
@@ -173,14 +170,10 @@ export async function afterRender({ slug }) {
       const realStart = cards[0].offsetLeft;
       const realEnd = trailingClones[0].offsetLeft;
       const loopWidth = realEnd - realStart;
-      // Metade do espaço sobrando ao redor de um slide: desloca a janela de rolagem
-      // para que o slide ativo fique centralizado, com o anterior/próximo espiando nas bordas.
       const peek = Math.max(0, (rail.clientWidth - cards[0].offsetWidth) / 2);
       const windowStart = realStart - peek;
       const windowEnd = realEnd - peek;
 
-      // Começa com a primeira captura centralizada; a última (clone à esquerda) e a
-      // segunda captura espiam nas laterais, e o arrasto nunca mostra espaço vazio.
       rail.scrollLeft = windowStart;
 
       rail.addEventListener(

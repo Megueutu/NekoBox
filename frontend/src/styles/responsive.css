@@ -28,7 +28,6 @@
   .wallet-balance, .wallet-topup-form { margin-inline: 1.25rem; }
   .wallet-topup-form__controls { grid-template-columns: 1fr; }
   .wallet-topup-form button { min-height: 2.75rem; }
-  .wallet-status { margin-inline: 1.25rem; }
 
   .hero-panel {
     min-height: 27rem;
@@ -171,15 +170,6 @@
     justify-content: center;
     width: 100%;
   }
-
-  .profile-session {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .profile-logout {
-    justify-content: center;
-  }
 }
 
 @media (min-width: 641px) and (max-width: 1023px) {
@@ -214,10 +204,6 @@
 
   .account-sidebar-panel {
     padding: 0.7rem;
-  }
-
-  .account-sidebar__identity {
-    display: none;
   }
 
   .account-nav {

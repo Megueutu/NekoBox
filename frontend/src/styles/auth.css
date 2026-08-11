@@ -51,10 +51,6 @@
   box-shadow: none;
 }
 
-.auth-card::after {
-  content: none;
-}
-
 .auth-card__icon {
   position: relative;
   z-index: 1;
@@ -484,10 +480,6 @@ h3,
 h4 {
   font-family: var(--font-display);
   letter-spacing: -0.015em;
-}
-
-.bold {
-  font-weight: 600;
 }
 
 sub {

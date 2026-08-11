@@ -16,7 +16,6 @@ export default async function CartPage() {
   const cart = await AccountService.getCart();
   Store.setState((state) => ({ ...state, cart }));
 
-  const user = Store.getState().user;
   const total = cart.reduce((acc, game) => acc + game.price * game.quantity, 0);
 
   const content = `

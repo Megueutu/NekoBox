@@ -3,7 +3,7 @@ import { clearSessionState } from "../store/store";
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
 const USE_MOCK_API = import.meta.env.MODE === "development" && Boolean(import.meta.env.VITE_USE_MOCK_API);
 
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(message, status, body) {
     super(message);
     this.name = "ApiError";

@@ -36,7 +36,7 @@ export function renderChatbot() {
         <form class="chatbot__form" data-chatbot-form>
           <label class="sr-only" for="chatbot-input">Mensagem para o GameBot</label>
           <textarea id="chatbot-input" name="message" rows="1" maxlength="2000" placeholder="Pergunte sobre jogos..." required></textarea>
-          <button class="chatbot__send" type="submit"><span class="sr-only">Enviar mensagem</span>${Icon(icons.arrowLeft, { className: "w-4 h-4" })}</button>
+          <button class="chatbot__send" type="submit">${Icon(icons.arrowLeft, { className: "w-4 h-4 chatbot__send-icon" })}</button>
         </form>
       </section>
     </aside>`;
@@ -53,6 +53,7 @@ function appendMessage(messages, content, type) {
 export function setupChatbot() {
   let triggerBeforeOpen = null;
   let closeTimer = null;
+
   const getElements = () => ({ panel: document.getElementById("chatbot-panel"), trigger: document.querySelector("[data-chatbot-toggle]"), backdrop: document.querySelector(".chatbot__backdrop"), input: document.getElementById("chatbot-input") });
   const close = ({ restoreFocus = true } = {}) => {
     const { panel, trigger, backdrop } = getElements();
@@ -106,20 +107,26 @@ export function setupChatbot() {
     const message = input.value.trim();
     const messages = document.querySelector("[data-chatbot-messages]");
     const submitButton = form.querySelector("button[type='submit']");
+
     if (!message || !messages || !submitButton) return;
+    
     appendMessage(messages, message, "user");
     input.value = "";
     submitButton.disabled = true;
-    submitButton.textContent = "Enviando...";
+    
+    
     try {
       const user = Store.getState().user;
       const response = await ChatbotService.sendMessage({ message, sessionId: getSessionId(), userId: user?.id ?? user?.id_usuario ?? null });
       appendMessage(messages, response.response, "bot");
-    } catch {
+    }
+    
+    catch {
       appendMessage(messages, "Não consegui responder agora. Tente novamente em instantes.", "bot");
-    } finally {
+    }
+    
+    finally {
       submitButton.disabled = false;
-      submitButton.textContent = "Enviar";
       input.focus();
     }
   };
