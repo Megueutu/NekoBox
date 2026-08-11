@@ -72,7 +72,6 @@ const sections = [
 
 export default function PrivacyPage() {
   return LegalDocument({
-    eyebrow: "Transparência e proteção",
     title: "Política de Privacidade",
     introduction: "Esta política explica quais dados o NekoBox trata, para quais finalidades e quais escolhas estão disponíveis pra vc.",
     sections,

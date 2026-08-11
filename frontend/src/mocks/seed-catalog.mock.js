@@ -1417,7 +1417,7 @@ Distante da luz dos Vingadores, Logan é arrastado a um conflito que envolve a A
 O combate corpo a corpo prioriza as garras de adamantium e o fator de cura regenerativo, permitindo embates brutais e desmembramentos que refletem a fama do anti-herói nos quadrinhos, além de habilidades sensoriais aguçadas para rastrear inimigos e itens em ambientes semiabertos.
 
 Desenvolvido pela Insomniac Games, mesmo estúdio por trás de Marvel's Spider-Man, o jogo promete uma classificação indicativa mais madura que os títulos anteriores do estúdio, aprofundando o tom violento e psicológico do personagem enquanto expande o universo compartilhado da PlayStation Studios.`,
-    price: 0,
+    price: 339.9,
     releaseDate: "",
     categories: ["Ação", "Aventura", "Mundo Aberto"],
     tags: ["Marvel", "X-Men", "Insomniac Games", "PlayStation"],

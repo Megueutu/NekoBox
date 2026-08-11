@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-// classe para chave composta
 @Embeddable
 @Getter
 @Setter

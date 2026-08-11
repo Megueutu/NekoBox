@@ -1,8 +1,9 @@
 import { Icon, icons } from "./ui/Icon";
+import { fieldTooltip } from "./ui/field-tooltip";
 import { escapeHtml } from "../utils/escape";
 
 function fieldLabel(id, label, { help = "", required = false } = {}) {
-  return `<span class="admin-field__label"><label for="${id}">${label}${required ? '<span class="field-required" aria-hidden="true">*</span>' : ""}</label>${help ? `<button class="field-tooltip" type="button" aria-label="${label}: ${help}" data-tooltip="${help}">${Icon(icons.help, { className: "w-3.5 h-3.5" })}</button>` : ""}</span>`;
+  return `<span class="admin-field__label"><label for="${id}">${label}${required ? '<span class="field-required" aria-hidden="true">*</span>' : ""}</label>${fieldTooltip(label, help)}</span>`;
 }
 
 function mediaLabel(type, position) {

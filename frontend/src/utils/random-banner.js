@@ -24,21 +24,6 @@ export function getBannerCandidates(games, allowedNames = bannerGameNames) {
   );
 }
 
-export function getRandomGameBanner(
-  games,
-  { allowedNames = bannerGameNames, random = Math.random } = {}
-) {
-  const candidates = getBannerCandidates(games, allowedNames);
-  if (candidates.length === 0) return null;
-
-  const game = candidates[Math.floor(safeRandomValue(random) * candidates.length)];
-
-  return {
-    game,
-    url: getBannerUrl(game),
-  };
-}
-
 export function getGameBannerRotation(
   games,
   { allowedNames = bannerGameNames, random = Math.random, limit = 5 } = {}
@@ -55,10 +40,6 @@ export function getGameBannerRotation(
     game,
     url: getBannerUrl(game),
   }));
-}
-
-export function getRandomBannerUrl(games, options) {
-  return getRandomGameBanner(games, options)?.url || null;
 }
 
 export async function resolveRandomBannerUrls(

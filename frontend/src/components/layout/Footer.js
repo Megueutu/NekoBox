@@ -1,9 +1,8 @@
-import { Store } from "../../store/store";
+import { isAuthenticated } from "../../store/store";
 import { ACCOUNT_PATHS } from "../../app/router/account-routes";
 
 export function Footer() {
-  const { user } = Store.getState();
-  const isAuthenticated = Boolean(localStorage.getItem("access_token") && user);
+  const authenticated = isAuthenticated();
 
   return `
     <footer class="site-footer mt-auto">
@@ -34,7 +33,7 @@ export function Footer() {
           <p class="type-small text-[var(--color-ink)] font-semibold mb-3">Conta</p>
           <ul class="space-y-2">
             ${
-              isAuthenticated
+              authenticated
                 ? `
                   <li><a href="${ACCOUNT_PATHS.profile}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Meu Perfil</a></li>
                   <li><a href="${ACCOUNT_PATHS.library}" data-link class="type-small text-muted hover:text-[var(--color-accent-400)] transition-colors">Minha Biblioteca</a></li>

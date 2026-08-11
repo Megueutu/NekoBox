@@ -8,11 +8,13 @@ import { escapeHtml } from "../../utils/escape";
 import { formatDate, money } from "../admin/admin-format";
 import {
   cleanupSelectedMedia,
-  getSelectedMediaUploads,
   removeSelectedMedia,
+  renderSelectedMedia,
+  saveGameWithMedia,
   selectMediaFiles,
   updateGamePreview,
 } from "../admin/admin-game-preview";
+import { bindSidebarLogout } from "../../components/layout/SidebarAccount";
 
 let myGames = [];
 
@@ -113,8 +115,6 @@ function openGameDialog(game = null) {
       idPrefix: "my-game",
       game,
       submitLabel: game ? "Salvar alterações" : "Lançar jogo",
-      introEyebrow: "Seu lançamento",
-      introDescription: "Preencha os dados e acompanhe como o jogo será apresentado no catálogo.",
       mediaDeleteAttribute: "data-my-game-delete-media",
     })}`;
   dialog.showModal();
@@ -131,7 +131,6 @@ async function submitGameForm(form) {
   submit.disabled = true;
   error.classList.add("hidden");
   try {
-    const current = myGames.find((game) => String(game.id) === id);
     const payload = {
       titulo: data.get("titulo"),
       descricao_longa: data.get("descricao_longa"),
@@ -142,13 +141,7 @@ async function submitGameForm(form) {
       updates: [],
       categoria_ids: [],
     };
-    const savedGame = id
-      ? await MyGamesService.updateGame(id, payload)
-      : await MyGamesService.createGame(payload);
-    const uploads = getSelectedMediaUploads(form);
-    for (const upload of uploads) {
-      await MyGamesService.uploadGameMedia(savedGame.id, upload.type, upload.file);
-    }
+    await saveGameWithMedia(MyGamesService, id, payload, form);
     document.getElementById("my-games-dialog").close();
     window.dispatchEvent(new CustomEvent("rerender"));
   } catch (requestError) {
@@ -159,6 +152,8 @@ async function submitGameForm(form) {
 }
 
 export function afterRender() {
+  bindSidebarLogout();
+
   document.querySelector("[data-my-games-dialog-close]")?.addEventListener("click", () => {
     document.getElementById("my-games-dialog")?.close();
   });
@@ -219,7 +214,7 @@ export function afterRender() {
     try {
       await MyGamesService.deleteGameMedia(button.dataset.gameId, button.dataset.myGameDeleteMedia);
       button.closest("[data-existing-media]")?.remove();
-      updateGamePreview(button.form);
+      renderSelectedMedia(button.form);
       showToast("Mídia removida.");
     } catch (error) {
       button.disabled = false;

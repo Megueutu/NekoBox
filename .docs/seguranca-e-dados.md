@@ -9,13 +9,6 @@
 - Toda rota autenticada exige `Authorization: Bearer <token>`; ausência ou token inválido/expirado resulta em `CredenciaisInvalidasException` (401).
 - Rotas administrativas (`/api/admin/**`) chamam `AdminService.exigirAdmin`, que valida `papel == ADMIN` e lança `AccessDeniedException` (403) caso contrário — testado em `AdminFlowTests.shouldRejectARegularUserFromAdminEndpoints`.
 
-## Códigos de presente
-
-- Cada cópia comprada como presente gera um código único (`GeradorCodigoGiftCard`/`CodigoJogoPresenteCipher`). O código é enviado ao comprador; o resgate é feito por **outro** usuário via `/api/biblioteca/resgates`.
-- O comprador não pode resgatar o próprio código (`GameGiftFlowTests.shouldGenerateOneRedeemableCodeForEachGiftCopy` cobre esse caso: "Envie este codigo para um amigo resgatar.").
-- Um código já resgatado não pode ser reutilizado (`409 Conflict`, "Este codigo de jogo ja foi resgatado.").
-- Códigos malformados são rejeitados antes de qualquer consulta ao banco (`shouldRejectMalformedGiftCodeBeforeLookingItUp`), evitando vazamento de informação por diferença de tempo/erro entre "formato inválido" e "não encontrado".
-
 ## CORS
 
 `CorsConfig` restringe `/api/**` às origens definidas em `APP_CORS_ALLOWED_ORIGINS` (padrão: `http://localhost:5173,http://127.0.0.1:5173`), com métodos e cabeçalhos explícitos (`Authorization`, `Content-Type`). Em produção, essa variável deve apontar apenas para o domínio real do frontend.

@@ -2,6 +2,7 @@ import { AccountService } from "../services/account.service";
 import { Store } from "../store/store";
 import { formatPrice } from "../utils/format";
 import { Icon, icons } from "./ui/Icon";
+import { openDialog, closeDialog } from "../utils/dialog";
 
 export function WalletDialog() {
   return `
@@ -60,10 +61,7 @@ export function setupWalletDialog() {
     if (!dialog) return;
     activeTrigger = trigger;
     setStatus("Carregando saldo...");
-    if (typeof dialog.showModal === "function") dialog.showModal();
-    else dialog.setAttribute("open", "");
-
-    dialog.addEventListener("close", () => activeTrigger?.focus(), { once: true });
+    openDialog(dialog, activeTrigger);
     try {
       const wallet = await AccountService.getWallet();
       currentBalance = wallet.saldo;
@@ -78,8 +76,7 @@ export function setupWalletDialog() {
   const closeWallet = () => {
     const dialog = document.getElementById("wallet-dialog");
     if (!dialog) return;
-    if (typeof dialog.close === "function") dialog.close();
-    else dialog.removeAttribute("open");
+    closeDialog(dialog, activeTrigger);
   };
 
   const onClick = (event) => {

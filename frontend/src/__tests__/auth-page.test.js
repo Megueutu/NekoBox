@@ -57,14 +57,6 @@ describe("Authentication page", () => {
     expect(tooltip.classList.contains("field-tooltip--open")).toBe(false);
   });
 
-  it("should render password recovery with a registered email field", () => {
-    const container = document.createElement("div");
-
-    container.innerHTML = renderAuthPage("forgot");
-
-    expect(container.querySelector('#forgot-form input[type="email"]')).not.toBeNull();
-  });
-
   it("should mark password confirmation invalid until both values match", () => {
     document.body.innerHTML = renderAuthPage("register");
     bindAuthInteractions();

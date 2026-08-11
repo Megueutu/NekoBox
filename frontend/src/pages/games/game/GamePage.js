@@ -1,7 +1,7 @@
 import { PublicLayout } from "../../../app/layouts/PublicLayout";
 import { ACCOUNT_PATHS } from "../../../app/router/account-routes";
 import { GamesService } from "../../../services/games/games.service";
-import { Store } from "../../../store/store";
+import { Store, isAuthenticated } from "../../../store/store";
 import { Actions } from "../../../store/actions";
 import { navigate } from "../../../app/router/navigate";
 import { formatPrice, isFreeGame } from "../../../utils/format";
@@ -34,7 +34,6 @@ export default async function GamePage({ slug }) {
   const { cart, wishlist, library } = Store.getState();
   const inLibrary = library.some((g) => g.id === game.id);
   const inPersonalCart = cart.some((g) => g.id === game.id && !g.for_gift);
-  const inGiftCart = cart.some((g) => g.id === game.id && g.for_gift);
   const inWishlist = wishlist.some((g) => g.id === game.id);
   const freeGame = isFreeGame(game);
 
@@ -64,7 +63,6 @@ export default async function GamePage({ slug }) {
 
   const content = `
     <div class="site-container page-stack">
-      <!-- Banner Hero -->
       <section class="hero-panel game-detail-hero"
          style="background-image: url('${banner ? getBannerUrl(game) : getCoverUrl(game)}')">
       <div class="absolute inset-0 bg-black/60"></div>
@@ -78,13 +76,10 @@ export default async function GamePage({ slug }) {
       </div>
     </section>
 
-      <!-- Seção 1: Informações + Compra -->
       <section class="game-layout" aria-label="Informações e compra do jogo">
 
-      <!-- Coluna Principal (Detalhes) -->
       <div class="game-content">
 
-        <!-- Descrição -->
         ${Section({
           title: "Sobre o Jogo",
           body: renderAboutGame(game.long_description, game.tags, game.publisher?.name, game.release_date),
@@ -92,21 +87,17 @@ export default async function GamePage({ slug }) {
 
       </div>
 
-      <!-- Coluna Lateral: Checkout -->
       <aside>
         <div class="purchase-card p-5 space-y-5">
 
-          <!-- Capa pequena -->
           <img src="${getCoverUrl(game)}" alt="Capa de ${game.title}"
                class="w-full aspect-[3/4] object-cover rounded-xl bg-[var(--color-surface-2)]" />
 
-          <!-- Preço -->
           <div>
             <p class="type-eyebrow text-[var(--color-muted-2)]">Preço</p>
             <p class="type-content-title mt-1">${formatPrice(game.price)}</p>
           </div>
 
-          <!-- Botões de Ação -->
           <div class="space-y-2">
             ${buyButton}
             ${!inLibrary ? wishlistButton : ""}
@@ -115,7 +106,6 @@ export default async function GamePage({ slug }) {
       </aside>
       </section>
 
-      <!-- Seção 2: Capturas de Tela (100% da largura da tela) -->
       ${
         screenshots.length
           ? `
@@ -136,8 +126,7 @@ export async function afterRender({ slug }) {
   if (!game) return;
 
   const requireLogin = () => {
-    const isAuthenticated = Boolean(localStorage.getItem("access_token") && Store.getState().user);
-    if (isAuthenticated) return true;
+    if (isAuthenticated()) return true;
     window.alert("Você precisa fazer login para continuar.");
     return false;
   };
@@ -148,14 +137,12 @@ export async function afterRender({ slug }) {
     navigate(`/game/${slug}`);
   });
 
-  // Adicionar ao Carrinho
   document.getElementById("btn-add-cart")?.addEventListener("click", async () => {
     if (!requireLogin()) return;
     await Actions.adicionarAoCarrinho(game);
     navigate(ACCOUNT_PATHS.cart);
   });
 
-  // Alternar Lista de Desejos
   document.getElementById("btn-wishlist")?.addEventListener("click", async () => {
     if (!requireLogin()) return;
     await Actions.alternarListaDesejos(game);
@@ -173,14 +160,10 @@ export async function afterRender({ slug }) {
       const realStart = cards[0].offsetLeft;
       const realEnd = trailingClones[0].offsetLeft;
       const loopWidth = realEnd - realStart;
-      // Metade do espaço sobrando ao redor de um slide: desloca a janela de rolagem
-      // para que o slide ativo fique centralizado, com o anterior/próximo espiando nas bordas.
       const peek = Math.max(0, (rail.clientWidth - cards[0].offsetWidth) / 2);
       const windowStart = realStart - peek;
       const windowEnd = realEnd - peek;
 
-      // Começa com a primeira captura centralizada; a última (clone à esquerda) e a
-      // segunda captura espiam nas laterais, e o arrasto nunca mostra espaço vazio.
       rail.scrollLeft = windowStart;
 
       rail.addEventListener(

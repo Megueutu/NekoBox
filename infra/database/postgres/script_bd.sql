@@ -763,11 +763,6 @@ CROSS JOIN (VALUES
 WHERE u.email = 'catalog@nekobox.local'
 ON CONFLICT (slug) DO NOTHING;
 
--- Remove fotos desatualizadas (URLs antigas da Steam/picsum.photos ou capas provisórias) de
--- jogos que já foram semeados anteriormente, para permitir a reinserção abaixo com as URLs
--- corretas. O INSERT de fotos é idempotente via WHERE NOT EXISTS(produto_id, tipo, posicao) e
--- por isso não substitui uma foto já existente nesse par (tipo, posicao); apagar as linhas
--- desatualizadas é o que garante a correção também em bancos já semeados.
 DELETE FROM fotos f
 USING produtos p
 WHERE f.produto_id = p.id
@@ -784,7 +779,6 @@ WHERE f.produto_id = p.id
     (p.slug = 'doki-doki-literature-club' AND f.tipo = 'poster')
   );
 
--- Corrige preços de jogos que já foram semeados anteriormente com valores provisórios (0.00).
 UPDATE produtos p
 SET preco = corrigido.preco
 FROM (VALUES
@@ -792,7 +786,7 @@ FROM (VALUES
     ('assassins-creed-black-flag-remake', 349.90),
     ('call-of-duty-modern-warfare-4', 349.90),
     ('arc-raiders', 249.90),
-    ('marvels-wolverine', 0.00)
+    ('marvels-wolverine', 349.90)
 ) AS corrigido(slug, preco)
 WHERE p.slug = corrigido.slug AND p.preco <> corrigido.preco;
 

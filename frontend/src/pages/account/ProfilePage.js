@@ -1,11 +1,10 @@
 import { PrivateLayout } from "../../app/layouts/PrivateLayout";
 import { Store } from "../../store/store";
 import { Actions } from "../../store/actions";
-import { navigate } from "../../app/router/navigate";
-import { AuthService } from "../../services/auth.service";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Icon, icons } from "../../components/ui/Icon";
 import { AccountService } from "../../services/account.service";
+import { bindSidebarLogout } from "../../components/layout/SidebarAccount";
 
 export default async function ProfilePage() {
   const user = await AccountService.getProfile();
@@ -123,20 +122,5 @@ export async function afterRender() {
     }
   });
 
-  document.getElementById("btn-delete-account")?.addEventListener("click", async () => {
-    if (!window.confirm("Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.")) return;
-    try {
-      await AccountService.deleteAccount();
-    } catch (error) {
-      window.alert(error.message);
-      return;
-    }
-    await AuthService.logout();
-    navigate("/hub");
-  });
-
-  document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
-    await AuthService.logout();
-    navigate("/hub");
-  });
+  bindSidebarLogout();
 }

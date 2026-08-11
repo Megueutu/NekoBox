@@ -1,13 +1,12 @@
 import { PrivateLayout } from "../../app/layouts/PrivateLayout";
 import { Store } from "../../store/store";
-import { AuthService } from "../../services/auth.service";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Icon, icons } from "../../components/ui/Icon";
 import { AccountService } from "../../services/account.service";
 import { getCoverUrl } from "../../utils/media";
 import { formatDate, formatPlaytime } from "../../utils/format";
-import { navigate } from "../../app/router/navigate";
+import { bindSidebarLogout } from "../../components/layout/SidebarAccount";
 
 export function filterAndSortLibrary(library, query = "", order = "recent") {
   const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
@@ -132,8 +131,5 @@ export async function afterRender() {
   search?.addEventListener("input", renderLibrary);
   sort?.addEventListener("change", renderLibrary);
 
-  document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
-    await AuthService.logout();
-    navigate("/hub");
-  });
+  bindSidebarLogout();
 }

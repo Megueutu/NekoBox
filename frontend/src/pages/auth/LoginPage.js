@@ -20,11 +20,6 @@ const viewContent = {
     description: "Monte sua biblioteca e descubra seu próximo jogo favorito.",
     icon: icons.user,
   },
-  forgot: {
-    title: "Esqueceu sua senha?",
-    description: "Informe o e-mail cadastrado para receber as instruções de recuperação.",
-    icon: icons.mail,
-  },
 };
 
 export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
@@ -34,11 +29,6 @@ export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
     <form id="login-form" class="auth-form">
       ${FormField({ id: "input-email", label: "E-mail", type: "email", placeholder: "seu@email.com" })}
       ${FormField({ id: "input-password", label: "Senha", type: "password", placeholder: "••••••••" })}
-      <div class="auth-form__assist">
-        <button id="btn-forgot-tab" type="button">
-          Esqueci minha senha
-        </button>
-      </div>
       <button id="btn-login-email" type="submit" class="button-primary auth-submit">
         Entrar
       </button>
@@ -59,23 +49,9 @@ export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
     </form>
   `;
 
-  const forgotForm = `
-    <form id="forgot-form" class="auth-form">
-      ${FormField({ id: "input-forgot-email", label: "E-mail cadastrado", type: "email", placeholder: "seu@email.com" })}
-      <button id="btn-send-reset" type="submit" class="button-primary auth-submit">
-        Enviar instruções
-      </button>
-      <button id="btn-back-login" type="button" class="auth-back">
-        ${Icon(icons.arrowLeft, { className: "w-4 h-4" })} Voltar para o login
-      </button>
-      <p id="forgot-msg" class="auth-feedback hidden" role="status"></p>
-    </form>
-  `;
-
   const tabContent = {
     login: loginForm,
     register: registerForm,
-    forgot: forgotForm,
   };
 
   return `
@@ -86,23 +62,17 @@ export function renderAuthCard(view = activeTab, { headingTag = "h1" } = {}) {
         <span>${currentView.description}</span>
       </header>
 
-      ${
-        resolvedView !== "forgot"
-          ? `
-        <div class="auth-tabs" role="tablist" aria-label="Acesso à conta">
-          <button id="tab-login"
-                  type="button" role="tab" aria-selected="${resolvedView === "login"}" aria-controls="form-content" tabindex="${resolvedView === "login" ? "0" : "-1"}">
-            Login
-          </button>
-          <button id="tab-register"
-                  type="button" role="tab" aria-selected="${resolvedView === "register"}" aria-controls="form-content" tabindex="${resolvedView === "register" ? "0" : "-1"}">
-            Cadastro
-          </button>
-        </div>
-      `
-          : ""
-      }
-      <div id="form-content" role="tabpanel" ${resolvedView !== "forgot" ? `aria-labelledby="tab-${resolvedView}"` : ""}>
+      <div class="auth-tabs" role="tablist" aria-label="Acesso à conta">
+        <button id="tab-login"
+                type="button" role="tab" aria-selected="${resolvedView === "login"}" aria-controls="form-content" tabindex="${resolvedView === "login" ? "0" : "-1"}">
+          Login
+        </button>
+        <button id="tab-register"
+                type="button" role="tab" aria-selected="${resolvedView === "register"}" aria-controls="form-content" tabindex="${resolvedView === "register" ? "0" : "-1"}">
+          Cadastro
+        </button>
+      </div>
+      <div id="form-content" role="tabpanel" aria-labelledby="tab-${resolvedView}">
         ${tabContent[resolvedView]}
       </div>
     </section>
@@ -131,6 +101,16 @@ export default function LoginPage() {
 export function resolvePostLoginTarget(user, redirectTarget) {
   if (user?.role === "ADMIN") return "/admin";
   return redirectTarget || "/hub";
+}
+
+function showFieldMessage(el, message) {
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove("hidden");
+}
+
+function hideFieldMessage(el) {
+  el?.classList.add("hidden");
 }
 
 export function bindAuthInteractions(root = document, { dialog = false } = {}) {
@@ -200,12 +180,6 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
   find("#tab-register")?.addEventListener("click", () =>
     showView("register", "#tab-register"),
   );
-  find("#btn-forgot-tab")?.addEventListener("click", () =>
-    showView("forgot", "#input-forgot-email"),
-  );
-  find("#btn-back-login")?.addEventListener("click", () =>
-    showView("login", "#btn-forgot-tab"),
-  );
 
   const registerForm = find("#register-form");
   const validatePasswordConfirmation = () => {
@@ -229,15 +203,12 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
     const email = find("#input-email")?.value;
     const password = find("#input-password")?.value;
     const errEl = find("#login-error");
-    if (errEl) errEl.classList.add("hidden");
+    hideFieldMessage(errEl);
     try {
       const usuario = await AuthService.loginComEmail(email, password);
       redirecionarAposLogin(usuario);
     } catch (err) {
-      if (errEl) {
-        errEl.textContent = err.message;
-        errEl.classList.remove("hidden");
-      }
+      showFieldMessage(errEl, err.message);
     }
   });
 
@@ -249,38 +220,17 @@ export function bindAuthInteractions(root = document, { dialog = false } = {}) {
     const password = find("#input-reg-password")?.value;
     const confirm = find("#input-reg-confirm")?.value;
     const errEl = find("#register-error");
-    if (errEl) errEl.classList.add("hidden");
+    hideFieldMessage(errEl);
 
     if (password !== confirm) {
-      if (errEl) {
-        errEl.textContent = "As senhas não coincidem.";
-        errEl.classList.remove("hidden");
-      }
+      showFieldMessage(errEl, "As senhas não coincidem.");
       return;
     }
     try {
       const usuario = await AuthService.registrar(username, email, password);
       redirecionarAposLogin(usuario);
     } catch (err) {
-      if (errEl) {
-        errEl.textContent = err.message;
-        errEl.classList.remove("hidden");
-      }
-    }
-  });
-
-  find("#forgot-form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const email = find("#input-forgot-email")?.value;
-    const msgEl = find("#forgot-msg");
-    if (!email) return;
-    try {
-      await AuthService.enviarRedefinicaoSenha(email);
-    } catch (error) {
-      if (msgEl) {
-        msgEl.textContent = error.message;
-        msgEl.classList.remove("hidden");
-      }
+      showFieldMessage(errEl, err.message);
     }
   });
 }

@@ -3,20 +3,19 @@ import { ACCOUNT_PATHS } from "../../../app/router/account-routes";
 import { Store } from "../../../store/store";
 import { Actions } from "../../../store/actions";
 import { navigate } from "../../../app/router/navigate";
-import { AuthService } from "../../../services/auth.service";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { getCoverUrl } from "../../../utils/media";
-import { formatPrice } from "../../../utils/format";
+import { formatPrice, sameId } from "../../../utils/format";
 import { Icon, icons } from "../../../components/ui/Icon";
 import { AccountService } from "../../../services/account.service";
 import { validateCheckout } from "./checkout-validation";
+import { bindSidebarLogout } from "../../../components/layout/SidebarAccount";
 
 export default async function CartPage() {
   const cart = await AccountService.getCart();
   Store.setState((state) => ({ ...state, cart }));
 
-  const user = Store.getState().user;
   const total = cart.reduce((acc, game) => acc + game.price * game.quantity, 0);
 
   const content = `
@@ -40,19 +39,16 @@ export default async function CartPage() {
           : `
         <div class="cart-layout grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <!-- Lista de Itens -->
           <div class="cart-items lg:col-span-2 space-y-4">
             ${cart
               .map(
                 (game) => `
               <article class="cart-item panel">
-                <!-- Capa Compacta -->
                 <a href="/game/${game.slug}" data-link class="shrink-0">
                   <div class="cart-item__cover bg-cover bg-center bg-no-repeat rounded-lg bg-[var(--color-surface-2)]"
                        role="img" aria-label="Capa do jogo ${game.title}"
                        style="background-image: url('${getCoverUrl(game)}')"></div>
                 </a>
-                <!-- Infos -->
                 <div class="cart-item__content">
                   ${
                     game.for_gift
@@ -64,10 +60,8 @@ export default async function CartPage() {
                   <p class="type-small font-bold mt-1.5 text-[var(--color-accent-400)]">${game.categories?.[0] || ""}</p>
                 </div>
 
-                <!-- Subtotal -->
                 <p class="cart-item__subtotal">${formatPrice(game.price * game.quantity)}</p>
 
-                <!-- Remover -->
                 <button type="button" data-remove-cart="${game.id}"
                         class="cart-item__remove text-[var(--color-muted-2)] hover:text-[var(--color-danger)] transition-colors" aria-label="Remover ${game.title}">
                   ${Icon(icons.trash)}
@@ -78,7 +72,6 @@ export default async function CartPage() {
               .join("")}
           </div>
 
-          <!-- Resumo do Pedido -->
           <div class="lg:col-span-1">
             <form id="checkout-form" class="checkout-card panel lg:sticky lg:top-24" novalidate>
 
@@ -139,7 +132,7 @@ export async function afterRender() {
   });
 
   const changeQuantity = async (gameId, delta, btn) => {
-    const cartItem = Store.getState().cart.find((game) => String(game.id) === String(gameId));
+    const cartItem = Store.getState().cart.find((game) => sameId(game.id, gameId));
     if (!cartItem) return;
     const nextQuantity = cartItem.quantity + delta;
     if (nextQuantity < 1 || nextQuantity > 10) return;
@@ -240,8 +233,5 @@ export async function afterRender() {
     }
   });
 
-  document.getElementById("btn-sidebar-logout")?.addEventListener("click", async () => {
-    await AuthService.logout();
-    navigate("/hub");
-  });
+  bindSidebarLogout();
 }

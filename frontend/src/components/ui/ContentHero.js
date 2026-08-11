@@ -1,9 +1,4 @@
-/**
- * Hero de página com imagem de fundo em tela cheia (banner + overlay + conteúdo).
- * Usado por Termos/Privacidade/Acessibilidade (via LegalDocument) e pela landing.
- */
 export function ContentHero({
-  eyebrow,
   titleId,
   title,
   headingTag = "h1",

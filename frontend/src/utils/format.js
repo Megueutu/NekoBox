@@ -7,8 +7,13 @@ export function isFreeGame(game) {
   return Number(game?.price) === 0;
 }
 
+export function sameId(a, b) {
+  return String(a) === String(b);
+}
+
 export function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString("pt-BR", {
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? `${dateStr}T00:00:00` : dateStr;
+  return new Date(normalized).toLocaleDateString("pt-BR", {
     day: "2-digit", month: "long", year: "numeric",
   });
 }

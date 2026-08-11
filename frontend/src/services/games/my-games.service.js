@@ -1,18 +1,12 @@
-import { ApiClient } from "../api.client";
-
-const resourceId = (id) => encodeURIComponent(String(id));
+import { ApiClient, toResourceId } from "../api.client";
 
 export const MyGamesService = {
   getMine: () => ApiClient.get("/api/produtos/meus"),
   createGame: (produto) => ApiClient.post("/api/produtos", produto),
-  updateGame: (id, produto) => ApiClient.put(`/api/produtos/${resourceId(id)}`, produto),
-  deleteGame: (id) => ApiClient.delete(`/api/produtos/${resourceId(id)}`),
-  uploadGameMedia(id, type, file) {
-    const body = new FormData();
-    body.append("tipo", type);
-    body.append("arquivo", file);
-    return ApiClient.postForm(`/api/produtos/${resourceId(id)}/fotos`, body);
-  },
+  updateGame: (id, produto) => ApiClient.put(`/api/produtos/${toResourceId(id)}`, produto),
+  deleteGame: (id) => ApiClient.delete(`/api/produtos/${toResourceId(id)}`),
+  uploadGameMedia: (id, type, file) =>
+    ApiClient.uploadMedia(`/api/produtos/${toResourceId(id)}/fotos`, type, file),
   deleteGameMedia: (produtoId, fotoId) =>
-    ApiClient.delete(`/api/produtos/${resourceId(produtoId)}/fotos/${resourceId(fotoId)}`),
+    ApiClient.delete(`/api/produtos/${toResourceId(produtoId)}/fotos/${toResourceId(fotoId)}`),
 };

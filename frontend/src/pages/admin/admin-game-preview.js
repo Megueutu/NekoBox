@@ -123,8 +123,6 @@ export function updateGamePreview(form) {
   const title = form.elements.titulo.value.trim() || "Título do jogo";
   const price = Number(form.elements.preco.value || 0);
   const formattedPrice = formatPrice(Number.isFinite(price) ? price : 0);
-  const status = form.elements.status.value;
-  const statusLabels = { draft: "Rascunho", published: "Publicado", archived: "Arquivado" };
   const tags = form.elements.tags.value
     .split(",")
     .map((tag) => tag.trim())
@@ -212,6 +210,17 @@ export function renderSelectedMedia(form) {
   });
   updateMediaStatus(form);
   updateGamePreview(form);
+}
+
+export async function saveGameWithMedia(service, id, payload, form) {
+  const savedGame = id
+    ? await service.updateGame(id, payload)
+    : await service.createGame(payload);
+  const uploads = getSelectedMediaUploads(form);
+  for (const upload of uploads) {
+    await service.uploadGameMedia(savedGame.id, upload.type, upload.file);
+  }
+  return savedGame;
 }
 
 export function cleanupSelectedMedia(dialog) {
