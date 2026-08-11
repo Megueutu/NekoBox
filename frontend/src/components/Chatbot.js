@@ -30,9 +30,7 @@ export function renderChatbot() {
           </div>
           <button class="chatbot__close" type="button" data-chatbot-close aria-label="Fechar assistente">${Icon(icons.x, { className: "w-4 h-4" })}</button>
         </header>
-        <div class="chatbot__messages" data-chatbot-messages role="log" aria-live="polite" aria-relevant="additions">
-          <p class="chatbot__message chatbot__message--bot">Olá! Estou a sua disposição, qual sua dúvida?</p>
-        </div>
+        <div class="chatbot__messages" data-chatbot-messages role="log" aria-live="polite" aria-relevant="additions"></div>
         <form class="chatbot__form" data-chatbot-form>
           <label class="sr-only" for="chatbot-input">Mensagem para o GameBot</label>
           <textarea id="chatbot-input" name="message" rows="1" maxlength="2000" placeholder="Pergunte sobre jogos..." required></textarea>

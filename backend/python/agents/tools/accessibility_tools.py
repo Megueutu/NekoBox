@@ -101,7 +101,7 @@ def _lighthouse_directories() -> list[Path]:
 
 
 def _lighthouse_files() -> list[Path]:
-    """Retorna apenas relatórios JSON do Lighthouse, em ordem estável."""
+    """Retorna relatórios JSON do Lighthouse, em ordem estável."""
     files: list[Path] = []
     seen: set[Path] = set()
     for directory in _lighthouse_directories():
@@ -118,8 +118,80 @@ def _lighthouse_files() -> list[Path]:
     return sorted(files, key=lambda file: (file.stat().st_mtime, file.name))
 
 
+def _lighthouse_markdown_files() -> list[Path]:
+    """Retorna as cópias versionadas e conhecidas do relatório Lighthouse."""
+    candidates = [
+        PROJECT_ROOT / ".docs" / "lighthouse-report.md",
+        PYTHON_ROOT / "knowledge" / "lighthouse" / "README.md",
+    ]
+    return [candidate for candidate in candidates if candidate.is_file()]
+
+
+def _markdown_cells(line: str) -> list[str]:
+    """Extrai células simples de uma linha de tabela Markdown."""
+    return [
+        re.sub(r"[*`_]", "", cell).strip()
+        for cell in line.strip().strip("|").split("|")
+    ]
+
+
+def _load_markdown_lighthouse_records(path: Path) -> list[dict[str, object]]:
+    """Extrai as execuções de acessibilidade das tabelas de um relatório Markdown."""
+    content = _read_text(path)
+    if not content:
+        return []
+
+    headings = list(re.finditer(
+        r"^##\s+Página\s+(?:inicial|interna)\s+[—-]\s+`(?P<url>[^`]+)`\s*$",
+        content,
+        re.MULTILINE,
+    ))
+    records: list[dict[str, object]] = []
+    try:
+        modified_at = path.stat().st_mtime
+    except OSError:
+        return []
+
+    for index, heading in enumerate(headings):
+        section_end = headings[index + 1].start() if index + 1 < len(headings) else len(content)
+        table_lines = [
+            line for line in content[heading.end():section_end].splitlines()
+            if line.strip().startswith("|")
+        ]
+        if len(table_lines) < 3:
+            continue
+
+        headers = _markdown_cells(table_lines[0])
+        try:
+            score_index = next(
+                index for index, header in enumerate(headers)
+                if header.lower() == "acessibilidade"
+            )
+        except StopIteration:
+            continue
+
+        for row in table_lines[2:]:
+            cells = _markdown_cells(row)
+            if len(cells) <= score_index or not re.fullmatch(r"\d+", cells[0]):
+                continue
+            numeric_score = re.search(r"\d+(?:[.,]\d+)?", cells[score_index])
+            if not numeric_score:
+                continue
+            score = float(numeric_score.group().replace(",", "."))
+            if not 0 <= score <= 100:
+                continue
+            records.append({
+                "source": _display_path(path),
+                "url": heading.group("url"),
+                "score": score,
+                "timestamp": "",
+                "modified_at": modified_at,
+            })
+    return records
+
+
 def _load_lighthouse_record(path: Path) -> dict[str, object] | None:
-    """Extrai somente metadados de acessibilidade de um relatório Lighthouse."""
+    """Extrai somente metadados de acessibilidade de um relatório JSON do Lighthouse."""
     content = _read_text(path)
     if not content:
         return None
@@ -158,8 +230,22 @@ def _measurement_timestamp(record: dict[str, object]) -> float:
     return float(record["modified_at"])
 
 
+def _markdown_lighthouse_records() -> list[dict[str, object]]:
+    """Escolhe uma única cópia Markdown válida para não duplicar medições."""
+    selected: list[dict[str, object]] = []
+    for report in _lighthouse_markdown_files():
+        records = _load_markdown_lighthouse_records(report)
+        if len(records) > len(selected):
+            selected = records
+    return selected
+
+
 def _lighthouse_records() -> list[dict[str, object]]:
-    records = [record for path in _lighthouse_files() if (record := _load_lighthouse_record(path))]
+    json_records = [
+        record for path in _lighthouse_files()
+        if (record := _load_lighthouse_record(path))
+    ]
+    records = json_records or _markdown_lighthouse_records()
     return sorted(records, key=_measurement_timestamp)
 
 
@@ -179,7 +265,7 @@ def _summary_for_page(records: list[dict[str, object]], page_name: str) -> str:
     scores = [float(record["score"]) for record in latest]
     median_score = median(scores)
     status = "atende" if median_score >= 90 else "não atende"
-    sources = ", ".join(str(record["source"]) for record in latest)
+    sources = ", ".join(dict.fromkeys(str(record["source"]) for record in latest))
     formatted_scores = ", ".join(f"{score:.0f}" for score in scores)
     return (
         f"{page_name.capitalize()}: notas {formatted_scores}; mediana {median_score:.0f}. "
@@ -191,7 +277,7 @@ def _lighthouse_summary() -> str:
     records = _lighthouse_records()
     if not records:
         return (
-            "Ainda não há relatórios Lighthouse JSON disponíveis para consulta. "
+            "Ainda não há relatórios Lighthouse disponíveis para consulta. "
             "Isso não significa que o site falhou ou passou: a medição ainda precisa ser registrada."
         )
 
@@ -259,7 +345,7 @@ def get_lighthouse_accessibility_summary() -> str:
     """Mostra as notas Lighthouse de acessibilidade disponíveis e calcula a mediana.
 
     Use ao responder sobre pontuação, auditoria ou comprovação por Lighthouse.
-    A ferramenta apenas interpreta relatórios JSON já salvos; ela não executa o
-    Lighthouse, não inventa notas e não substitui testes manuais.
+    A ferramenta interpreta relatórios JSON ou Markdown já salvos; ela não executa
+    o Lighthouse, não inventa notas e não substitui testes manuais.
     """
     return _lighthouse_summary()
