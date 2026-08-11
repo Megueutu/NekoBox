@@ -6,10 +6,10 @@ Gerado com `npx lighthouse` (Chromium/Edge headless), 3 execuções por página,
 
 | Execução | Performance | Acessibilidade | Boas práticas | SEO |
 | --- | --- | --- | --- | --- |
-| 1 | 72 | 100 | 100 | 92 |
-| 2 | 72 | 100 | 100 | 92 |
-| 3 | 72 | 100 | 100 | 92 |
-| **Média** | **72** | **100** | **100** | **92** |
+| 1 | 80 | 100 | 100 | 92 |
+| 2 | 80 | 100 | 100 | 92 |
+| 3 | 80 | 100 | 100 | 92 |
+| **Média** | **80** | **100** | **100** | **92** |
 
 ## Página interna — `/game/cyberpunk-2077`
 
@@ -25,7 +25,7 @@ Gerado com `npx lighthouse` (Chromium/Edge headless), 3 execuções por página,
 - **Acessibilidade:** 100/100 em ambas as páginas — atingida.
 - **Boas práticas:** 100/100 em ambas as páginas — atingida.
 - **SEO:** 92/100 em ambas as páginas — atingida.
-- **Performance:** 72 (home) e 87 (página interna) — **abaixo da meta**. Diagnóstico e decisão de escopo abaixo.
+- **Performance:** 80 (home) e 87 (página interna) — **abaixo da meta**. Diagnóstico e decisão de escopo abaixo.
 
 ## Bugs de acessibilidade encontrados e corrigidos durante esta checagem
 
