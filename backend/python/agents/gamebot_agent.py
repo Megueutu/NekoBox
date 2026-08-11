@@ -193,7 +193,12 @@ def _is_model_provider_error(error: BaseException) -> bool:
         visited.add(id(current))
         module = type(current).__module__
         class_name = type(current).__name__.lower()
-        if module.startswith(("google.", "langchain_google_genai")):
+        if module.startswith((
+            "google.",
+            "groq.",
+            "langchain_google_genai",
+            "langchain_groq",
+        )):
             return True
         if module.startswith("httpx") and "timeout" in class_name:
             return True
@@ -227,7 +232,7 @@ def chat_with_metadata(
     O MongoDB é usado somente para carregar/gravar o histórico público. Quando ele
     estiver fora, a conversa atual ainda é processada sem memória persistente.
     """
-    if not os.getenv("GOOGLE_API_KEY"):
+    if not (os.getenv("GOOGLE_API_KEY") or os.getenv("GROQ_API_KEY")):
         raise ModelUnavailableError("A configuração do modelo de IA não está disponível.")
 
     config = {

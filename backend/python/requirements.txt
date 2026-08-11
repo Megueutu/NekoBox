@@ -1,6 +1,7 @@
 # Core LLM / Agent
 langchain-core>=0.3.0
 langchain-google-genai>=2.0.0
+langchain-groq==1.1.2
 langgraph>=0.2.0
 
 # API Server
