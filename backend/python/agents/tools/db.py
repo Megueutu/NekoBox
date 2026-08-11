@@ -27,25 +27,62 @@ Uso:
 import logging
 import os
 from contextlib import contextmanager
-from pathlib import Path
+from urllib.parse import quote
 
 import psycopg2
 from psycopg2 import pool
-from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parents[4] / ".env")
+from agents.config import load_project_environment
+
+load_project_environment()
 
 logger = logging.getLogger(__name__)
 
-_DATABASE_URL: str = os.getenv("DATABASE_URL", "")
-if not _DATABASE_URL:
-    _DATABASE_URL = (
+
+def _jdbc_to_postgres_url(jdbc_url: str) -> str:
+    """Converte a URL JDBC opcional do .env em uma DSN aceita pelo psycopg2."""
+    if not jdbc_url.startswith("jdbc:postgresql://"):
+        return ""
+
+    database_url = jdbc_url.removeprefix("jdbc:")
+    username = os.getenv("BD_ADMIN", "").strip()
+    password = os.getenv("BD_SENHA", "")
+    if not username:
+        return database_url
+
+    credentials = quote(username, safe="")
+    if password:
+        credentials += f":{quote(password, safe='')}"
+    scheme, location = database_url.split("://", maxsplit=1)
+    return f"{scheme}://{credentials}@{location}"
+
+
+def _database_url_from_environment() -> str:
+    """Obtém a conexão sem expor ou registrar credenciais."""
+    direct_url = os.getenv("DATABASE_URL", "").strip()
+    if direct_url:
+        return direct_url
+
+    jdbc_url = _jdbc_to_postgres_url(os.getenv("BD_URL", "").strip())
+    if jdbc_url:
+        return jdbc_url
+
+    database = os.getenv("POSTGRES_DB", "").strip()
+    username = os.getenv("POSTGRES_USER", "").strip()
+    password = os.getenv("POSTGRES_PASSWORD", "")
+    host = os.getenv("POSTGRES_HOST", "localhost").strip()
+    port = os.getenv("POSTGRES_PORT", "5433").strip()
+    if not all((database, username, password, host, port)):
+        return ""
+
+    return (
         "postgresql://"
-        f"{os.getenv('POSTGRES_USER', 'nekobox')}:"
-        f"{os.getenv('POSTGRES_PASSWORD', 'nekobox_local')}@"
-        f"localhost:{os.getenv('POSTGRES_PORT', '5433')}/"
-        f"{os.getenv('POSTGRES_DB', 'nekobox')}"
+        f"{quote(username, safe='')}:{quote(password, safe='')}@"
+        f"{host}:{port}/{database}"
     )
+
+
+_DATABASE_URL = _database_url_from_environment()
 
 # ---------------------------------------------------------------------------
 # Connection Pool (singleton)
@@ -108,13 +145,20 @@ def db_available() -> bool:
     if p is None:
         return False
 
+    conn = None
     try:
         conn = p.getconn()
-        conn.cursor().execute("SELECT 1")
-        p.putconn(conn)
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT 1")
         return True
     except Exception:
         return False
+    finally:
+        if conn is not None:
+            try:
+                p.putconn(conn)
+            except Exception:
+                logger.warning("Não foi possível devolver conexão do health check ao pool.")
 
 
 @contextmanager

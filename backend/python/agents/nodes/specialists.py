@@ -148,3 +148,47 @@ def specialist_general(state: dict) -> dict:
     context = _build_context(state, "")
     response = _get_general_llm().invoke(context)
     return {"messages": [response]}
+
+
+@cache
+def _get_accessibility_llm():
+    """LLM do especialista em acessibilidade, sem acesso a dados de conta."""
+    return ChatGoogleGenerativeAI(
+        model=_MODEL,
+        temperature=0.1,
+        max_output_tokens=700,
+    )
+
+
+def _latest_human_question(state: dict) -> str:
+    """Extrai a pergunta atual para orientar a recuperação local de contexto."""
+    for message in reversed(state.get("messages", [])):
+        if isinstance(message, HumanMessage) and isinstance(message.content, str):
+            return message.content
+    return "Quais recursos de acessibilidade o NekoBox oferece?"
+
+
+def specialist_accessibility(state: dict) -> dict:
+    """Explica acessibilidade em português simples com contexto RAG local."""
+    from agents.tools.accessibility_tools import (
+        get_lighthouse_accessibility_summary,
+        search_accessibility_knowledge,
+    )
+    from prompt.prompts import PROMPT_ESPECIALISTA_ACESSIBILIDADE
+
+    question = _latest_human_question(state)
+    knowledge = search_accessibility_knowledge.invoke({"question": question})
+    lighthouse = get_lighthouse_accessibility_summary.invoke({})
+    context = _build_context(state, PROMPT_ESPECIALISTA_ACESSIBILIDADE)
+    context.insert(
+        1,
+        SystemMessage(
+            content=(
+                "EVIDÊNCIAS RECUPERADAS LOCALMENTE — use apenas estes fatos para "
+                "afirmações sobre o NekoBox. Ausência de relatório não é aprovação.\n\n"
+                f"{knowledge}\n\n{lighthouse}"
+            )
+        ),
+    )
+    response = _get_accessibility_llm().invoke(context)
+    return {"messages": [response]}

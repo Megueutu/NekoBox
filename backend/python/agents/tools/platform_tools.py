@@ -37,6 +37,16 @@ def _format_price(value) -> str:
     return f"R$ {float(value):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def _build_search_pattern(value: str) -> str | None:
+    """Normaliza texto e escapa curingas para buscas ILIKE literais."""
+    term = " ".join(value.split())
+    if not term:
+        return None
+
+    escaped = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escaped}%"
+
+
 def _get_usuario_id(config: RunnableConfig) -> int | None:
     """Extrai usuario_id do configurable injetado pelo orquestrador."""
     return config.get("configurable", {}).get("usuario_id")
@@ -49,15 +59,18 @@ def _get_usuario_id(config: RunnableConfig) -> int | None:
 @tool
 def search_games(query: str) -> str:
     """
-    Busca jogos disponíveis na plataforma pelo nome, descrição ou categoria.
+    Busca jogos publicados na plataforma pelo nome, descrição ou categoria.
     Use quando o usuário pedir recomendações ou quiser saber se um jogo existe.
     Retorna lista resumida com nome, categoria, preço e avaliação média.
     Parâmetro query: nome, gênero ou termo de busca (ex: 'RPG', 'Elden Ring').
     """
+    search_term = _build_search_pattern(query)
+    if search_term is None:
+        return "Informe o nome, categoria ou outro termo para buscar jogos."
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                search_term = f"%{query}%"
                 cur.execute("""
                     SELECT DISTINCT p.id, p.titulo, p.preco, p.descricao_curta,
                            COALESCE(AVG(a.nota), 0) as media_nota,
@@ -66,12 +79,15 @@ def search_games(query: str) -> str:
                     LEFT JOIN avaliacoes a ON a.produto_id = p.id
                     LEFT JOIN produtos_categorias pc ON pc.produto_id = p.id
                     LEFT JOIN categorias c ON c.id = pc.categoria_id
-                    WHERE p.titulo ILIKE %s
-                       OR p.descricao_curta ILIKE %s
-                       OR p.descricao_longa ILIKE %s
-                       OR c.nome ILIKE %s
+                    WHERE p.status = 'published'
+                      AND (
+                          p.titulo ILIKE %s ESCAPE '\\'
+                          OR p.descricao_curta ILIKE %s ESCAPE '\\'
+                          OR p.descricao_longa ILIKE %s ESCAPE '\\'
+                          OR c.nome ILIKE %s ESCAPE '\\'
+                      )
                     GROUP BY p.id, p.titulo, p.preco, p.descricao_curta
-                    ORDER BY media_nota DESC
+                    ORDER BY media_nota DESC, p.titulo ASC
                     LIMIT 5
                 """, (search_term, search_term, search_term, search_term))
 
@@ -98,15 +114,18 @@ def search_games(query: str) -> str:
 @tool
 def get_game_info(game_name: str) -> str:
     """
-    Retorna detalhes de um jogo específico da plataforma: preço, descrição,
-    categorias e avaliação média.
+    Retorna detalhes de um jogo publicado: preço, descrição, categorias e avaliação.
     Use quando o usuário perguntar sobre preço, descrição ou detalhes de um jogo.
     Parâmetro game_name: nome exato ou parcial do jogo.
     """
+    search_term = _build_search_pattern(game_name)
+    if search_term is None:
+        return "Informe o nome do jogo que deseja consultar."
+
+    normalized_name = " ".join(game_name.split())
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                search_term = f"%{game_name}%"
                 cur.execute("""
                     SELECT p.id, p.titulo, p.preco, p.descricao_curta, p.descricao_longa,
                            COALESCE(AVG(a.nota), 0) as media_nota,
@@ -116,17 +135,20 @@ def get_game_info(game_name: str) -> str:
                     LEFT JOIN avaliacoes a ON a.produto_id = p.id
                     LEFT JOIN produtos_categorias pc ON pc.produto_id = p.id
                     LEFT JOIN categorias c ON c.id = pc.categoria_id
-                    WHERE p.titulo ILIKE %s
+                    WHERE p.status = 'published'
+                      AND p.titulo ILIKE %s ESCAPE '\\'
                     GROUP BY p.id, p.titulo, p.preco, p.descricao_curta, p.descricao_longa
+                    ORDER BY CASE WHEN LOWER(p.titulo) = LOWER(%s) THEN 0 ELSE 1 END,
+                             p.titulo ASC
                     LIMIT 1
-                """, (search_term,))
+                """, (search_term, normalized_name))
 
                 row = cur.fetchone()
     except ConnectionError:
         return DB_UNAVAILABLE_MSG
 
     if not row:
-        return f"Jogo '{game_name}' não encontrado na plataforma."
+        return f"Jogo '{normalized_name}' não encontrado na plataforma."
 
     _id, titulo, preco, desc_curta, desc_longa, media, total_av, categorias = row
     nota_str = f"{float(media):.1f}/5 ({total_av} avaliações)" if media else "Sem avaliações"
@@ -146,20 +168,25 @@ def get_game_info(game_name: str) -> str:
 @tool
 def get_game_reviews(game_name: str) -> str:
     """
-    Retorna as avaliações recentes de um jogo específico.
+    Retorna as avaliações recentes de um jogo publicado.
     Use quando o usuário quiser saber opiniões de outros jogadores sobre um jogo.
     Parâmetro game_name: nome do jogo.
     """
+    search_term = _build_search_pattern(game_name)
+    if search_term is None:
+        return "Informe o nome do jogo cujas avaliações deseja consultar."
+
+    normalized_name = " ".join(game_name.split())
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                search_term = f"%{game_name}%"
                 cur.execute("""
                     SELECT u.nome_usuario, a.nota, a.recomenda, a.texto_avaliacao
                     FROM avaliacoes a
                     JOIN produtos p ON p.id = a.produto_id
                     JOIN usuarios u ON u.id = a.usuario_id
-                    WHERE p.titulo ILIKE %s
+                    WHERE p.status = 'published'
+                      AND p.titulo ILIKE %s ESCAPE '\\'
                     ORDER BY a.criado_em DESC
                     LIMIT 5
                 """, (search_term,))
@@ -169,7 +196,7 @@ def get_game_reviews(game_name: str) -> str:
         return DB_UNAVAILABLE_MSG
 
     if not rows:
-        return f"Nenhuma avaliação encontrada para '{game_name}'."
+        return f"Nenhuma avaliação encontrada para '{normalized_name}'."
 
     reviews = []
     for nome, nota, recomenda, texto in rows:
@@ -315,19 +342,19 @@ def check_payment_status(config: RunnableConfig) -> str:
 @tool
 def escalate_to_support(reason: str) -> str:
     """
-    Encaminha o usuário para o suporte humano especializado.
+    Orienta o usuário a procurar o suporte humano pelo canal oficial.
     Use SOMENTE quando: (1) o problema técnico for complexo demais para resolver
     via chat, (2) envolver transações financeiras, reembolsos ou cobranças,
     ou (3) o usuário solicitar explicitamente falar com um humano.
-    Parâmetro reason: motivo resumido do encaminhamento (máx 100 chars).
+    Esta ferramenta não cria tickets, protocolos nem envia mensagens ao suporte.
+    Parâmetro reason: motivo resumido para o usuário informar ao suporte (máx. 100 chars).
     """
-    reason_trimmed = reason[:100]
+    reason_trimmed = reason.strip()[:100] or "Problema informado no atendimento pelo chat"
     return (
-        "✅ Encaminhamento registrado!\n"
-        f"Motivo: {reason_trimmed}\n"
-        "Um agente humano entrará em contato em até **30 minutos** pelo chat ou "
-        "pelo e-mail cadastrado na sua conta. Protocolo gerado: #SUP-"
-        + str(abs(hash(reason_trimmed)) % 100000).zfill(5)
+        "Não consigo abrir um chamado nem gerar um protocolo por este chat.\n"
+        f"Resumo para informar ao suporte: {reason_trimmed}\n"
+        "Para falar com uma pessoa, use o canal oficial de suporte da NekoBox "
+        "disponível na plataforma."
     )
 
 
