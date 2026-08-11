@@ -23,13 +23,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from prompt.prompts import PROMPT_ROUTER
 
 # ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
-
-CONFIDENCE_THRESHOLD: float = 0.6  # Abaixo disso → fallback para "geral"
-
-
-# ---------------------------------------------------------------------------
 # LLM (lazy singleton)
 # ---------------------------------------------------------------------------
 
@@ -52,7 +45,7 @@ def route_intent(state: dict) -> dict:
     Classifica a intenção da mensagem do usuário.
 
     Retorna:
-      {"intent": "recomendacao" | "suporte" | "vendas" | "geral"}
+      {"intent": "recomendacao" | "suporte" | "vendas" | "acessibilidade" | "geral"}
     """
     messages = state.get("messages", [])
 
@@ -81,11 +74,8 @@ def route_intent(state: dict) -> dict:
 
         result = json.loads(response.content)
         intent = result.get("intencao", "geral")
-        confidence = result.get("confianca", 0.0)
-
-        # Se confiança baixa, fallback para geral
-        valid_intents = {"recomendacao", "suporte", "vendas", "geral"}
-        if intent not in valid_intents or confidence < CONFIDENCE_THRESHOLD:
+        valid_intents = {"recomendacao", "suporte", "vendas", "acessibilidade", "geral"}
+        if intent not in valid_intents:
             return {"intent": "geral"}
 
         return {"intent": intent}
@@ -110,6 +100,7 @@ def get_specialist_route(state: dict) -> str:
         "recomendacao": "specialist_recommendation",
         "suporte": "specialist_support",
         "vendas": "specialist_sales",
+        "acessibilidade": "specialist_accessibility",
         "geral": "specialist_general",
     }
 

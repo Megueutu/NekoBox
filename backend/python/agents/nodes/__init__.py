@@ -1,10 +1,9 @@
-"""
-agents.nodes — Nós do grafo LangGraph
-"""
+"""agents.nodes — Nós do grafo LangGraph."""
 
 from agents.nodes.guardrail import input_guard, output_guard
 from agents.nodes.router import route_intent
 from agents.nodes.specialists import (
+    specialist_accessibility,
     specialist_general,
     specialist_recommendation,
     specialist_sales,
@@ -15,6 +14,7 @@ __all__ = [
     "input_guard",
     "output_guard",
     "route_intent",
+    "specialist_accessibility",
     "specialist_general",
     "specialist_recommendation",
     "specialist_support",
