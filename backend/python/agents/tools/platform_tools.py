@@ -315,19 +315,19 @@ def check_payment_status(config: RunnableConfig) -> str:
 @tool
 def escalate_to_support(reason: str) -> str:
     """
-    Encaminha o usuário para o suporte humano especializado.
+    Orienta o usuário a procurar o suporte humano pelo canal oficial.
     Use SOMENTE quando: (1) o problema técnico for complexo demais para resolver
     via chat, (2) envolver transações financeiras, reembolsos ou cobranças,
     ou (3) o usuário solicitar explicitamente falar com um humano.
-    Parâmetro reason: motivo resumido do encaminhamento (máx 100 chars).
+    Esta ferramenta não cria tickets, protocolos nem envia mensagens ao suporte.
+    Parâmetro reason: motivo resumido para o usuário informar ao suporte (máx. 100 chars).
     """
-    reason_trimmed = reason[:100]
+    reason_trimmed = reason.strip()[:100] or "Problema informado no atendimento pelo chat"
     return (
-        "✅ Encaminhamento registrado!\n"
-        f"Motivo: {reason_trimmed}\n"
-        "Um agente humano entrará em contato em até **30 minutos** pelo chat ou "
-        "pelo e-mail cadastrado na sua conta. Protocolo gerado: #SUP-"
-        + str(abs(hash(reason_trimmed)) % 100000).zfill(5)
+        "Não consigo abrir um chamado nem gerar um protocolo por este chat.\n"
+        f"Resumo para informar ao suporte: {reason_trimmed}\n"
+        "Para falar com uma pessoa, use o canal oficial de suporte da NekoBox "
+        "disponível na plataforma."
     )
 
 

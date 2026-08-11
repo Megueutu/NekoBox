@@ -130,15 +130,35 @@ Principais recursos REST:
 
 O schema versionado está em [`infra/database/postgres/script_bd.sql`](./infra/database/postgres/script_bd.sql). Ele cria usuários, produtos, mídias, categorias, carrinho, pagamentos, biblioteca, avaliações, sessões, gift cards e códigos de jogos-presente, incluindo chaves, relacionamentos, índices e restrições.
 
+## Memória do GameBot
+
+O PostgreSQL continua armazenando dados do marketplace. O histórico público do GameBot é armazenado separadamente no MongoDB e é lido do ambiente — nunca de variáveis `VITE_*`:
+
+```env
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DATABASE=nekobox
+MONGODB_CONVERSATIONS_COLLECTION=chat_mensagens
+MONGODB_SERVER_SELECTION_TIMEOUT_MS=3000
+```
+
+O histórico guarda apenas a pergunta e a resposta final de cada turno, mantém no máximo 20 mensagens por sessão e expira a sessão após 30 dias sem novas mensagens. A cada consulta, o GameBot usa até os últimos 18 registros para manter pares completos antes da nova pergunta. Se o MongoDB estiver indisponível, o GameBot responde sem memória persistente; a indisponibilidade pode ser verificada no campo `conversation_memory` de `/health`.
+
 ## Testes locais opcionais
 
 Os testes também podem ser executados fora do Docker se Java 21 e Node.js 22 estiverem instalados.
 
-Backend no PowerShell:
+Backend Java no PowerShell:
 
 ```powershell
 cd backend\api
 .\mvnw.cmd test
+```
+
+GameBot Python (sem chamar Gemini nem o banco real):
+
+```powershell
+cd backend\python
+python -m unittest discover -s tests -v
 ```
 
 Frontend:

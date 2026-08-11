@@ -15,13 +15,12 @@ Uso rápido:
     # Streaming (LangGraph nativo)
     from langchain_core.messages import HumanMessage
     for chunk in graph.stream(
-        {"messages": [HumanMessage(content="Olá!")], "summary": "", "intent": "", "blocked": False},
-        config={"configurable": {"thread_id": "user-123"}},
+        {"messages": [HumanMessage(content="Olá!")], "intent": "", "blocked": False},
         stream_mode="values",
     ):
         print(chunk["messages"][-1].content)
 """
 
-from agents.gamebot_agent import chat, graph
+from agents.gamebot_agent import chat, chat_with_metadata, graph
 
-__all__ = ["graph", "chat"]
+__all__ = ["graph", "chat", "chat_with_metadata"]
